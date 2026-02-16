@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>จัดการเกณฑ์และคะแนน - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="notifications-wrapper" style="position: relative; margin-right: 25px; cursor: pointer;">
+                    <i class="fas fa-bell" id="bellIcon" style="font-size: 1.4rem; color: #555;"></i>
+                    <span id="badge"
+                        style="display:none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.7rem; font-weight: bold; line-height: 1;">0</span>
+                    <div id="notifDropdown"
+                        style="display:none; position: absolute; top: 40px; right: -10px; width: 300px; background: white; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; border-radius: 6px; overflow: hidden;">
+                        <div
+                            style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: 600; color: #333;">
+                            การแจ้งเตือน</div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <i class="fas fa-user-shield"></i> ผู้ดูแลระบบ
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2><i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน</h2>
+                        <a href="{{ url_for('edit_criteria', year='new') }}" class="btn-primary">
+                            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
+                        </a>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>ปีงบประมาณ</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in criteria %}
+                            <tr>
+                                <td>{{ item.fiscal_year }}</td>
+                                <td><span class="badge-success">ใช้งาน</span></td>
+                                <td>
+                                    <a href="{{ url_for('edit_criteria', year=item.fiscal_year) }}" class="btn-warning"
+                                        style="text-decoration: none; padding: 5px 10px; font-size: 14px; border-radius: 4px;">
+                                        <i class="fas fa-edit"></i> แก้ไข
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" style="text-align: center;">ไม่พบข้อมูลเกณฑ์</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

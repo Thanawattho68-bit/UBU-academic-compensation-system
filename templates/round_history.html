@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ประวัติรอบการพิจารณา - ระบบค่าตอบแทน</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="card">
+                    <h3><i class="fas fa-history"></i> ประวัติรอบการพิจารณา</h3>
+                    <div class="table-container">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>ชื่อรอบ / ครั้งที่ประชุม</th>
+                                    <th>วันที่ประชุม</th>
+                                    <th>วันที่สร้าง</th>
+                                    <th>จำนวนคำขอ</th>
+                                    <th>สถานะ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for b in batches %}
+                                <tr>
+                                    <td>
+                                        <strong>{{ b.name }}</strong>
+                                        <div style="font-size: 0.8em; color: #666;">{{ b.id }}</div>
+                                    </td>
+                                    <td>{{ b.meeting_date if b.meeting_date else '-' }}</td>
+                                    <td>{{ b.created_date }}</td>
+                                    <td style="text-align: center;">{{ b.req_ids|length }} รายการ</td>
+                                    <td>
+                                        <span class="status-tag status-{{ b.status }}">
+                                            {{ b.status }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <a href="{{ url_for('view_round', round_id=b.id) }}" class="btn-view"
+                                            style="padding: 5px 10px;">
+                                            <i class="fas fa-search"></i> ดูรายละเอียด
+                                        </a>
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 30px; color: #999;">
+                                        <i class="fas fa-history" style="font-size: 2em; margin-bottom: 10px;"></i><br>
+                                        ยังไม่มีประวัติรอบการพิจารณา
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

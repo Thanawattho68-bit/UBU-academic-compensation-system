@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดรอบการพิจารณา - {{ batch.name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .summary-box {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .stat-item {
+            display: inline-block;
+            margin-right: 30px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .stat-label {
+            color: #6c757d;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-profile">
+                    <h1>{{ batch.name }}</h1>
+                </div>
+                <div>
+                    <span class="status-tag status-{{ batch.status }}">
+                        {{ batch.status }}
+                    </span>
+                </div>
+            </header>
+
+            <section class="content-area">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- 1. Executive Summary -->
+                <div class="summary-box">
+                    <h3><i class="fas fa-chart-pie"></i> บทสรุปผู้บริหาร</h3>
+                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap; margin-top: 20px;">
+                        <div class="stat-item">
+                            <div class="stat-value">{{ summary.applicant_count }} / {{ summary.total_eligible }}</div>
+                            <div class="stat-label">ผู้ยื่นคำขอ / ผู้มีสิทธิ์ทั้งหมด</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">{{ summary.request_count }}</div>
+                            <div class="stat-label">จำนวนผลงานขอรับรางวัล</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value" style="color: var(--success-color);">
+                                {% set amt = summary.total_amount|float %}
+                                {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
+                            </div>
+                            <div class="stat-label">ยอดเงินรวมที่เสนออนุมัติ (บาท)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Breakdown by Person -->
+                <div class="card">
+                    <form method="POST" id="batchForm">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h3 style="margin: 0;"><i class="fas fa-users"></i> สรุปรายละเอียดรายบุคคล</h3>
+
+                            {% if role == 'committee' and batch.status == 'รอการพิจารณา' %}
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" class="btn-danger" style="padding: 8px 15px;"
+                                    onclick="markSelected('reject')">
+                                    <i class="fas fa-times"></i> ไม่อนุมัติ
+                                </button>
+                                <button type="button" class="btn-success" style="padding: 8px 15px;"
+                                    onclick="markSelected('approve')">
+                                    <i class="fas fa-check"></i> อนุมัติ
+                                </button>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="table-container">
+                            <table class="styled-table" id="personTable">
+                                <thead>
+                                    <tr>
+                                        {% if role == 'committee' and batch.status == 'รอการพิจารณา' %}
+                                        <th style="width: 40px; text-align: center;">
+                                            <input type="checkbox" onchange="toggleAll(this)"
+                                                style="transform: scale(1.2);">
+                                        </th>
+                                        {% endif %}
+                                        <th>ผู้ยื่น/ตำแหน่ง</th>
+                                        <th>ชื่อผลงาน</th>
+                                        <th style="text-align: center;">ประเภท</th>
+                                        <th style="text-align: center;">คะแนน</th>
+                                        <th style="text-align: right;">เงินค่าตอบแทน (บาท)</th>
+                                        <th style="width: 120px; text-align: center;">สถานะ</th>
+                                        <th style="width: 200px;">หมายเหตุ</th>
+                                        <th style="width: 80px; text-align: center;">รายละเอียด</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for p in summary.works_breakdown %}
+                                    {% set work_unique_id = p.req_id ~ "_" ~ p.work_index %}
+                                    <tr id="row-{{ loop.index }}">
+                                        {% if role == 'committee' and batch.status == 'รอการพิจารณา' %}
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" name="selected_works" value="{{ work_unique_id }}"
+                                                class="work-checkbox" style="transform: scale(1.2);">
+                                            <input type="hidden" name="status_{{ work_unique_id }}"
+                                                id="status-{{ work_unique_id }}" value="pending">
+                                        </td>
+                                        {% endif %}
+                                        <td>
+                                            <strong>{{ p.name }}</strong><br>
+                                            <small style="color: #666;">{{ p.position }} | {{ p.department }}</small>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 500;">{{ p.work_title }}</div>
+                                            <small style="color: #999;">ID: {{ p.req_id }}</small>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span class="status-tag"
+                                                style="background: #e9ecef; color: #495057; font-size: 0.8em; border: none;">
+                                                {{ p.work_type | translate_work_type }}
+                                            </span>
+                                        </td>
+                                        <td style="text-align: center; font-weight: bold; color: var(--accent-color);">
+                                            {{ (p.score|float)|string if (p.score|float)|string|length < 7 else "%.3f"
+                                                |format(p.score|float) }} </td>
+                                        <td
+                                            style="text-align: right; font-weight: bold; color: #999; font-style: italic;">
+                                            -
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <span id="display-status-{{ work_unique_id }}"
+                                                class="status-tag status-{{ p.status }}">{{ p.status }}</span>
+                                        </td>
+                                        <td>
+                                            {% if role == 'committee' and batch.status == 'รอการพิจารณา' %}
+                                            <input type="text" name="comment_{{ work_unique_id }}"
+                                                id="comment-{{ work_unique_id }}" class="form-control"
+                                                placeholder="ระบุเหตุผล (กรณีไม่อนุมัติ)"
+                                                style="width: 100%; padding: 5px;" value="{{ p.comment }}">
+                                            {% else %}
+                                            {{ p.comment or '-' }}
+                                            {% endif %}
+                                        </td>
+                                        <td style="text-align: center;">
+                                            <a href="{{ url_for('view_work', req_id=p.req_id, work_index=p.work_index) }}"
+                                                target="_blank" class="btn-view"
+                                                style="padding: 5px 10px; font-size: 0.8em;">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr style="background: #f8f9fa; font-weight: bold; border-top: 2px solid #ddd;">
+                                        <td colspan="{{ '5' if role == 'committee' and batch.status == 'รอการพิจารณา' else '4' }}"
+                                            style="text-align: right;">รวมทั้งสิ้น</td>
+                                        <td style="text-align: right; color: var(--primary-color); font-size: 1.1em;">
+                                            {% set amt = summary.total_amount|float %}
+                                            {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
+                                        </td>
+                                        <td colspan="3"></td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+
+                        <!-- Bottom Action -->
+                        {% if role == 'committee' and batch.status == 'รอการพิจารณา' %}
+                        <div class="form-actions" style="margin-top: 30px; display: flex; justify-content: center;">
+                            <button type="button" onclick="validateAndSubmit()" class="btn-primary"
+                                style="padding: 12px 30px; font-size: 1.1em;">
+                                <i class="fas fa-bullhorn"></i> ประกาศผลพิจารณา
+                            </button>
+                            <!-- Hidden submit trigger -->
+                            <button type="submit" name="action" value="announce_results" id="realSubmitBtn"
+                                style="display:none;"></button>
+                        </div>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <script>
+                    // Bulk Action Logic
+                    function toggleAll(source) {
+                        const checkboxes = document.querySelectorAll('.work-checkbox');
+                        for (var i = 0, n = checkboxes.length; i < n; i++) {
+                            checkboxes[i].checked = source.checked;
+                        }
+                    }
+
+                    function markSelected(action) {
+                        const checkedBoxes = document.querySelectorAll('.work-checkbox:checked');
+                        if (checkedBoxes.length === 0) {
+                            alert('กรุณาเลือกรายการที่ต้องการจัดการ');
+                            return;
+                        }
+
+                        checkedBoxes.forEach(box => {
+                            const uniqueId = box.value; // reqId_index
+                            const statusInput = document.getElementById('status-' + uniqueId);
+                            const displaySpan = document.getElementById('display-status-' + uniqueId);
+
+                            statusInput.value = action; // 'approve' or 'reject'
+
+                            if (action === 'approve') {
+                                displaySpan.innerText = 'อนุมัติ';
+                                displaySpan.className = 'status-tag status-อนุมัติ'; // Green
+                                box.closest('tr').style.backgroundColor = '#f0fff4';
+                            } else {
+                                displaySpan.innerText = 'ไม่อนุมัติ';
+                                displaySpan.className = 'status-tag status-ไม่อนุมัติ'; // Red
+                                box.closest('tr').style.backgroundColor = '#fff5f5';
+                            }
+
+                            box.checked = false;
+                        });
+
+                        const selectAll = document.querySelector('input[onchange="toggleAll(this)"]');
+                        if (selectAll) selectAll.checked = false;
+                    }
+
+                    function validateAndSubmit() {
+                        const allStatusInputs = document.querySelectorAll('input[name^="status_"]');
+                        let isValid = true;
+                        let firstError = null;
+
+                        allStatusInputs.forEach(input => {
+                            const uniqueId = input.id.replace('status-', '');
+                            const status = input.value;
+                            const commentInput = document.getElementById('comment-' + uniqueId);
+
+                            // Check if rejected but no comment
+                            if (status === 'reject') {
+                                if (!commentInput.value.trim()) {
+                                    isValid = false;
+                                    commentInput.style.border = '2px solid red';
+                                    if (!firstError) firstError = commentInput;
+                                } else {
+                                    commentInput.style.border = ''; // Reset
+                                }
+                            }
+                        });
+
+                        if (!isValid) {
+                            alert('กรุณาระบุหมายเหตุสำหรับรายการที่ไม่อนุมัติการอนุมัติ');
+                            if (firstError) firstError.focus();
+                            return;
+                        }
+
+                        document.getElementById('realSubmitBtn').click();
+                    }
+                </script>
+
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

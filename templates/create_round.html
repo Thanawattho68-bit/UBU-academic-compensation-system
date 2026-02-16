@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>สร้างรอบพิจารณาใหม่ - ระบบค่าตอบแทน</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="card">
+                    <h3><i class="fas fa-folder-plus"></i> สร้างรอบพิจารณาใหม่</h3>
+                    <p>เลือกรายการคำขอที่พร้อมเสนอ (สถานะ: รอเสนอ) เพื่อจัดเข้าชุด</p>
+
+                    <form method="POST" action="{{ url_for('manage_rounds') }}">
+                        <div class="table-container">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th style="width: 50px; text-align: center;">เลือก</th>
+                                        <th>คณะ/สาขา</th>
+                                        <th>ผู้ยื่นคำขอ</th>
+                                        <th>ประเภทผลงาน</th>
+                                        <th>ปีงบฯ</th>
+                                        <th>จำนวนเงิน</th>
+                                        <th>วันที่ยื่น</th>
+                                        <th>ตรวจสอบ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for r in pending_reqs %}
+                                    <tr>
+                                        <td style="text-align: center;">
+                                            <input type="checkbox" name="req_ids" value="{{ r.id }}" checked
+                                                style="transform: scale(1.5);">
+                                        </td>
+                                        <td>{{ r.applicant_info.faculty }}<br><small>{{ r.applicant_info.department
+                                                }}</small></td>
+                                        <td>
+                                            <strong>{{ r.applicant_name }}</strong>
+                                            <div style="font-size: 0.8em; color: #666;">{{ r.id }}</div>
+                                        </td>
+                                        <td>
+                                            <ul style="padding-left: 15px; margin: 0; font-size: 0.9em;">
+                                                {% for w in r.works %}
+                                                <li>{{ w.type | translate_work_type }}</li>
+                                                {% endfor %}
+                                            </ul>
+                                        </td>
+                                        <td>{{ r.fiscal_year }}</td>
+                                        <td style="text-align: right; font-weight: bold; color: var(--success-color);">
+                                            {{ "{:,.2f}".format(r.approved_amount|float) }}
+                                        </td>
+                                        <td>{{ r.date }}</td>
+                                        <td style="text-align: center;">
+                                            <a href="{{ url_for('view_request', req_id=r.id) }}" target="_blank"
+                                                class="btn-view" style="padding: 4px 8px; font-size: 0.8em;">
+                                                <i class="fas fa-eye"></i>
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                                            <i class="fas fa-inbox"
+                                                style="font-size: 2em; margin-bottom: 10px;"></i><br>
+                                            ไม่มีคำขอที่รอเสนอในขณะนี้
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {% if pending_reqs %}
+
+
+                        <button type="submit" name="action" value="create_round" class="btn-primary"
+                            style="width: 100%;">
+                            <i class="fas fa-check-circle"></i> สร้างรอบพิจารณา (Create Batch)
+                        </button>
+                        {% endif %}
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

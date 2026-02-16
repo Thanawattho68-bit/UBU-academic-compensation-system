@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>รายละเอียดผลงาน - {{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .work-card {
+            border: 1px solid #e0e6ed;
+            border-radius: 12px;
+            padding: 30px;
+            margin-bottom: 20px;
+            background: #fff;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.02);
+        }
+
+        .work-card h4 {
+            margin-top: 0;
+            color: #1e293b;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .sub-section {
+            background: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        input[readonly],
+        textarea[readonly],
+        select[disabled] {
+            background-color: #f1f5f9 !important;
+            cursor: not-allowed;
+            border: 1px solid #e2e8f0 !important;
+        }
+
+        /* Hide buttons from original new_request content */
+        .remove-work-btn,
+        .btn-success.add-work-trigger,
+        .form-actions {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+        <main class="main-content">
+            <header class="top-bar"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b;">
+                    <i class="fas fa-file-alt"></i> รายละเอียดผลงานรายตัว
+                </div>
+                <div class="user-profile">
+                    <strong>{{ name }}</strong> <span style="color: #94a3b8; margin-left: 5px;">({{ role }})</span>
+                </div>
+            </header>
+
+            <section class="content-area" style="background: #f1f5f9; padding: 40px;">
+                <div style="max-width: 1000px; margin: 0 auto;">
+
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 30px;">
+                        <a href="javascript:history.back()" class="btn-secondary"
+                            style="border-radius: 50%; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; padding: 0;">
+                            <i class="fas fa-arrow-left"></i>
+                        </a>
+                        <h2 style="font-weight: 700; color: #1e293b; margin: 0;">แบบคำขอรับเงินค่าตอบแทน
+                            (รายละเอียดผลงาน)</h2>
+                    </div>
+
+                    <!-- Part 1: Applicant Info (Read Only) -->
+                    <div
+                        style="background: #fff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; font-size: 1.1rem; color: #334155; font-weight: 700;">
+                            <i class="fas fa-user-circle" style="margin-right: 10px; color: #3b82f6;"></i> ส่วนที่ 1:
+                            ข้อมูลผู้ยื่นคำขอ
+                        </h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">ชื่อ-สกุล:</p>
+                                <p style="font-weight: 600; color: #1e293b;">{{ req.applicant_name }}</p>
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">ตำแหน่ง:</p>
+                                <input type="text" value="{{ req.applicant_info.academic_position }}" readonly
+                                    style="width: 100%; padding: 8px; border-radius: 6px;">
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">วันที่แต่งตั้งให้ดำรงตำแหน่ง:</p>
+                                <p style="font-weight: 600; color: #1e293b;">{{ req.applicant_info.position_date }}</p>
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">เลขตำแหน่งที่:</p>
+                                <p style="font-weight: 600; color: #1e293b;">{{ req.applicant_info.position_number }}
+                                </p>
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">สังกัด:</p>
+                                <p style="font-weight: 600; color: #1e293b;">{{ req.applicant_info.department }}</p>
+                            </div>
+                            <div>
+                                <p style="margin-bottom: 10px; color: #64748b;">คณะ:</p>
+                                <p style="font-weight: 600; color: #1e293b;">{{ req.applicant_info.faculty }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 2: Working Info -->
+                    <div
+                        style="background: #fff; padding: 30px; border-radius: 12px; border: 1px solid #e2e8f0; margin-bottom: 25px;">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #f1f5f9; font-size: 1.1rem; color: #334155; font-weight: 700;">
+                            <i class="fas fa-file-alt" style="margin-right: 10px; color: #3b82f6;"></i> ส่วนที่ 2:
+                            ข้อมูลผลงานทางวิชาการ
+                        </h3>
+
+                        <div style="margin-bottom: 30px; color: #475569; line-height: 1.6;">
+                            ประสงค์รับเงินค่าตอบแทนในปีงบประมาณ พ.ศ.
+                            <span style="font-weight: 700; border-bottom: 1px dotted #94a3b8; padding: 0 10px;">{{
+                                req.fiscal_year }}</span>
+                            (รายละเอียดผลงานรายการที่ {{ work_index + 1 }})
+                        </div>
+
+                        <form id="admin-edit-form" method="POST">
+                            <div id="single-work-container">
+                                <!-- Populated by JS -->
+                            </div>
+
+                            {% if role == 'administration' %}
+                            <div
+                                style="margin-top: 30px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0; text-align: right;">
+                                <p style="text-align: left; color: #64748b; margin-bottom: 15px; font-size: 0.9rem;">
+                                    <i class="fas fa-info-circle"></i> ในฐานะเจ้าหน้าที่
+                                    คุณสามารถปรับปรุงระดับคุณภาพ (A+, A, B) ของผลงานรายการนี้ได้
+                                    ระบบจะคำนวณคะแนนและค่าตอบแทนใหม่ให้อัตโนมัติหลังกดบันทึก
+                                </p>
+                                <button type="submit" class="btn-primary" style="padding: 12px 30px; font-size: 1rem;">
+                                    <i class="fas fa-save" style="margin-right: 8px;"></i>
+                                    บันทึกการแก้ไขและคำนวณคะแนนใหม่
+                                </button>
+                            </div>
+                            {% endif %}
+                        </form>
+                    </div>
+
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Hidden Scripts to pass data (Reusing new_request logic) -->
+    <script type="application/json" id="work-item-data">
+        {{ req.works[work_index] | tojson | safe }}
+    </script>
+
+    <script>
+        const userRole = "{{ role }}";
+        const targetWork = JSON.parse(document.getElementById('work-item-data').textContent);
+        const container = document.getElementById('single-work-container');
+
+        function renderWork(type, data) {
+            let template = '';
+            const isAdmin = userRole === 'administration';
+            const levelDisabledAttr = isAdmin ? '' : 'disabled';
+            const alwaysDisabled = 'disabled';
+
+            if (type === 'research') {
+                template = `
+                    <h4>บทความงานวิจัย</h4>
+                    <div class="form-group"><label>ชื่อบทความงานวิจัย</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่</h5>
+                        <div class="form-group">
+                            <label>1.1 ชื่อวารสารทางวิชาการ :</label>
+                            <input type="text" readonly value="${data.journal_name || ''}" style="width:100%">
+                        </div>
+                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
+                            <div class="form-group"><label>ปีที่ (Vol)</label><input type="text" readonly value="${data.vol || ''}"></div>
+                            <div class="form-group"><label>ฉบับที่ (Issue)</label><input type="text" readonly value="${data.issue || ''}"></div>
+                            <div class="form-group"><label>เดือน</label><input type="text" readonly value="${data.month || ''}"></div>
+                            <div class="form-group"><label>พ.ศ.</label><input type="text" readonly value="${data.year_pub || ''}"></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="text" readonly value="${data.date_accept || ''}"></div>
+                            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="text" readonly value="${data.date_publish || ''}"></div>
+                        </div>
+
+                        <div class="form-group" style="margin-top:15px;">
+                            <label>1.2 ฐานข้อมูล</label>
+                            <div class="checkbox-group">
+                                <div><input type="radio" name="database" value="scopus_q1_q2" ${alwaysDisabled} ${data.database === 'scopus_q1_q2' ? 'checked' : ''}> Scopus Q1 หรือ Q2</div>
+                                <div><input type="radio" name="database" value="scopus_other" ${alwaysDisabled} ${data.database === 'scopus_other' ? 'checked' : ''}> ระดับนานาชาติอื่น</div>
+                                <div><input type="radio" name="database" value="national" ${alwaysDisabled} ${data.database === 'national' ? 'checked' : ''}> ระดับชาติ</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'textbook') {
+                template = `
+                    <h4>ตำราหรือหนังสือ</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. รูปแบบ</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" disabled ${data.format === 'authored' ? 'checked' : ''}> เขียนทั้งเล่ม (authored book)</div>
+                            <div><input type="radio" disabled ${data.format === 'chapter' ? 'checked' : ''}> ผลงานที่เป็นส่วนหนึ่งในหนังสือ (book chapter)</div>
+                            <div style="margin-left: 20px;"><input type="text" readonly value="${data.chapter_details || ''}" style="width: 100%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การเผยแพร่</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="publish_type" value="inter" ${alwaysDisabled} ${data.publish_type === 'inter' ? 'checked' : ''}> สำนักพิมพ์ในประเทศและต่างประเทศ</div>
+                            <div><input type="radio" name="publish_type" value="local" ${alwaysDisabled} ${data.publish_type === 'local' ? 'checked' : ''}> โรงพิมพ์ทั่วไปในประเทศ</div>
+                            <div style="margin-left: 20px;">วันที่เผยแพร่ : <input type="text" readonly value="${data.date_publish || ''}"></div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'creative') {
+                template = `
+                    <h4>งานสร้างสรรค์</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    
+                    <div class="sub-section">
+                        <h5>1. ประเภทของผลงานสร้างสรรค์</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" disabled ${data.creative_type === 'visual' ? 'checked' : ''}> สาขาทัศนศิลป์</div>
+                            <div><input type="radio" disabled ${data.creative_type === 'design' ? 'checked' : ''}> สาขาการออกแบบประยุกต์ศิลป์</div>
+                            <div><input type="radio" disabled ${data.creative_type === 'arch' ? 'checked' : ''}> สาขาสถาปัตยกรรม</div>
+                            <div><input type="radio" disabled ${data.creative_type === 'music' ? 'checked' : ''}> สาขาดนตรี</div>
+                            <div><input type="radio" disabled ${data.creative_type === 'perfor' ? 'checked' : ''}> สาขาศิลปะการแสดง</div>
+                            <div><input type="radio" disabled ${data.creative_type === 'other' ? 'checked' : ''}> ผลงานสร้างสรรค์อื่น ๆ</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การเผยแพร่</h5>
+                        <div class="checkbox-group">
+                            <div style="font-weight:700; margin-bottom:5px;">ระดับนานาชาติ</div>
+                            <div style="margin-left: 15px; margin-bottom:10px;">
+                                <div><input type="radio" name="publish_type" value="inter_print" ${alwaysDisabled} ${data.publish_type === 'inter_print' ? 'checked' : ''}> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                <div><input type="radio" name="publish_type" value="inter_exhibit" ${alwaysDisabled} ${data.publish_type === 'inter_exhibit' ? 'checked' : ''}> การจัดนิทรรศการ (exhibition)</div>
+                                <div><input type="radio" name="publish_type" value="inter_perf" ${alwaysDisabled} ${data.publish_type === 'inter_perf' ? 'checked' : ''}> การจัดประกวดและการจัดแสดง (performance)</div>
+                            </div>
+                            <div style="font-weight:700; margin-bottom:5px;">ระดับความร่วมมือระหว่างประเทศ</div>
+                            <div style="margin-left: 15px; margin-bottom:10px;">
+                                <div><input type="radio" name="publish_type" value="coop_print" ${alwaysDisabled} ${data.publish_type === 'coop_print' ? 'checked' : ''}> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                <div><input type="radio" name="publish_type" value="coop_exhibit" ${alwaysDisabled} ${data.publish_type === 'coop_exhibit' ? 'checked' : ''}> การจัดนิทรรศการ (exhibition)</div>
+                                <div><input type="radio" name="publish_type" value="coop_perf" ${alwaysDisabled} ${data.publish_type === 'coop_perf' ? 'checked' : ''}> การจัดประกวดและการจัดแสดง (performance)</div>
+                            </div>
+                            <div style="font-weight:700; margin-bottom:5px;">ระดับชาติ</div>
+                            <div style="margin-left: 15px; margin-bottom:10px;">
+                                <div><input type="radio" name="publish_type" value="national_print" ${alwaysDisabled} ${data.publish_type === 'national_print' ? 'checked' : ''}> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                <div><input type="radio" name="publish_type" value="national_exhibit" ${alwaysDisabled} ${data.publish_type === 'national_exhibit' ? 'checked' : ''}> การจัดนิทรรศการ (exhibition)</div>
+                                <div><input type="radio" name="publish_type" value="national_perf" ${alwaysDisabled} ${data.publish_type === 'national_perf' ? 'checked' : ''}> การจัดประกวดและการจัดแสดง (performance) ต่อสาธารณะ</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'social') {
+                template = `
+                    <h4>ผลงานรับใช้ท้องถิ่นและสังคม</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="form-group"><label>การเผยแพร่</label><textarea readonly rows="2" style="width:100%">${data.dissemination_summary || ''}</textarea></div>
+                    <div class="sub-section">
+                        <h5>1. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'industry') {
+                template = `
+                    <h4>ผลงานวิชาการเพื่ออุตสาหกรรม</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="sub-section">
+                         <h5>1. การเผยแพร่</h5>
+                         <div class="checkbox-group">
+                            <div><input type="radio" disabled ${data.publish_type === 'article' ? 'checked' : ''}> บทความวิจัยในวารสาร/Proceedings</div>
+                            <div><input type="radio" disabled ${data.publish_type === 'report' ? 'checked' : ''}> รายงานการวิจัยฉบับสมบูรณ์</div>
+                            <div><input type="radio" disabled ${data.publish_type === 'ip' ? 'checked' : ''}> เอกสารแสดงทรัพย์สินทางปัญญา</div>
+                            <div><input type="radio" disabled ${data.publish_type === 'confidential' ? 'checked' : ''}> รายงานการวิจัยที่ปกปิดความลับ</div>
+                            <div><input type="radio" disabled ${data.publish_type === 'external_eval' ? 'checked' : ''}> รายงานการประเมินผลกระทบ</div>
+                        </div>
+                    </div>
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'teaching') {
+                template = `
+                    <h4>ผลงานการสอน</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="sub-section">
+                        <h5>1. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'policy') {
+                template = `
+                    <h4>ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="form-group"><label>การเผยแพร่</label><textarea readonly rows="2" style="width:100%">${data.dissemination_summary || ''}</textarea></div>
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่</h5>
+                         <div class="checkbox-group">
+                            <div><input type="radio" disabled ${data.publish_type === 'presented' ? 'checked' : ''}> นำเสนอนโยบายต่อผู้มีส่วนได้เสีย</div>
+                            <div><input type="radio" disabled ${data.publish_type === 'public' ? 'checked' : ''}> เผยแพร่นโยบายไปยังผู้เกี่ยวข้อง</div>
+                        </div>
+                    </div>
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
+            } else if (type === 'innovation') {
+                template = `
+                    <h4>ผลงานนวัตกรรม</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="form-group"><label>การเผยแพร่</label><textarea readonly rows="2" style="width:100%">${data.dissemination_summary || ''}</textarea></div>
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" disabled ${data.type_pub === 'report' ? 'checked' : ''}> 1.1 รายงานการพัฒนาผลงานนวัตกรรม</div>
+                             <div><input type="radio" disabled ${data.type_pub === 'ip' ? 'checked' : ''}> 1.2 เอกสารแสดงทรัพย์สินทางปัญญา</div>
+                             <div><input type="radio" disabled ${data.type_pub === 'public' ? 'checked' : ''}> 1.3 การเผยแพร่ผลงานนวัตกรรมผ่านเวทีระดับชาติ/นานาชาติ</div>
+                             <div><input type="radio" disabled ${data.type_pub === 'diffusion' ? 'checked' : ''}> 1.4 การแพร่หลาย (diffusion)</div>
+                        </div>
+                    </div>
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Contribution Section
+            if (type === 'research') {
+                template += `
+                    <div class="sub-section">
+                        <h5>การมีส่วนร่วมในผลงาน</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="contribution" value="first" ${alwaysDisabled} ${data.contribution === 'first' ? 'checked' : ''}> ผู้ประพันธ์อันดับแรก (first author)</div>
+                            <div><input type="radio" name="contribution" value="corresponding" ${alwaysDisabled} ${data.contribution === 'corresponding' ? 'checked' : ''}> ผู้ประพันธ์บรรณกิจ (corresponding author)</div>
+                            <div><input type="radio" name="contribution" value="main" ${alwaysDisabled} ${data.contribution === 'main' ? 'checked' : ''}> ผู้ดำเนินการหลัก (main author)</div>
+                            <div><input type="radio" name="contribution" value="intellectual" ${alwaysDisabled} ${data.contribution === 'intellectual' ? 'checked' : ''}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                            <div><input type="radio" name="contribution" value="co" ${alwaysDisabled} ${data.contribution === 'co' ? 'checked' : ''}> ผู้ดำเนินการร่วม (co-author)</div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                template += `
+                    <div class="sub-section">
+                        <h5>การมีส่วนร่วมในผลงาน</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="contribution" value="first" ${alwaysDisabled} ${data.contribution === 'first' ? 'checked' : ''}> ผู้ประพันธ์อันดับแรก (first author)</div>
+                            <div><input type="radio" name="contribution" value="intellectual" ${alwaysDisabled} ${data.contribution === 'intellectual' ? 'checked' : ''}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            if (data.evidence_type === 'file' && data.evidence_file) {
+                const fileUrl = `/uploads/{{ req.id }}/${data.id}/${data.evidence_file}`;
+                template += `
+                    <div class="form-group" style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #f1f5f9;">
+                        <label style="color: #3b82f6; font-weight:700;"><i class="fas fa-file-alt"></i> ไฟล์หลักฐานของผลงานนี้</label>
+                        <div style="margin-top:10px;">
+                            <a href="${fileUrl}" target="_blank" class="btn-primary" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-weight: normal; font-size: 0.95rem;">
+                                <i class="fas fa-download"></i> ดาวน์โหลด: ${data.evidence_file}
+                            </a>
+                        </div>
+                    </div>
+                `;
+            } else {
+                template += `
+                    <div class="form-group" style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #f1f5f9;">
+                        <label style="color: #3b82f6; font-weight:700;"><i class="fas fa-link"></i> ลิงก์หลักฐานของผลงานนี้</label>
+                        <div style="margin-top:10px;">
+                            <a href="${data.evidence_url || '#'}" target="_blank" style="color: #3b82f6; text-decoration: underline;">${data.evidence_url || 'ไม่มีการแนบลิงก์'}</a>
+                        </div>
+                    </div>
+                `;
+            }
+
+            const div = document.createElement('div');
+            div.className = 'work-card';
+            div.innerHTML = template;
+            container.appendChild(div);
+        }
+
+        // Run rendering
+        renderWork(targetWork.type, targetWork.details);
+
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>แก้ไขเกณฑ์และคะแนน - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .section-header {
+            background: #f8f9fa;
+            padding: 10px 15px;
+            border-left: 4px solid #1a237e;
+            margin: 20px 0 15px 0;
+            font-weight: bold;
+            color: #1a237e;
+        }
+
+        .form-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .form-row label {
+            flex: 2;
+            margin-right: 10px;
+        }
+
+        .form-row input {
+            flex: 1;
+        }
+
+        .unit-label {
+            margin-left: 5px;
+            color: #666;
+            font-size: 0.9em;
+            width: 80px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="notifications-wrapper" style="position: relative; margin-right: 25px; cursor: pointer;">
+                    <i class="fas fa-bell" id="bellIcon" style="font-size: 1.4rem; color: #555;"></i>
+                    <span id="badge"
+                        style="display:none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.7rem; font-weight: bold; line-height: 1;">0</span>
+                    <div id="notifDropdown"
+                        style="display:none; position: absolute; top: 40px; right: -10px; width: 300px; background: white; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; border-radius: 6px; overflow: hidden;">
+                        <div
+                            style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: 600; color: #333;">
+                            การแจ้งเตือน</div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <i class="fas fa-user-shield"></i> ผู้ดูแลระบบ
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h2><i class="fas fa-edit"></i> แก้ไขเกณฑ์และคะแนน</h2>
+                        {% if data.fiscal_year %}
+                        <form method="POST" onsubmit="return confirm('ยืนยันการลบข้อมูลปี {{ data.fiscal_year }}?');">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="fiscal_year" value="{{ data.fiscal_year }}">
+                            <button type="submit" class="btn-danger"><i class="fas fa-trash"></i> ลบปีนี้</button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST">
+                        <input type="hidden" name="action" value="save">
+
+                        <div class="form-group">
+                            <label style="font-weight: bold;">ปีงบประมาณ</label>
+                            <input type="number" name="fiscal_year" value="{{ data.fiscal_year }}" required
+                                placeholder="ระบุปี (พ.ศ.)">
+                        </div>
+
+                        <!-- Part 1 -->
+                        <div class="section-header">ส่วนที่ 1: กำหนดคะแนนคุณภาพผลงาน (Quality Scores)</div>
+
+                        <h4 style="margin: 15px 0 10px;">(1) ผลงานวิจัย (Research)</h4>
+                        <div class="form-row">
+                            <label>- กลุ่มนานาชาติ (Scopus Q1/Q2)</label>
+                            <input type="number" step="0.01" name="research_tier1"
+                                value="{{ data.quality_scores.research.tier1 }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- กลุ่มนานาชาติอื่น (Non-Q)</label>
+                            <input type="number" step="0.01" name="research_non_q"
+                                value="{{ data.quality_scores.research.non_q }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- กลุ่มระดับชาติ</label>
+                            <input type="number" step="0.01" name="research_national"
+                                value="{{ data.quality_scores.research.national }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+
+                        <h4 style="margin: 15px 0 10px;">(2) ตำราหรือหนังสือ (Textbook/Book)</h4>
+                        {% set ts = data.quality_scores.get('textbook', {'publisher': 1.25, 'general': 1.0}) %}
+                        <div class="form-row">
+                            <label>- จัดพิมพ์โดยสำนักพิมพ์ (Publisher) ใน/ต่างประเทศ</label>
+                            <input type="number" step="0.01" name="textbook_pub" value="{{ ts.publisher }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- จัดพิมพ์โดยโรงพิมพ์ทั่วไปในประเทศ</label>
+                            <input type="number" step="0.01" name="textbook_gen" value="{{ ts.general }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+
+                        <h4 style="margin: 15px 0 10px;">(3) ผลงานสร้างสรรค์ (Creative)</h4>
+                        {% set cs = data.quality_scores.get('creative', {'international': 1.25, 'cooperation': 1.0,
+                        'national': 0.75}) %}
+                        <div class="form-row">
+                            <label>- เผยแพร่ระดับนานาชาติ</label>
+                            <input type="number" step="0.01" name="creative_inter" value="{{ cs.international }}"
+                                required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- เผยแพร่ระดับความร่วมมือระหว่างประเทศ</label>
+                            <input type="number" step="0.01" name="creative_coop" value="{{ cs.cooperation }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- เผยแพร่ระดับชาติ</label>
+                            <input type="number" step="0.01" name="creative_nat" value="{{ cs.national }}" required>
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+
+                        <h4 style="margin: 15px 0 10px;">(4) - (8) ผลงานอื่นๆ (Social, Industry, Teaching, Policy,
+                            Innovation)</h4>
+                        {% set m_scores = data.quality_scores.get('merged_abc', {'a_plus': 1.25, 'a': 1.0, 'b': 0.75})
+                        %}
+                        <p style="font-size: 0.9rem; color: #64748b; margin-bottom: 10px;">ใช้เกณฑ์คะแนนเดียวกันสำหรับ 5
+                            ประเภทผลงาน</p>
+                        <div class="form-row">
+                            <label>&nbsp;&nbsp;• ระดับ A+ (ดีเด่นมาก)</label>
+                            <input type="number" step="0.01" name="merged_ap" value="{{ m_scores.a_plus }}">
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>&nbsp;&nbsp;• ระดับ A (ดีเด่น)</label>
+                            <input type="number" step="0.01" name="merged_a" value="{{ m_scores.a }}">
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>&nbsp;&nbsp;• ระดับ B (ดีมาก)</label>
+                            <input type="number" step="0.01" name="merged_b" value="{{ m_scores.b }}">
+                            <span class="unit-label">คะแนน</span>
+                        </div>
+
+                        <!-- Part 2 -->
+                        <div class="section-header">ส่วนที่ 2: กำหนดค่าน้ำหนักบทบาท (Role Weights)</div>
+                        <div class="form-row">
+                            <label>- ผู้ประพันธ์อันดับแรก / ผู้ประพันธ์บรรณกิจ / ผู้ดำเนินการหลัก</label>
+                            <input type="number" step="0.01" name="role_main" value="{{ data.role_weights.main }}"
+                                required>
+                            <span class="unit-label">สัดส่วน</span>
+                        </div>
+                        <div class="form-row">
+                            <label>- ผู้มีส่วนสำคัญทางปัญญา / ผู้ดำเนินการร่วม</label>
+                            <input type="number" step="0.01" name="role_co" value="{{ data.role_weights.co }}" required>
+                            <span class="unit-label">สัดส่วน</span>
+                        </div>
+
+                        <!-- Part 3 -->
+                        <div class="section-header">ส่วนที่ 3: กำหนดเกณฑ์การจ่ายเงิน (Payment Rules)</div>
+
+                        {% for pos_key, pos_label, pos_id in [
+                        ('asst_prof', 'ผู้ช่วยศาสตราจารย์ (ผศ.)', 'asst'),
+                        ('assoc_prof', 'รองศาสตราจารย์ (รศ.)', 'assoc'),
+                        ('prof', 'ศาสตราจารย์ (ศ.)', 'prof')
+                        ] %}
+                        <div style="margin-bottom: 25px; padding: 15px; background: #f0f7ff; border-radius: 8px;">
+                            <h4 style="margin-top: 0; color: #004085;"><i class="fas fa-graduation-cap"></i> {{
+                                pos_label }}</h4>
+                            <div id="tiers-{{ pos_id }}">
+                                {% set tiers = data.payment_rules.get(pos_key, []) %}
+                                {% if tiers is mapping %} {% set tiers = [tiers] %} {% endif %}
+
+                                {% for i in range(2) %}
+                                {% set t = tiers[i] if i < tiers|length else {} %} <div class="form-row">
+                                    <label style="flex: 1;">ช่วงที่ {{ i+1 }}: มีคะแนนรวมตั้งแต่ </label>
+                                    <input type="number" step="0.01" name="{{ pos_id }}_min_{{ i }}"
+                                        value="{{ t.min_score }}" style="flex: 0.5;" placeholder="0.00">
+                                    <span class="unit-label" style="text-align:center;">ได้รับเงิน</span>
+                                    <input type="number" name="{{ pos_id }}_amt_{{ i }}" value="{{ t.amount }}"
+                                        style="flex: 0.8;" placeholder="บาท">
+                                    <span class="unit-label">บาท/เดือน</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        <p style="font-size: 0.8em; color: #666; margin: 5px 0 0;"><i class="fas fa-info-circle"></i>
+                            ใส่คะแนนขั้นต่ำของแต่ละช่วง ระบบจะเลือกช่วงที่สูงสุดที่คะแนนถึงให้โดยอัตโนมัติ</p>
+                </div>
+                {% endfor %}
+
+                <div class="form-actions" style="margin-top: 30px;">
+                    <button type="submit" class="btn-primary" style="padding: 12px 30px; font-size: 16px;">
+                        <i class="fas fa-save"></i> บันทึก
+                    </button>
+                    <a href="{{ url_for('manage_criteria') }}" class="btn-danger"
+                        style="text-decoration: none; padding: 12px 30px; font-size: 16px; margin-left: 10px;">
+                        ยกเลิก
+                    </a>
+                </div>
+                </form>
+    </div>
+    </section>
+    </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>จัดการรอบการพิจารณา (Batch Management)</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> {{ name }} ({{ role }})
+                </div>
+            </header>
+
+            <section class="content-area">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                <div class="flash-messages">
+                    {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endwith %}
+
+                <!-- Create New Round Section (Full Width) - Administration Only -->
+                {% if role == 'administration' %}
+                <div style="margin-bottom: 20px;">
+                    <div class="card">
+                        <h3><i class="fas fa-folder-plus"></i> สร้างรอบพิจารณาใหม่</h3>
+                        <p>เลือกรายการคำขอที่พร้อมเสนอ (สถานะ: รอเสนอพิจารณา) เพื่อจัดเข้าชุด</p>
+
+                        <form method="POST">
+                            <div class="table-container">
+                                <table class="styled-table">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 50px; text-align: center;">เลือก</th>
+                                            <th>คณะ/สาขา</th>
+                                            <th>ผู้ยื่นคำขอ</th>
+                                            <th>ประเภทผลงาน</th>
+                                            <th>ปีงบฯ</th>
+                                            <th>จำนวนเงิน</th>
+                                            <th>วันที่ยื่น</th>
+                                            <th>ตรวจสอบ</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for r in pending_reqs %}
+                                        <tr>
+                                            <td style="text-align: center;">
+                                                <input type="checkbox" name="req_ids" value="{{ r.id }}" checked
+                                                    style="transform: scale(1.5);">
+                                            </td>
+                                            <td>{{ r.applicant_info.faculty }}<br><small>{{ r.applicant_info.department
+                                                    }}</small></td>
+                                            <td>
+                                                <strong>{{ r.applicant_name }}</strong>
+                                                <div style="font-size: 0.8em; color: #666;">{{ r.id }}</div>
+                                            </td>
+                                            <td>
+                                                <ul style="padding-left: 15px; margin: 0; font-size: 0.9em;">
+                                                    {% for w in r.works %}
+                                                    <li>{{ w.type | translate_work_type }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </td>
+                                            <td>{{ r.fiscal_year }}</td>
+                                            <td
+                                                style="text-align: right; font-weight: bold; color: var(--success-color);">
+                                                {{ "{:,.2f}".format(r.approved_amount|float) }}
+                                            </td>
+                                            <td>{{ r.date }}</td>
+                                            <td style="text-align: center;">
+                                                <a href="{{ url_for('view_request', req_id=r.id) }}" target="_blank"
+                                                    class="btn-view" style="padding: 4px 8px; font-size: 0.8em;">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% else %}
+                                        <tr>
+                                            <td colspan="7" style="text-align: center; padding: 30px; color: #999;">
+                                                <i class="fas fa-inbox"
+                                                    style="font-size: 2em; margin-bottom: 10px;"></i><br>
+                                                ไม่มีคำขอที่รอเสนอพิจารณาในขณะนี้
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {% if pending_reqs %}
+                            <div class="form-group" style="margin-top: 15px;">
+                                <label>ชื่อรอบ/ครั้งที่ประชุม (เช่น ครั้งที่ 1/2569)</label>
+                                <input type="text" name="round_name" required placeholder="ระบุชื่อรอบการประชุม...">
+                            </div>
+                            <div class="form-group">
+                                <label>วันที่ประชุม (โดยประมาณ)</label>
+                                <input type="date" name="meeting_date" required>
+                            </div>
+                            <button type="submit" name="action" value="create_round" class="btn-primary"
+                                style="width: 100%;">
+                                <i class="fas fa-check-circle"></i> สร้างรอบพิจารณา และส่งให้กรรมการ๕ระ
+                            </button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- History Section (Full Width) -->
+                <div>
+                    <div class="card">
+                        <h3><i class="fas fa-history"></i> รอบการพิจารณา</h3>
+                        <div class="table-container">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อรอบ / ครั้งที่ประชุม</th>
+                                        <th>วันที่ประชุม</th>
+                                        <th>วันที่สร้าง</th>
+                                        <th>จำนวนคำขอ</th>
+                                        <th>สถานะ</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for b in batches %}
+                                    <tr>
+                                        <td>
+                                            <strong>{{ b.name }}</strong>
+                                            <div style="font-size: 0.8em; color: #666;">{{ b.id }}</div>
+                                        </td>
+                                        <td>{{ b.meeting_date if b.meeting_date else '-' }}</td>
+                                        <td>{{ b.created_date }}</td>
+                                        <td style="text-align: center;">{{ b.req_ids|length }} รายการ</td>
+                                        <td>
+                                            <span class="status-tag status-{{ b.status }}">
+                                                {{ b.status }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('view_round', round_id=b.id) }}" class="btn-view"
+                                                style="padding: 5px 10px;">
+                                                <i class="fas fa-search"></i> ดูรายละเอียด
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; padding: 30px; color: #999;">
+                                            <i class="fas fa-history"
+                                                style="font-size: 2em; margin-bottom: 10px;"></i><br>
+                                            ยังไม่มีประวัติรอบการพิจารณา
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+</body>
+
+</html>

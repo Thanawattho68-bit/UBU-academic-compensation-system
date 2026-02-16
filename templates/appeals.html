@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>รายการอุทธรณ์ - {{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .filtered-hidden {
+            display: none !important;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="table-container">
+                    <h2 style="margin-bottom: 20px;"><i class="fas fa-gavel"></i> พิจารณาคำอุทธรณ์</h2>
+
+                    <div class="filter-bar-container"
+                        style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
+                        <div class="filter-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ค้นหา</label>
+                            <div class="input-with-icon" style="position: relative;">
+                                <i class="fas fa-search"
+                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                                <input type="text" id="searchInput" onkeyup="filterTable()"
+                                    placeholder="ชื่อผู้ส่ง, คณะ, เหตุผล..."
+                                    style="padding: 8px 10px 8px 35px; border: 1px solid #e2e8f0; border-radius: 6px; width: 200px; font-size: 0.9rem;">
+                            </div>
+                        </div>
+
+                        <div class="filter-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">สถานะ</label>
+                            <select id="statusFilter" onchange="filterTable()"
+                                style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 150px; font-size: 0.9rem;">
+                                <option value="">ทั้งหมด</option>
+                                <option value="ยื่นอุทธรณ์">ยื่นอุทธรณ์</option>
+                                <option value="กำลังพิจารณาอุทธรณ์">กำลังพิจารณาอุทธรณ์</option>
+                                <option value="รอพิจารณาอุทธรณ์">รอพิจารณาอุทธรณ์</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ประเภทผลงาน</label>
+                            <select id="typeFilter" onchange="filterTable()"
+                                style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 160px; font-size: 0.9rem;">
+                                <option value="">ทั้งหมด</option>
+                                <option value="research">บทความงานวิจัย</option>
+                                <option value="textbook">ตำราหรือหนังสือ</option>
+                                <option value="creative">งานสร้างสรรค์</option>
+                                <option value="social">รับใช้ท้องถิ่นและสังคม</option>
+                                <option value="industry">เพื่ออุตสาหกรรม</option>
+                                <option value="teaching">การสอน</option>
+                                <option value="policy">นโยบายสาธารณะ</option>
+                                <option value="innovation">นวัตกรรม</option>
+                            </select>
+                        </div>
+
+                        <div class="filter-group">
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ปีงบประมาณ</label>
+                            <input type="text" id="fiscalFilter" onkeyup="filterTable()" placeholder="เช่น 2568"
+                                style="padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 120px; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <table class="styled-table" id="appealsTable">
+                        <thead>
+                            <tr>
+                                <th>คณะ/สาขา</th>
+                                <th>ผู้ยื่นคำขอ</th>
+                                <th>ประเภทผลงาน</th>
+                                <th onclick="sortTableByFiscal()" style="cursor: pointer;">ปีงบประมาณ <i
+                                        class="fas fa-sort"></i></th>
+                                <th>เหตุผลการอุทธรณ์</th>
+                                <th>วันที่ยื่น</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tableBody">
+                            {% for req in requests %}
+                            <tr class="item-row" data-fy="{{ req.fiscal_year }}" data-status="{{ req.status }}"
+                                data-types="{{ req.works | map(attribute='type') | join(',') }}">
+                                <td>{{ req.applicant_info.faculty }} / {{ req.applicant_info.department }}</td>
+                                <td>{{ req.applicant_name }}</td>
+                                <td>
+                                    {% if req.works %}
+                                    <ul style="padding-left: 20px; margin: 0; list-style-type: disc; color: #475569;">
+                                        {% for w in req.works %}
+                                        <li style="margin-bottom: 5px; font-weight: 500;">{{ w.type |
+                                            translate_work_type }}</li>
+                                        {% endfor %}
+                                    </ul>
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ req.fiscal_year }}</td>
+                                <td>
+                                    <div style="max-width: 250px; font-size: 0.85rem; color: #475569;">
+                                        {{ req.appeal_reason or '-' }}
+                                    </div>
+                                </td>
+                                <td>{{ req.date }}</td>
+                                <td>
+                                    <span class="status-tag status-{{ req.status }}">
+                                        {{ req.status | role_status_label(role) }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <a href="{{ url_for('view_request', req_id=req.id) }}" class="btn-view">
+                                        <i class="fas fa-eye"></i> ตรวจสอบ
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr id="noDataRow">
+                                <td colspan="8" style="text-align: center; padding: 30px;">
+                                    <i class="fas fa-folder-open"
+                                        style="font-size: 2rem; color: #ddd; display: block; margin-bottom: 10px;"></i>
+                                    ไม่พบรายการคำอุทธรณ์ในขณะนี้
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
+                        <div id="paginationControls">
+                            <!-- Buttons injected by JS -->
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <label style="font-size: 0.85rem; color: #64748b;">แสดงผล:</label>
+                            <select id="rowsPerPage" onchange="currentPage=1; applyPagination()"
+                                style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; width: 130px; font-size: 0.9rem; background: white; cursor: pointer;">
+                                <option value="10">10 รายการ</option>
+                                <option value="20">20 รายการ</option>
+                                <option value="30">30 รายการ</option>
+                                <option value="40">40 รายการ</option>
+                                <option value="50">50 รายการ</option>
+                                <option value="1000">ทั้งหมด</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let currentPage = 1;
+
+        function filterTable() {
+            var searchInput = document.getElementById("searchInput").value.toLowerCase();
+            var statusFilter = document.getElementById("statusFilter").value;
+            var typeFilter = document.getElementById("typeFilter").value;
+            var fiscalFilter = document.getElementById("fiscalFilter").value;
+
+            var rows = document.querySelectorAll(".item-row");
+
+            rows.forEach(row => {
+                var showRow = true;
+
+                // 1. Fiscal Year Filter
+                if (fiscalFilter) {
+                    var rowFy = row.getAttribute('data-fy');
+                    if (rowFy.indexOf(fiscalFilter) === -1) {
+                        showRow = false;
+                    }
+                }
+
+                if (showRow && statusFilter) {
+                    var rowStatus = row.getAttribute('data-status');
+                    if (rowStatus !== statusFilter) showRow = false;
+                }
+
+                // 2. Type Filter (Check data-types)
+                if (showRow && typeFilter) {
+                    var rowTypes = row.getAttribute('data-types');
+                    if (!rowTypes || !rowTypes.includes(typeFilter)) {
+                        showRow = false;
+                    }
+                }
+
+                // 3. Search Text
+                if (showRow && searchInput) {
+                    var rowText = row.innerText.toLowerCase();
+                    if (rowText.indexOf(searchInput) === -1) {
+                        showRow = false;
+                    }
+                }
+
+                if (showRow) {
+                    row.classList.remove("filtered-hidden");
+                } else {
+                    row.classList.add("filtered-hidden");
+                }
+            });
+
+            applyPagination();
+        }
+
+        let currentSortOrder = 'desc';
+        function sortTableByFiscal() {
+            const table = document.getElementById("appealsTable");
+            const tbody = table.querySelector("tbody");
+            const rows = Array.from(tbody.querySelectorAll(".item-row"));
+
+            currentSortOrder = (currentSortOrder === 'desc') ? 'asc' : 'desc';
+
+            rows.sort((a, b) => {
+                const fyA = parseInt(a.getAttribute("data-fy")) || 0;
+                const fyB = parseInt(b.getAttribute("data-fy")) || 0;
+
+                if (currentSortOrder === 'asc') return fyA - fyB;
+                else return fyB - fyA;
+            });
+
+            rows.forEach(row => tbody.appendChild(row));
+            currentPage = 1;
+            applyPagination();
+        }
+
+        function applyPagination() {
+            const rppEl = document.getElementById("rowsPerPage");
+            const rowsPerPage = rppEl ? parseInt(rppEl.value) : 1000;
+
+            const allRows = document.querySelectorAll(".item-row");
+            const visibleRows = Array.from(allRows).filter(r => !r.classList.contains("filtered-hidden"));
+
+            const paginationControls = document.getElementById("paginationControls");
+
+            if (rowsPerPage >= 1000) {
+                visibleRows.forEach(r => r.style.display = "");
+                if (paginationControls) paginationControls.innerHTML = "";
+                allRows.forEach(r => {
+                    if (r.classList.contains("filtered-hidden")) r.style.display = "none";
+                });
+                return;
+            }
+
+            const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+            if (currentPage > totalPages) currentPage = 1;
+            if (currentPage < 1) currentPage = 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+
+            allRows.forEach(r => r.style.display = "none");
+            visibleRows.slice(start, end).forEach(r => r.style.display = "");
+
+            const noDataRow = document.getElementById("noDataRow");
+            if (visibleRows.length === 0) {
+                if (noDataRow) noDataRow.style.display = "";
+            } else {
+                if (noDataRow) noDataRow.style.display = "none";
+            }
+
+            if (paginationControls) {
+                let controlsHtml = "";
+                if (totalPages > 1) {
+                    controlsHtml += `<button onclick="changePage(-1)" class="btn-view" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i> ก่อนหน้า</button> `;
+                    controlsHtml += ` <span style="margin: 0 10px; font-weight:bold; color:#475569;">หน้า ${currentPage} / ${totalPages}</span> `;
+                    controlsHtml += `<button onclick="changePage(1)" class="btn-view" ${currentPage === totalPages ? 'disabled' : ''} >ถัดไป <i class="fas fa-chevron-right"></i></button>`;
+                }
+                paginationControls.innerHTML = controlsHtml;
+            }
+        }
+
+        function changePage(delta) {
+            currentPage += delta;
+            applyPagination();
+        }
+
+        window.onload = function () {
+            sortTableByFiscal();
+        };
+    </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

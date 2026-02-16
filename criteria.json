@@ -1,0 +1,65 @@
+[
+    {
+        "fiscal_year": "2569",
+        "quality_scores": {
+            "research": {
+                "tier1": 1.25,
+                "non_q": 1.0,
+                "national": 0.75
+            },
+            "merged_abc": {
+                "a_plus": 1.25,
+                "a": 1.0,
+                "b": 0.75
+            },
+            "textbook": {
+                "publisher": 1.25,
+                "general": 1.0
+            },
+            "creative": {
+                "international": 1.25,
+                "cooperation": 1.0,
+                "national": 0.75
+            },
+            "other": {
+                "creative": 0.0
+            }
+        },
+        "role_weights": {
+            "main": 1.0,
+            "co": 0.5
+        },
+        "payment_rules": {
+            "asst_prof": [
+                {
+                    "min_score": 0.5,
+                    "amount": 3000.0
+                },
+                {
+                    "min_score": 0.75,
+                    "amount": 5600.0
+                }
+            ],
+            "assoc_prof": [
+                {
+                    "min_score": 0.75,
+                    "amount": 6000.0
+                },
+                {
+                    "min_score": 1.25,
+                    "amount": 9900.0
+                }
+            ],
+            "prof": [
+                {
+                    "min_score": 1.25,
+                    "amount": 9000.0
+                },
+                {
+                    "min_score": 1.5,
+                    "amount": 13000.0
+                }
+            ]
+        }
+    }
+]

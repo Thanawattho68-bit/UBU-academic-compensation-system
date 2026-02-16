@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ยื่นคำขอใหม่ - {{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .work-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+            position: relative;
+        }
+
+        .work-card h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .remove-work-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .sub-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tooltip Styles */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            font-style: italic;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+            vertical-align: middle;
+            font-family: serif;
+        }
+
+        .info-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-style: normal;
+            width: 280px;
+            z-index: 1001;
+            white-space: normal;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            line-height: 1.4;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .info-icon:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #2c3e50;
+            z-index: 1001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="welcome-banner">
+                    <h2>แบบคำขอรับเงินค่าตอบแทนตำแหน่งทางวิชาการ</h2>
+                    {% if not can_submit %}
+                    <div class="alert alert-warning"
+                        style="border-left: 5px solid #ffa502; background-color: #fff9e6; color: #b37400;">
+                        <h4><i class="fas fa-exclamation-circle"></i> ขณะนี้ไม่อยู่ในช่วงเวลาการยื่นคำขอ</h4>
+                        <p>ท่านสามารถยื่นคำขอได้ในช่วงวันที่ <strong>{{ timeline.start_date }}</strong> ถึง <strong>{{
+                                timeline.end_date }}</strong> เท่านั้น</p>
+                        <p style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                            (ในขณะนี้ท่านสามารถบันทึกข้อมูลเป็นแบบร่างเก็บไว้ได้)</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Container Removed -->
+                <form method="POST" id="mainForm" onsubmit="prepareData()" enctype="multipart/form-data">
+                    <!-- Header / Applicant Info -->
+                    <!-- Part 1: Applicant Info -->
+                    <div
+                        style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; font-size: 1.1rem; color: #34495e;">
+                            <i class="fas fa-user-circle" style="margin-right: 10px; color: #3498db;"></i> ส่วนที่
+                            1: ข้อมูลผู้ยื่นคำขอ
+                        </h3>
+
+                        <div
+                            style="display: flex; flex-direction: column; gap: 12px; color: #000; font-size: 1rem; line-height: 1.6;">
+                            <div>
+                                <span style="font-weight: normal; color: #555;">ชื่อ-สกุล :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.title_name }} {{
+                                    user.name }}</span>
+                            </div>
+
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-weight: normal; color: #555;">ตำแหน่ง :</span>
+                                <input type="text" name="academic_position" value="{{ user.academic_position }}"
+                                    readonly
+                                    style="border: none; background: transparent; color: #000; font-weight: normal; font-size: 1rem; padding: 0; margin-left: 8px; width: auto; flex-grow: 1; outline: none; font-family: inherit;">
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">วันที่แต่งตั้งให้ดำรงตำแหน่ง
+                                    :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.position_date }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">เลขตำแหน่งที่ :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.position_number
+                                    }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">สังกัด
+                                    (ภาควิชา/กลุ่มสาขาวิชา/กลุ่มวิชา) :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.department }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">คณะ/วิทยาลัย :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.faculty }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 2: Academic Work Info -->
+                    <div
+                        style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; font-size: 1.1rem; color: #34495e;">
+                            <i class="fas fa-file-alt" style="margin-right: 10px; color: #3498db;"></i> ส่วนที่ 2:
+                            ข้อมูลผลงานทางวิชาการ
+                        </h3>
+
+                        <div style="margin-top: 10px; text-align: left; line-height: 1.6; color: #333;">
+                            ขอเสนอผลงานทางวิชาการ เพื่อประกอบการรับเงินค่าตอบแทนตามประกาศมหาวิทยาลัยอุบลราชธานี
+                            เรื่องหลักเกณฑ์การจ่ายค่าตอบแทนสำหรับพนักงานมหาวิทยาลัยที่มีตำแหน่งทางวิชาการ พ.ศ. 2567
+                            และประสงค์รับเงินค่าตอบแทนในปีงบประมาณ พ.ศ.
+                            <input type="number" name="fiscal_year_req" required value="{{ fiscal_year or '' }}"
+                                readonly
+                                style="width: 80px; border: none; border-bottom: 1px dotted #000; text-align: center; background: transparent; cursor: default;"
+                                placeholder=".......">
+                            โดยผลงานทางวิชาการที่ยื่นในครั้งนี้ มีจำนวน <span id="workCountDisplay">0</span> ผลงาน
+                            ดังมีรายชื่อต่อไปนี้
+                        </div>
+
+                        <div id="works-container" style="margin-top: 25px;">
+                            <!-- Works will be added here -->
+                        </div>
+
+                        <div
+                            style="margin: 20px 0; padding: 15px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 6px;">
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">(ตัวอย่างการระบุ: ระบุชื่อผู้แต่ง
+                                ปี พ.ศ.
+                                ชื่อเรื่อง ชื่อวารสาร ปีที่ ฉบับที่ เดือน เลขหน้า เป็นต้น)</p>
+                        </div>
+
+                        <button type="button" class="btn-success" onclick="addWorkModal()"
+                            style="margin-bottom: 20px; width: 100%; padding: 12px; font-size: 1rem;">
+                            <i class="fas fa-plus-circle"></i> เพิ่มผลงานทางวิชาการ (Add Work)
+                        </button>
+
+                        <!-- Final Summary Estimator -->
+                        <div id="estimation-section"
+                            style="margin-top: 30px; border-top: 2px solid #3498db; padding-top: 20px;">
+                            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #2c3e50;">
+                                <i class="fas fa-calculator" style="margin-right: 10px; color: #3498db;"></i>
+                                สรุปคะแนนจริงและค่าตอบแทน (ประมาณการ)
+                            </h3>
+                            <div class="table-container"
+                                style="background: #fdfdfd; border-radius: 8px; border: 1px solid #eee; overflow: hidden;">
+                                <table class="styled-table" style="margin: 0; width: 100%;">
+                                    <thead style="background: #f1f5f9;">
+                                        <tr>
+                                            <th style="padding:10px;">รายการ</th>
+                                            <th style="padding:10px; text-align:center;">ฐานคะแนน (S)</th>
+                                            <th style="padding:10px; text-align:center;">น้ำหนัก (W)</th>
+                                            <th style="padding:10px; text-align:center;">คะแนนสุทธิ</th>
+                                            <th style="padding:10px; text-align:center;">ค่าตอบแทน (ประมาณการ)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="estimation-body">
+                                        <!-- Injected by JS -->
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 20px; color: #999;">
+                                                กรุณาข้อมูลผลงานเพื่อคำนวณคะแนน</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot
+                                        style="background: #f8fafc; font-weight: bold; border-top: 2px solid #e2e8f0;">
+                                        <tr>
+                                            <td colspan="3" style="text-align: right; padding: 12px;">รวมทั้งสิ้น</td>
+                                            <td id="total-score-est"
+                                                style="text-align: center; color: #3498db; font-size: 1.1rem;">0.00</td>
+                                            <td id="total-comp-est"
+                                                style="text-align: center; color: #27ae60; font-size: 1.1rem;">0.00 ฿
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85rem; color: #666; font-style: italic;">
+                                * หมายเหตุ: การคำนวณนี้เป็นเพียงการประมาณการเบื้องต้นตามหลักเกณฑ์ปัจจุบัน
+                                ผลคะแนนและค่าตอบแทนสุดท้ายจะขึ้นอยู่กับการพิจารณาของคณะกรรมการ
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certification -->
+                    <div class="form-group" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
+                        <div class="checkbox-item" style="align-items: flex-start;">
+                            <input type="checkbox" name="certify" id="certify" required style="margin-top: 5px;">
+                            <label for="certify" style="line-height: 1.6;">
+                                ข้าพเจ้าขอรับรองว่าผลงานทางวิชาการที่ยื่นขอรับเงินค่าตอบแทนในครั้งนี้
+                                ไม่เป็นผลงานที่เคยใช้ยื่นเพื่อขอรับค่าตอบแทนมาก่อน <br>
+                                รายละเอียดตามแบบคำขอขอรับเงินค่าตอบแทนสำหรับพนักงานมหาวิทยาลัยที่มีตำแหน่งวิชาการ
+                                และเอกสารสารหลักฐานของผลงานทางวิชาการตามที่แนบมาพร้อมนี้
+                            </label>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="works_data" id="works_data">
+
+                    <div class="form-actions" style="justify-content: center; gap: 20px; margin-top: 30px;">
+                        <button type="submit" name="action" value="draft" class="btn-secondary"
+                            style="min-width: 150px;">
+                            <i class="fas fa-save"></i> บันทึกแบบร่าง
+                        </button>
+                        <button type="submit" name="action" value="submit" class="btn-primary" style="min-width: 150px;"
+                            {{ 'disabled' if not can_submit else '' }}>
+                            <i class="fas fa-paper-plane"></i> ยืนยันการส่งคำขอ
+                        </button>
+                    </div>
+                </form>
+                <!-- End Form Container Removed -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Selecting Work Type -->
+    <div id="workTypeModal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div style="background: white; width: 500px; margin: 100px auto; padding: 20px; border-radius: 8px;">
+            <h3>เลือกประเภทผลงาน</h3>
+            <div style="display: grid; grid-template-columns: 1fr; gap: 10px;">
+                <button onclick="addWork('research')" class="btn-secondary">บทความงานวิจัย</button>
+                <button onclick="addWork('textbook')" class="btn-secondary">ตำราหรือหนังสือ</button>
+                <button onclick="addWork('creative')" class="btn-secondary">งานสร้างสรรค์</button>
+                <button onclick="addWork('social')" class="btn-secondary">ผลงานรับใช้ท้องถิ่นและสังคม</button>
+                <button onclick="addWork('industry')" class="btn-secondary">ผลงานวิชาการเพื่ออุตสาหกรรม</button>
+                <button onclick="addWork('teaching')" class="btn-secondary">ผลงานการสอน</button>
+                <button onclick="addWork('policy')" class="btn-secondary">ผลงานนโยบายสาธารณะ</button>
+                <button onclick="addWork('innovation')" class="btn-secondary">ผลงานนวัตกรรม</button>
+            </div>
+            <button onclick="document.getElementById('workTypeModal').style.display='none'"
+                style="margin-top: 20px; width: 100%;">ยกเลิก</button>
+        </div>
+    </div>
+
+    <script>
+        let works = [];
+
+        function addWorkModal() {
+            document.getElementById('workTypeModal').style.display = 'block';
+        }
+
+        function addWork(type) {
+            const id = Date.now();
+            let template = '';
+            let remarksHtml = '';
+
+            // Common Title Field with specific placeholder as per user text (implied context)
+            let commonField = `
+                <div id="status-display-${id}" class="sub-section" style="display:none; margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2;">
+                    <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: </strong>
+                    <span class="work-status-label" style="font-weight: bold;"></span>
+                    <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+                <div class="form-group">
+                    <label>ชื่อผลงาน (Title)</label>
+                    <textarea class="work-title" required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea>
+                </div>
+            `;
+
+            if (type === 'research') {
+                template = `
+                    <h4>บทความงานวิจัย</h4>
+                    <div class="form-group"><label>ชื่อบทความงานวิจัย</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea></div>
+                    
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่ บทความวิจัยได้รับการเผยแพร่ในวารสารทางวิชาการที่มีรายชื่ออยู่ในฐานข้อมูลที่เป็นที่ยอมรับในระดับชาติหรือระดับนานาชาติ ดังนี้</h5>
+                        <div class="form-group">
+                            <label>1.1 ชื่อวารสารทางวิชาการ :</label>
+                            <input type="text" onchange="updateWork(${id}, 'journal_name', this.value)" style="width:100%">
+                        </div>
+                         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px;">
+                            <div class="form-group"><label>ปีที่ (Vol)</label><input type="text" onchange="updateWork(${id}, 'vol', this.value)"></div>
+                            <div class="form-group"><label>ฉบับที่ (Issue)</label><input type="text" onchange="updateWork(${id}, 'issue', this.value)"></div>
+                            <div class="form-group"><label>เดือน</label><input type="text" onchange="updateWork(${id}, 'month', this.value)"></div>
+                            <div class="form-group"><label>พ.ศ.</label><input type="text" onchange="updateWork(${id}, 'year_pub', this.value)"></div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="date" onchange="updateWork(${id}, 'date_accept', this.value)"></div>
+                            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="date" onchange="updateWork(${id}, 'date_publish', this.value)"></div>
+                        </div>
+
+                        <div class="form-group" style="margin-top:15px;">
+                            <label>1.2 ฐานข้อมูล; วารสารทางวิชาการตามข้อ 1.1 มีรายชื่ออยู่ในฐานข้อมูลอย่างใดอย่างหนึ่ง ดังนี้</label>
+                            <div class="checkbox-group">
+                                <div>
+                                    <input type="radio" name="lvl_sel_${id}" value="inter" onchange="showSubGroup(${id}, 'lvl', 'inter')"> 
+                                    <strong>ระดับนานาชาติ</strong>
+                                </div>
+                                <div id="sub-lvl-inter-${id}" class="sub-lvl-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                                        <div><input type="radio" name="db_${id}" value="scopus_q1_q2" onchange="updateWork(${id}, 'database', this.value)"> Scopus Q1 หรือ Q2</div>
+                                        <div><input type="radio" name="db_${id}" value="scopus_other" onchange="updateWork(${id}, 'database', this.value)"> ระระดับนานาชาติอื่น นอกเหนือจาก Scopus Q1 หรือ Q2</div>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <input type="radio" name="lvl_sel_${id}" value="national" onchange="showSubGroup(${id}, 'lvl', 'none'); updateWork(${id}, 'database', 'national')"> 
+                                    <strong>ระดับชาติ</strong> <span class="info-icon" data-tooltip="โดยเป็นวารสารที่มีการตีพิมพ์อย่างต่อเนื่องสม่ำเสมอเป็นระยะเวลาอย่างน้อย 3 ปี และมีการตรวจสอบคุณภาพของบทความโดยผู้ทรงคุณวุฒิ (peer reviewer) ซึ่งเป็นบุคคลภายนอกจากหลากหลายสถาบันอย่างน้อย 3 คน ทั้งนี้ วารสารวิชาการดังกล่าวมีกำหนดการเผยแพร่อย่างแน่นอนชัดเจน">i</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การมีส่วนร่วมในผลงานทางวิชาการ; ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                            <div><input type="radio" name="contrib_${id}" value="corresponding" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์บรรณกิจ (corresponding author)</div>
+                            <div><input type="radio" name="contrib_${id}" value="main" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ดำเนินการหลัก (main author)</div>
+                            <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                            <div><input type="radio" name="contrib_${id}" value="co" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ดำเนินการร่วม (co-author)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>หลักฐานการเผยแพร่ในวารสารวิชาการที่อยู่ในฐานข้อมูลระดับนานาชาติ (Scopus Q1, Q2 หรือฐานข้อมูลอื่น) หรือระดับชาติ (TCI)</li>
+                            <li>หลักฐานการตรวจสอบคุณภาพโดยผู้ทรงคุณวุฒิ (Peer Reviewer) อย่างน้อย 3 คนที่เป็นบุคคลภายนอกจากหลากหลายสถาบัน</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'textbook') {
+                template = `
+                    <h4>ตำราหรือหนังสือ</h4>
+                    <div class="form-group"><label>ชื่อผลงาน (ระบุว่าเป็นตำรา/หนังสือ และระบุชื่อเรื่อง)</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. รูปแบบ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="fmt_${id}" value="authored" onchange="showSubGroup(${id}, 'fmt', 'none'); updateWork(${id}, 'format', this.value)"> เขียนทั้งเล่ม (authored book)</div>
+                            <div><input type="radio" name="fmt_${id}" value="chapter" onchange="showSubGroup(${id}, 'fmt', 'chapter'); updateWork(${id}, 'format', this.value)"> ผลงานที่เป็นส่วนหนึ่งในหนังสือที่มีผู้เขียนหลายคน (book chapter) <span class="info-icon" data-tooltip="ซึ่งต้องมีอย่างน้อย 5 บท และมีจำนวนหน้า รวมกันแล้วไม่น้อยกว่า 80 หน้า โดยเนื้อหาสาระของบทในหนังสือทั้ง 5 บท จะต้องไม่ซ้ำซ้อนกัน">i</span></div>
+                            
+                            <div id="sub-fmt-chapter-${id}" class="sub-fmt-${id}" style="display:none; margin-left: 25px; margin-top: 10px; padding: 12px; border-left: 4px solid #3498db; background: #f8fbff; border-radius: 6px; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+                                <label style="display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 8px; color: #2c3e50;">ระบุรายละเอียดบท:</label>
+                                <input type="text" placeholder="ระบุจำนวนบท / ชื่อบท / จำนวนหน้า" onchange="updateWork(${id}, 'chapter_details', this.value)" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การเผยแพร่ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div>
+                                <input type="radio" name="publish_type_sel_${id}" value="inter" onchange="showSubGroup(${id}, 'lvl', 'inter'); updateWork(${id}, 'publish_type', 'inter')"> 
+                                <strong>สำนักพิมพ์ในประเทศและต่างประเทศ</strong>
+                            </div>
+                            <div id="sub-lvl-inter-${id}" class="sub-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                วันที่เผยแพร่ : <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)">
+                            </div>
+
+                            <div>
+                                <input type="radio" name="publish_type_sel_${id}" value="local" onchange="showSubGroup(${id}, 'lvl', 'local'); updateWork(${id}, 'publish_type', 'local')"> 
+                                <strong>โรงพิมพ์ทั่วไปในประเทศ</strong>
+                            </div>
+                            <div id="sub-lvl-local-${id}" class="sub-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                วันที่เผยแพร่ : <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>3. การมีส่วนร่วมในผลงานทางวิชาการ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> เป็นผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>หลักฐานการจัดพิมพ์และเผยแพร่โดยสำนักพิมพ์หรือโรงพิมพ์ทั่วไป</li>
+                            <li>หลักฐานการประเมินโดย Peer Reviewer ก่อนการตีพิมพ์</li>
+                            <li>กรณี Book Chapter: ต้องมีเนื้อหาอย่างน้อย 5 บท และมีจำนวนหน้ารวมกันไม่น้อยกว่า 80 หน้า</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'creative') {
+                template = `
+                    <h4>งานสร้างสรรค์</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea></div>
+                    
+                    <div class="sub-section">
+                        <h5>1. ประเภทของผลงานสร้างสรรค์ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="cr_type_${id}" value="visual" onchange="updateWork(${id}, 'creative_type', this.value)"> สาขาทัศนศิลป์ <span class="info-icon" data-tooltip="จิตรกรรม, ประติมากรรม, ภาพพิมพ์, ภาพถ่าย, คอมพิวเตอร์กราฟิก, สื่อผสม">i</span></div>
+                            <div><input type="radio" name="cr_type_${id}" value="design" onchange="updateWork(${id}, 'creative_type', this.value)"> สาขาการออกแบบประยุกต์ศิลป์ <span class="info-icon" data-tooltip="ออกแบบผลิตภัณฑ์, ตกแต่ง, ออกแบบสื่อ (Communication Design) และอื่นๆ">i</span></div>
+                            <div><input type="radio" name="cr_type_${id}" value="arch" onchange="updateWork(${id}, 'creative_type', this.value)"> สาขาสถาปัตยกรรม <span class="info-icon" data-tooltip="สถาปัตยกรรม, ภูมิสถาปัตยกรรม, สถาปัตยกรรมภายใน, ออกแบบชุมชน, ผังเมือง">i</span></div>
+                            <div><input type="radio" name="cr_type_${id}" value="music" onchange="updateWork(${id}, 'creative_type', this.value)"> สาขาดนตรี <span class="info-icon" data-tooltip="การประพันธ์, การบรรเลง, การขับร้อง, ดุริยางคศิลป์">i</span></div>
+                            <div><input type="radio" name="cr_type_${id}" value="perfor" onchange="updateWork(${id}, 'creative_type', this.value)"> สาขาศิลปะการแสดง <span class="info-icon" data-tooltip="นาฏศิลป์, การแสดง และภาพยนตร์">i</span></div>
+                            <div><input type="radio" name="cr_type_${id}" value="other" onchange="updateWork(${id}, 'creative_type', this.value)"> อื่นๆ <span class="info-icon" data-tooltip="วรรณศิลป์ หรืออื่นๆ โดยคณะกรรมการประจำคณะเห็นชอบ">i</span></div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การเผยแพร่ อย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div>
+                                <input type="radio" name="pub_${id}" value="inter_parent" onchange="showSubGroup(${id}, 'lvl', 'inter')"> 
+                                <strong>ระดับนานาชาติ</strong> <span class="info-icon" data-tooltip="เปิดกว้างสำหรับทุกประเทศ แหล่งเผยแพร่เป็นที่ยอมรับระดับสากล มี Peer Reviewer หรือคณะกรรมการวิชาการดูแล">i</span>
+                            </div>
+                            <div id="sub-lvl-inter-${id}" class="sub-lvl-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <div><input type="radio" name="pub_${id}" value="inter_print" onchange="updateWork(${id}, 'publish_type', this.value)"> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                    <div><input type="radio" name="pub_${id}" value="inter_exhibit" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดนิทรรศการ (exhibition)</div>
+                                    <div><input type="radio" name="pub_${id}" value="inter_perf" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดประกวดและการจัดแสดง (performance)</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <input type="radio" name="pub_${id}" value="coop_parent" onchange="showSubGroup(${id}, 'lvl', 'coop')"> 
+                                <strong>ระดับความร่วมมือระหว่างประเทศ</strong> <span class="info-icon" data-tooltip="ดำเนินการภายใต้โครงการความร่วมมือระหว่างประเทศ เป็นที่ยอมรับในวงวิชาชีพ มี Peer Reviewer หรือคณะกรรมการวิชาการดูแล">i</span>
+                            </div>
+                            <div id="sub-lvl-coop-${id}" class="sub-lvl-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <div><input type="radio" name="pub_${id}" value="coop_print" onchange="updateWork(${id}, 'publish_type', this.value)"> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                    <div><input type="radio" name="pub_${id}" value="coop_exhibit" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดนิทรรศการ (exhibition)</div>
+                                    <div><input type="radio" name="pub_${id}" value="coop_perf" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดประกวดและการจัดแสดง (performance)</div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <input type="radio" name="pub_${id}" value="national_parent" onchange="showSubGroup(${id}, 'lvl', 'national')"> 
+                                <strong>ระดับชาติ</strong> <span class="info-icon" data-tooltip="จัดในหอศิลป์หรือสถานที่เฉพาะทางศิลปะ เป็นที่ยอมรับในวงวิชาชีพ มี Peer Reviewer หรือคณะกรรมการวิชาการดูแล">i</span>
+                            </div>
+                            <div id="sub-lvl-national-${id}" class="sub-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <div><input type="radio" name="pub_${id}" value="national_print" onchange="updateWork(${id}, 'publish_type', this.value)"> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                                    <div><input type="radio" name="pub_${id}" value="national_exhibit" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดนิทรรศการ (exhibition)</div>
+                                    <div><input type="radio" name="pub_${id}" value="national_perf" onchange="updateWork(${id}, 'publish_type', this.value)"> การจัดประกวดและการจัดแสดง (performance) ต่อสาธารณะ</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="sub-section">
+                        <h5>3. การมีส่วนร่วมในผลงานทางวิชาการ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> เป็นผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>หลักฐานการผ่าน Peer Reviewer</li>
+                            <li>รายงานผลงาน (Production Paper) ที่ประกอบด้วย: 
+                                <ul style="list-style-type: circle; margin-left: 20px;">
+                                    <li>แนวคิดและวัตถุประสงค์ของการสร้างสรรค์</li>
+                                    <li>กระบวนการ เทคนิค และวัสดุที่ใช้</li>
+                                    <li>กรอบแนวคิด หลักการวิเคราะห์ หรือทฤษฎีที่ใช้พัฒนางาน</li>
+                                    <li>คำอธิบายความหมายและคุณค่าของผลงาน</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'social') {
+                template = `
+                    <h4>ผลงานรับใช้ท้องถิ่นและสังคม</h4>
+                     <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="1" style="width:100%"></textarea></div>
+                     <div class="form-group"><label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label><textarea onchange="updateWork(${id}, 'dissemination_summary', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. ระดับผลงาน (Self-Assessment)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                                <span class="info-icon" data-tooltip="ผลงานส่งผลกระทบวงกว้างเป็นที่ยอมรับระดับชาติ/นานาชาติ หรือได้รับรางวัลจากองค์กรระดับนานาชาติ">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                                <span class="info-icon" data-tooltip="เป็นแบบอย่างให้ท้องถิ่นอื่นได้ หรือก่อให้เกิดการเปลี่ยนแปลงเชิงนโยบายระดับจังหวัดหรือประเทศ">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                                <span class="info-icon" data-tooltip="แสดงความเชี่ยวชาญ แก้ไขปัญหาหรือพัฒนาชุมชน/ท้องถิ่น/สังคมให้ดีขึ้นอย่างเป็นรูปธรรม">i</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การมีส่วนร่วม</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>เอกสารผลงาน ที่มีรายละเอียด 7 หัวข้อสำคัญ (เช่น การมีส่วนร่วม, สภาพก่อน-หลังการเปลี่ยนแปลง, กระบวนการ, องค์ความรู้ที่ใช้, การประเมินผลลัพธ์ และแนวทางการรักษาพัฒนาการ)</li>
+                            <li>หลักฐานเพิ่มเติม (ถ้ามี) เช่น รูปภาพ, วีดิทัศน์ หรือแถบเสียง</li>
+                            <li>หลักฐานการเผยแพร่สู่สาธารณะ (เวทีนำเสนอหรือการเยี่ยมชมพื้นที่) ที่มีการบันทึกเป็นลายลักษณ์อักษร</li>
+                            <li>หลักฐานการประเมินคุณภาพโดย Peer Reviewer จากหลากหลายสถาบัน</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'industry') {
+                template = `
+                    <h4>ผลงานวิชาการเพื่ออุตสาหกรรม</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                         <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer)</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="pub_${id}" value="article" onchange="updateWork(${id}, 'publish_type', this.value)"> บทความวิจัยในวารสาร/Proceedings</div>
+                            <div><input type="radio" name="pub_${id}" value="report" onchange="updateWork(${id}, 'publish_type', this.value)"> รายงานการวิจัยฉบับสมบูรณ์</div>
+                            <div><input type="radio" name="pub_${id}" value="ip" onchange="updateWork(${id}, 'publish_type', this.value)"> เอกสารแสดงทรัพย์สินทางปัญญา</div>
+                            <div><input type="radio" name="pub_${id}" value="confidential" onchange="updateWork(${id}, 'publish_type', this.value)"> รายงานการวิจัยที่ปกปิดความลับ</div>
+                            <div><input type="radio" name="pub_${id}" value="external_eval" onchange="updateWork(${id}, 'publish_type', this.value)"> รายงานการประเมินผลกระทบ</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน (Self-Assessment)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                                <span class="info-icon" data-tooltip="ส่งผลกระทบต่ออุตสาหกรรมวงกว้างอย่างมีนัยสำคัญ เป็นที่ยอมรับระดับชาติ/นานาชาติ หรือได้รับรางวัลระดับนานาชาติ">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                                <span class="info-icon" data-tooltip="เป็นตัวอย่างในการแก้ปัญหาให้อุตสาหกรรมอื่นได้ หรือก่อให้เกิดการเปลี่ยนแปลงเชิงนโยบายในวงกว้าง">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                                <span class="info-icon" data-tooltip="แก้ปัญหาหรือลดอุปสรรคให้อุตสาหกรรมนั้นๆ ได้อย่างเป็นรูปธรรม หรือมีแนวโน้มพัฒนาอุตสาหกรรมชัดเจน">i</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>3. การมีส่วนร่วม</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>เอกสารประกอบผลงาน ที่ครอบคลุม 7 ประเด็น (เช่น ข้อมูลปัญหา, หลักฐานการมีส่วนร่วมของผู้ใช้, วิธีแก้ปัญหา, เทคโนโลยีที่ใช้, องค์ความรู้ใหม่, ผลกระทบต่อ Value Chain และการนำกลับมาใช้สอน)</li>
+                            <li>หลักฐานการผ่าน Peer Reviewer จากหลากหลายสถาบัน</li>
+                            <li>หลักฐานการใช้ประโยชน์: เช่น บทความที่แต่งร่วมกับบุคลากรในอุตสาหกรรม, สัญญาร่วมทุนวิจัย, เอกสารทรัพย์สินทางปัญญา (สิทธิบัตร/อนุสิทธิบัตร), หรือรายงานการประเมินจากหน่วยงานภายนอก</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'teaching') {
+                template = `
+                    <h4>ผลงานการสอน</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. ระดับผลงาน (Self-Assessment)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                                <span class="info-icon" data-tooltip="มีหลักฐานชัดเจนว่าผลการศึกษาผ่านการรับรองมาตรฐานระดับชาติหรือนานาชาติ">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                                <span class="info-icon" data-tooltip="มีหลักฐานชัดเจนว่าสามารถนำไปใช้กับภาคส่วนภายนอกมหาวิทยาลัยโดยนิติบุคคล">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                                <span class="info-icon" data-tooltip="ริเริ่มสร้างสรรค์ พัฒนาสมรรถนะผู้เรียนเชิงประจักษ์ ใช้ประโยชน์ใน ม. หรือพัฒนาผู้เรียนกลุ่มอื่นได้">i</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. การมีส่วนร่วม</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>เอกสารสรุปผลการจัดการเรียนรู้ ที่ใช้งานจริงมาแล้วไม่น้อยกว่า 2 ปีการศึกษา (4 ภาคการศึกษา) หรือ 4 กระบวนวิชา</li>
+                            <li>รายละเอียด 7 ส่วนสำคัญ (เช่น ปัญหาการเรียนรู้, ทฤษฎีที่ใช้, แผนการสอน/สื่อ, กระบวนการใช้จริง, ผลลัพธ์พัฒนาการผู้เรียน)</li>
+                            <li>หลักฐานการประเมินสอน: ย้อนหลัง 2 ปี ซึ่งต้องมีค่าเฉลี่ยในระดับ "ดีมาก"</li>
+                            <li>หลักฐานการผ่าน Peer Reviewer ภายนอกจากหลากหลายสถาบัน</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'policy') {
+                template = `
+                    <h4>ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="1" style="width:100%"></textarea></div>
+                    <div class="form-group"><label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label><textarea onchange="updateWork(${id}, 'dissemination_summary', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer) ดังนี้</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="pub_${id}" value="presented" onchange="updateWork(${id}, 'publish_type', this.value)"> นำเสนอนโยบายต่อผู้มีส่วนได้เสีย</div>
+                            <div><input type="radio" name="pub_${id}" value="public" onchange="updateWork(${id}, 'publish_type', this.value)"> เผยแพร่นโยบายไปยังผู้เกี่ยวข้อง</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน (Self-Assessment)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                                <span class="info-icon" data-tooltip="ได้รับการอภิปรายกว้างขวาง หรือถูกนำไปใช้จริงโดยหน่วยงานรัฐและเกิดประโยชน์เชิงนโยบาย">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                                <span class="info-icon" data-tooltip="เป็นข้อเสนอใหม่ มีร่างกฎหมาย/นโยบาย/แผน ที่มีคุณภาพดีมาก และมีการอ้างอิงโดยผู้เกี่ยวข้อง">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                                <span class="info-icon" data-tooltip="แสดงการวิเคราะห์สังเคราะห์ที่มีหลักฐานสนับสนุน และแสดงความก้าวหน้าทางวิชาการชัดเจน">i</span>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>3. การมีส่วนร่วม</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>เอกสารวิเคราะห์สังเคราะห์ และข้อมูลสนับสนุนแนวทางแก้ไขปัญหาตามหลักวิชาการ</li>
+                            <li>ผลผลิต (Output): เช่น ร่างกฎหมาย, ร่างนโยบาย, แผน หรือมาตรการต่างๆ</li>
+                            <li>หลักฐานการนำเสนอนโยบายต่อผู้มีส่วนได้เสียและเจ้าหน้าที่ที่รับผิดชอบ</li>
+                            <li>หลักฐานการนำไปสู่การพิจารณาหรือการเผยแพร่ไปยังผู้เกี่ยวข้อง</li>
+                            <li>หลักฐานการผ่าน Peer Reviewer จากหลากหลายสถาบัน</li>
+                        </ul>
+                    </div>
+                `;
+            } else if (type === 'innovation') {
+                template = `
+                    <h4>ผลงานนวัตกรรม</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="1" style="width:100%"></textarea></div>
+                    <div class="form-group"><label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label><textarea onchange="updateWork(${id}, 'dissemination_summary', this.value)" rows="2" style="width:100%"></textarea></div>
+
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer)</h5>
+                        <div class="checkbox-group">
+                            <div><input type="radio" name="inn_${id}" value="report" onchange="updateWork(${id}, 'type_pub', this.value)"> 1.1 รายงานการพัฒนาผลงานนวัตกรรม</div>
+                            <div><input type="radio" name="inn_${id}" value="ip" onchange="updateWork(${id}, 'type_pub', this.value)"> 1.2 เอกสารแสดงทรัพย์สินทางปัญญา</div>
+                            <div><input type="radio" name="inn_${id}" value="public" onchange="updateWork(${id}, 'type_pub', this.value)"> 1.3 การเผยแพร่ผลงานนวัตกรรมผ่านเวทีระดับชาติ/นานาชาติ</div>
+                            <div><input type="radio" name="inn_${id}" value="diffusion" onchange="updateWork(${id}, 'type_pub', this.value)"> 1.4 การแพร่หลาย (diffusion)</div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน (Self-Assessment)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                                <span class="info-icon" data-tooltip="เทคโนโลยีขั้นสูง/ใหม่ พร้อมใช้งานจริงในภาคผลิต (TRL 8+) ยอมรับระดับชาติ/นานาชาติ ใช้เชิงพาณิชย์/ขยายผลธุรกิจ">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                                <span class="info-icon" data-tooltip="ต้นแบบสมบูรณ์ทำงานในสภาพแวดล้อมจริง (TRL 5+) แตกต่างจากเดิม ใช้เชิงพาณิชย์หรือสาธารณะเห็นผลประจักษ์">i</span>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                                <span class="info-icon" data-tooltip="ประยุกต์เทคโนโลยีเหมาะสม มีต้นแบบทดสอบสถานการณ์จริง (TRL 3+) พิสูจน์แนวคิดได้ สร้างมูลค่าเพิ่ม (EVA)">i</span>
+                             </div>
+                        </div>
+                    </div>
+
+                     <div class="sub-section">
+                        <h5>3. การมีส่วนร่วม</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
+                             <div><input type="radio" name="contrib_${id}" value="intellectual" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+                        </div>
+                    </div>
+                `;
+                remarksHtml = `
+                    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+                        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ (โปรดเตรียมรายการดังต่อไปนี้ในลิงก์หลักฐาน)</strong>
+                        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+                            <li>เอกสารบทบาทหน้าที่: ข้อมูลทีมงาน การพัฒนาบุคลากร และการเชื่อมโยงภาคส่วนอื่น</li>
+                            <li>สรุปข้อมูลการพัฒนา: ครอบคลุม 6 ประเด็น (เช่น ปัญหา, แนวทางแก้ปัญหา, ความเชี่ยวชาญที่ใช้, ความรู้ใหม่, การนำไปใช้ประโยชน์ และผลกระทบ)</li>
+                            <li>หลักฐานสนับสนุน: เช่น ข้อมูลทรัพย์สินทางปัญญา, การจัดตั้งธุรกิจใหม่ (Startup/Spin-off), หลักฐานการได้รับทุนภายนอก หรือสัญญาร่วมงานกับอุตสาหกรรม</li>
+                            <li>รายงานวิจัยฉบับสมบูรณ์ รายงานเชิงเทคนิค หรือรายงานประเมินผลกระทบจากผู้ประเมินอิสระ</li>
+                            <li>หลักฐานการผ่าน Peer Reviewer จากบุคคลภายนอกหลากหลายสถาบัน</li>
+                        </ul>
+                    </div>
+                `;
+            }
+
+            // Note: Common Contribution section removed from here as it is now custom per type above
+
+            template += remarksHtml;
+
+            template += `
+                <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
+                    <label style="color: #0056b3;"><i class="fas fa-folder-open"></i> หลักฐานของผลงานนี้ (Evidence for this work)</label>
+                    <div style="display: flex; gap: 20px; margin-bottom: 15px; background: #f8fbff; padding: 12px; border-radius: 8px; border: 1px solid #e0e9f5;">
+                        <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="evidence_type_${id}" id="type_link_${id}" value="link" checked onchange="toggleEvidenceSource(${id}, 'link')" style="cursor: pointer; margin: 0;">
+                            <label for="type_link_${id}" style="cursor: pointer; margin: 0; font-weight: 500;">แนบลิงก์หลักฐาน (Link)</label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="radio" name="evidence_type_${id}" id="type_file_${id}" value="file" onchange="toggleEvidenceSource(${id}, 'file')" style="cursor: pointer; margin: 0;">
+                            <label for="type_file_${id}" style="cursor: pointer; margin: 0; font-weight: 500;">อัปโหลดไฟล์ (File Upload)</label>
+                        </div>
+                    </div>
+
+                    <div id="evidence_link_container_${id}">
+                        <div style="font-size: 0.85em; color: #555; margin-bottom: 5px;">
+                            <i class="fas fa-link"></i> ลิงก์ผลงานเเละหลักฐาน (เช่น Google Drive, Dropbox, หรือลิงก์จากวารสาร/สำนักพิมพ์)
+                        </div>
+                        <input type="url" class="evidence-url-input" placeholder="https://..." onchange="updateWork(${id}, 'evidence_url', this.value)" style="width:100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px;">
+                    </div>
+
+                    <div id="evidence_file_container_${id}" style="display: none;">
+                        <div style="font-size: 0.8em; color: #666; margin-bottom: 5px;">อัปโหลดไฟล์หลักฐาน (จำกัดเฉพาะ pdf, doc, docx, zip, rar)</div>
+                        <input type="file" name="evidence_file_${id}" accept=".pdf,.doc,.docx,.zip,.rar" style="width:100%; padding: 5px;">
+                        <div class="existing-file-info" style="margin-top: 5px; font-size: 0.9em; color: #27ae60; display: none;">
+                            <i class="fas fa-file-check"></i> ไฟล์ปัจจุบัน: <span class="filename"></span>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+
+            let statusDiv = `
+                <div id="status-display-${id}" class="sub-section" style="display:none; margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2; border-radius: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: <span class="work-status-label" style="margin-left:5px;"></span></strong>
+                    </div>
+                    <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;"></div>
+                </div>
+            `;
+
+            works.push({ id: id, type: type, data: { id: id, evidence_type: 'link' } });
+
+            const div = document.createElement('div');
+            div.className = 'work-card';
+            div.id = `work-${id}`;
+            div.innerHTML = `<button type="button" class="remove-work-btn" onclick="removeWork(${id})">ลบ</button>` + statusDiv + template;
+            document.getElementById('works-container').appendChild(div);
+
+            document.getElementById('workTypeModal').style.display = 'none';
+            updateWorkCount();
+        }
+
+        function updateWorkCount() {
+            document.getElementById('workCountDisplay').innerText = works.length;
+            calculateEstimates();
+        }
+
+        function removeWork(id) {
+            works = works.filter(w => w.id !== id);
+            document.getElementById(`work-${id}`).remove();
+            calculateEstimates();
+        }
+
+        function updateWork(id, key, value) {
+            const work = works.find(w => w.id === id);
+            if (work) {
+                work.data[key] = value;
+                calculateEstimates();
+            }
+        }
+
+        const ACADEMIC_POSITION = {{ user.academic_position | tojson | safe }};
+        const CRITERIA_RAW = {{ criteria | tojson | safe }};
+        const REQ_FY = "{{ fiscal_year }}";
+
+        const WORK_TYPE_LABELS = {
+            'research': 'บทความงานวิจัย',
+            'textbook': 'ตำราหรือหนังสือ',
+            'creative': 'งานสร้างสรรค์',
+            'social': 'ผลงานรับใช้ท้องถิ่นและสังคม',
+            'industry': 'ผลงานวิชาการเพื่ออุตสาหกรรม',
+            'teaching': 'ผลงานการสอน',
+            'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ',
+            'innovation': 'ผลงานนวัตกรรม'
+        };
+
+        function calculateEstimates() {
+            const body = document.getElementById('estimation-body');
+            let html = '';
+            let totalScore = 0;
+            let totalComp = 0;
+
+            // Find criteria for current FY
+            let criteria = (CRITERIA_RAW && Array.isArray(CRITERIA_RAW)) ? CRITERIA_RAW.find(c => String(c.fiscal_year) === String(REQ_FY)) : null;
+            if (!criteria && CRITERIA_RAW && CRITERIA_RAW.length > 0) criteria = CRITERIA_RAW[0]; // Fallback to latest
+
+            const qs = criteria ? (criteria.quality_scores || {}) : {};
+            const rs = qs.research || {};
+            const os_score = qs.other || {};
+            const rw = criteria ? (criteria.role_weights || { main: 1.0, co: 0.5 }) : { main: 1.0, co: 0.5 };
+            const pr = criteria ? (criteria.payment_rules || {}) : {};
+
+            if (works.length === 0) {
+                body.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #999;">กรุณาข้อมูลผลงานเพื่อคำนวณคะแนน</td></tr>';
+                document.getElementById('total-score-est').innerText = '0.00';
+                document.getElementById('total-comp-est').innerText = '0.00 ฿';
+                return;
+            }
+
+            works.forEach((w, index) => {
+                let s = 0;
+                let weight = 0;
+                let workTypeName = WORK_TYPE_LABELS[w.type] || w.type;
+
+                // 1. Base Score (S)
+                if (w.type === 'research') {
+                    const db = w.data.database;
+                    if (db === 'scopus_q1_q2') { s = rs.tier1 || 1.25; }
+                    else if (db === 'scopus_other') { s = rs.non_q || 1.00; }
+                    else if (db === 'national') { s = rs.national || 0.75; }
+                } else if (w.type === 'textbook') {
+                    const ts = qs.textbook || { publisher: 1.25, general: 1.0 };
+                    if (w.data.publish_type === 'inter') { s = ts.publisher || 1.25; }
+                    else if (w.data.publish_type === 'local') { s = ts.general || 1.00; }
+                    else { s = ts.publisher || 1.25; }
+                } else if (w.type === 'creative') {
+                    const cs = qs.creative || { international: 1.25, cooperation: 1.0, national: 0.75 };
+                    const pt = w.data.publish_type || '';
+                    if (pt.includes('inter')) { s = cs.international || 1.25; }
+                    else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
+                    else if (pt.includes('national')) { s = cs.national || 0.75; }
+                    else { s = cs.international || 1.25; }
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type)) {
+                    const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
+                    const lvl = w.data.level;
+                    if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
+                    else if (lvl === 'level_a') { s = mScores.a || 1.00; }
+                    else if (lvl === 'level_b') { s = mScores.b || 0.75; }
+                    else { s = mScores.a || 1.00; }
+                }
+
+                // 2. Weight (W)
+                const role = w.data.contribution;
+                if (['first', 'corresponding', 'main'].includes(role)) {
+                    weight = rw.main || 1.0;
+                } else if (['intellectual', 'co'].includes(role)) {
+                    weight = rw.co || 0.5;
+                } else {
+                    weight = 0;
+                }
+
+                const net = s * weight;
+                totalScore += net;
+
+                html += `
+                    <tr>
+                        <td style="padding:10px;">${index + 1}. ${workTypeName}</td>
+                        <td style="text-align:center; padding:10px;">${s.toFixed(3).replace(/\.?0+$/, '') || '0.00'}</td>
+                        <td style="text-align:center; padding:10px;">${weight.toFixed(2).replace(/\.?0+$/, '') || '0.0'}</td>
+                        <td style="text-align:center; padding:10px; font-weight:bold;">${net.toFixed(3).replace(/\.?0+$/, '') || '0.00'}</td>
+                        <td style="text-align:center; padding:10px; color:#999; font-style: italic;">-</td>
+                    </tr>
+                `;
+            });
+
+            // 3. Total Compensation based on totalScore
+            const pos = ACADEMIC_POSITION || "";
+            let posKey = "";
+            if (pos.includes('ผู้ช่วยศาสตราจารย์')) posKey = "asst_prof";
+            else if (pos.includes('รองศาสตราจารย์')) posKey = "assoc_prof";
+            else if (pos.includes('ศาสตราจารย์')) posKey = "prof";
+
+            if (posKey) {
+                const tiers = pr[posKey] || [];
+                if (Array.isArray(tiers)) {
+                    const applicableTiers = tiers.filter(t => totalScore >= parseFloat(t.min_score || 0));
+                    if (applicableTiers.length > 0) {
+                        applicableTiers.sort((a, b) => parseFloat(b.min_score) - parseFloat(a.min_score));
+                        totalComp = applicableTiers[0].amount || 0;
+                    }
+                } else if (typeof tiers === 'object' && tiers !== null) {
+                    // Legacy single tier
+                    if (totalScore >= (tiers.min_score || 0.75)) totalComp = tiers.amount || 0;
+                }
+            }
+
+            body.innerHTML = html;
+            document.getElementById('total-score-est').innerText = totalScore.toFixed(3);
+            document.getElementById('total-comp-est').innerText = totalComp.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+        }
+
+        function showSubGroup(id, groupName, selectedValue) {
+            // Hide all sub-groups in this specific card and group
+            const subGroups = document.querySelectorAll(`.sub-${groupName}-${id}`);
+            subGroups.forEach(el => el.style.display = 'none');
+
+            // Show the selected one
+            const target = document.getElementById(`sub-${groupName}-${selectedValue}-${id}`);
+            if (target) target.style.display = 'block';
+        }
+
+        function toggleEvidenceSource(id, type) {
+            document.getElementById(`evidence_link_container_${id}`).style.display = type === 'link' ? 'block' : 'none';
+            document.getElementById(`evidence_file_container_${id}`).style.display = type === 'file' ? 'block' : 'none';
+            updateWork(id, 'evidence_type', type);
+        }
+
+        function prepareData() {
+            // Map simplified works array to full structure expected by backend
+            const finalWorks = works.map(w => ({
+                type: w.type,
+                details: { ...w.data, id: w.id }, // Ensure ID is in details
+                status: w.status,
+                comment: w.comment
+            }));
+            document.getElementById('works_data').value = JSON.stringify(finalWorks);
+        }
+
+    </script>
+
+    {% if edit_req is defined and edit_req %}
+    <script type="application/json" id="req-data-works">
+    {{ edit_req.works | default([]) | tojson | safe }}
+    </script>
+    <script type="application/json" id="req-data-meta">
+    {
+        "fiscal_year": "{{ edit_req.fiscal_year }}",
+        "certify": "{{ edit_req.certify }}",
+        "id": "{{ edit_req.id }}",
+        "academic_position": "{{ edit_req.applicant_info.academic_position }}"
+    }
+    </script>
+    {% endif %}
+
+    <script>
+        // Initialize Data if Editing
+        window.onload = function () {
+            const metaScript = document.getElementById('req-data-meta');
+            if (metaScript) {
+                try {
+                    const meta = JSON.parse(metaScript.textContent);
+
+                    // Load Academic Position
+                    const positionSelect = document.querySelector('select[name="academic_position"]');
+                    if (positionSelect && meta.academic_position) {
+                        positionSelect.value = meta.academic_position;
+                    }
+
+                    // Load existing fiscal year
+                    const fiscalInput = document.querySelector('input[name="fiscal_year_req"]');
+                    if (fiscalInput) fiscalInput.value = meta.fiscal_year;
+
+                    const certifyBox = document.getElementById('certify');
+                    if (certifyBox && meta.certify == "True") {
+                        certifyBox.checked = true;
+                    }
+
+                    // Add hidden ID field
+                    const form = document.getElementById('mainForm');
+                    if (form) {
+                        const idInput = document.createElement('input');
+                        idInput.type = 'hidden';
+                        idInput.name = 'req_id';
+                        idInput.value = meta.id;
+                        form.appendChild(idInput);
+                    }
+                } catch (e) {
+                    console.error("Error parsing meta data", e);
+                }
+            }
+
+            const worksScript = document.getElementById('req-data-works');
+            if (worksScript) {
+                try {
+                    const savedWorks = JSON.parse(worksScript.textContent);
+                    if (Array.isArray(savedWorks)) {
+                        savedWorks.forEach(w => {
+                            addWork(w.type); // Create the DOM elements
+                            // works array is updated in addWork. Get the last one.
+                            const currentWork = works[works.length - 1];
+                            if (!currentWork) return;
+                            const id = currentWork.id;
+
+                            // Populate data
+                            currentWork.data = JSON.parse(JSON.stringify(w.details || {}));
+                            // IMPORTANT: Keep status/comment to identify historical state, but backend calculation will use them.
+                            currentWork.status = w.status;
+                            currentWork.comment = w.comment;
+
+                            // Update DOM inputs
+                            const card = document.getElementById(`work-${id}`);
+                            if (card) {
+                                // Populate status if exists
+                                if (w.status || w.comment) {
+                                    const statusDisp = card.querySelector(`#status-display-${id}`);
+                                    if (statusDisp) {
+                                        statusDisp.style.display = 'block';
+                                        statusDisp.querySelector('.work-status-label').innerText = w.status || 'อยู่ในระหว่างพิจารณา';
+                                        statusDisp.querySelector('.work-comment-text').innerText = w.comment || '-';
+                                    }
+                                }
+
+                                // Title
+                                const titleInput = card.querySelector('.work-title') || card.querySelector('textarea[onchange*="title"]');
+                                if (titleInput) titleInput.value = w.details.title || '';
+
+                                // Generic Value Setter for other inputs
+                                for (const [key, val] of Object.entries(w.details)) {
+                                    const inputs = card.querySelectorAll(`input, select, textarea`);
+                                    inputs.forEach(el => {
+                                        const attr = el.getAttribute('onchange');
+                                        // Check if onchange contains the key string
+                                        if (attr && attr.includes(`'${key}'`)) {
+                                            if (el.type === 'radio') {
+                                                if (el.value === val) {
+                                                    el.checked = true;
+                                                    // Trigger parent group visibility if nested
+                                                    if (key === 'database') { // Research
+                                                        const parentVal = val.startsWith('scopus') ? 'inter' : 'national';
+                                                        if (parentVal === 'inter') {
+                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="inter"]`);
+                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', 'inter'); }
+                                                        } else {
+                                                            showSubGroup(id, 'lvl', 'none');
+                                                        }
+                                                    } else if (key === 'publish_type') {
+                                                        if (w.type === 'creative') {
+                                                            const parentVal = val.split('_')[0];
+                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="${parentVal}"]`);
+                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', parentVal); }
+                                                        } else if (w.type === 'textbook') { // Textbook
+                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="${val}"]`);
+                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', val); }
+                                                        }
+                                                    } else if (key === 'evidence_type') {
+                                                        toggleEvidenceSource(id, val);
+                                                    }
+                                                }
+                                            } else if (el.type === 'date') {
+                                                // Convert DD/MM/YYYY (BE) to YYYY-MM-DD (AD) for display in date picker
+                                                if (val && val.includes('/')) {
+                                                    const parts = val.split('/');
+                                                    if (parts.length === 3) {
+                                                        const d = parts[0].padStart(2, '0');
+                                                        const m = parts[1].padStart(2, '0');
+                                                        let y = parseInt(parts[2]);
+                                                        if (y > 2400) y -= 543;
+                                                        el.value = `${y}-${m}-${d}`;
+                                                    }
+                                                } else {
+                                                    el.value = val;
+                                                }
+                                            } else {
+                                                el.value = val;
+                                            }
+                                        }
+                                    });
+                                }
+
+                                // Special handling for showing existing file
+                                if (w.details.evidence_type === 'file' && w.details.evidence_file) {
+                                    const fileInfo = card.querySelector('.existing-file-info');
+                                    if (fileInfo) {
+                                        fileInfo.style.display = 'block';
+                                        fileInfo.querySelector('.filename').innerText = w.details.evidence_file;
+                                    }
+                                }
+                            }
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error parsing works data", e);
+                }
+            }
+            // Trigger initial calculation
+            calculateEstimates();
+        };
+    </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

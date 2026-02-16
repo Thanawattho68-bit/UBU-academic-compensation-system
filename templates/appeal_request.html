@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ยื่นอุทธรณ์ - {{ req.id }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="notifications-wrapper" style="position: relative; margin-right: 25px; cursor: pointer;">
+                    <i class="fas fa-bell" id="bellIcon" style="font-size: 1.4rem; color: #555;"></i>
+                    <span id="badge"
+                        style="display:none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.7rem; font-weight: bold; line-height: 1;">0</span>
+                    <div id="notifDropdown"
+                        style="display:none; position: absolute; top: 40px; right: -10px; width: 300px; background: white; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; border-radius: 6px; overflow: hidden;">
+                        <div
+                            style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: 600; color: #333;">
+                            การแจ้งเตือน</div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    ยื่นอุทธรณ์สำหรับคำขอ: <strong>{{ req.id }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div class="form-header">
+                        <h2><i class="fas fa-gavel"></i> แบบฟอร์มขออุทธรณ์ผลการพิจารณา</h2>
+                        <p>โปรดระบุเหตุผลและหลักฐานเพิ่มเติมเพื่อประกอบการพิจารณาใหม่</p>
+                    </div>
+                    <hr style="margin-bottom: 25px; border: 0; border-top: 1px solid #eee;">
+
+                    {% if appeal_remaining is not none %}
+                    <div class="alert alert-warning">
+                        <i class="fas fa-clock"></i> ท่านมีเวลาดำเนินการอีก {{ appeal_remaining }} วัน
+                    </div>
+                    {% endif %}
+
+                    <div class="info-box" style="margin-bottom: 20px;">
+                        <p><strong>หัวข้อผลงาน:</strong> {{ req.title }}</p>
+                        <p><strong>ผลการพิจารณาเดิม:</strong> <span style="color: #dc3545;">{{ req.status }}</span></p>
+                        {% if req.comment %}
+                        <p><strong>ความเห็นจากกรรมการ:</strong> {{ req.comment }}</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>เหตุผลในการขออุทธรณ์</label>
+                            <textarea name="reason" rows="5" required
+                                placeholder="อธิบายเหตุผลที่ท่านต้องการขอให้มีการพิจารณาใหม่..."></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>ลิงค์หลักฐานเพิ่มเติม (ถ้ามี)</label>
+                            <input type="text" name="evidence_link" placeholder="http://example.com/new-evidence">
+                        </div>
+
+                        <div class="form-actions" style="margin-top: 30px;">
+                            <a href="{{ url_for('view_request', req_id=req.id) }}" class="btn-secondary"
+                                style="text-decoration: none; text-align: center;">
+                                <i class="fas fa-arrow-left"></i> ยกเลิก
+                            </a>
+                            <button type="submit" class="btn-primary">
+                                <i class="fas fa-paper-plane"></i> ส่งคำขออุทธรณ์
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

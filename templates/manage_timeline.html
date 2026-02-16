@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>จัดการช่วงเวลายื่นคำขอ - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
+                <div class="notifications-wrapper" style="position: relative; margin-right: 25px; cursor: pointer;">
+                    <i class="fas fa-bell" id="bellIcon" style="font-size: 1.4rem; color: #555;"></i>
+                    <span id="badge"
+                        style="display:none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.7rem; font-weight: bold; line-height: 1;">0</span>
+                    <div id="notifDropdown"
+                        style="display:none; position: absolute; top: 40px; right: -10px; width: 300px; background: white; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; border-radius: 6px; overflow: hidden;">
+                        <div
+                            style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: 600; color: #333;">
+                            การแจ้งเตือน</div>
+                        <div id="notifList"></div>
+                    </div>
+                </div>
+                <div class="user-profile">
+                    <i class="fas fa-user-shield"></i> ผู้ดูแลระบบ
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                        <h2 style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-calendar-check" style="color: var(--primary-color);"></i>
+                            จัดการช่วงเวลายื่นคำขอ
+                        </h2>
+                        <a href="{{ url_for('edit_timeline', year='new') }}" class="btn-primary">
+                            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
+                        </a>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success" style="margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>ปีงบประมาณ</th>
+                                <th>กำหนดการรับคำขอ</th>
+                                <th>สถานะปัจจุบัน</th>
+                                <th style="text-align: center;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in timelines %}
+                            <tr>
+                                <td style="font-weight: bold;">{{ item.fiscal_year }}</td>
+                                <td>{{ item.start_date }} ถึง {{ item.end_date }}</td>
+                                <td>
+                                    <!-- Simple check for active year based on month/day logic -->
+                                    {% set today = 0 %} {# simplified flag #}
+                                    <span class="badge-success">ตั้งค่าแล้ว</span>
+                                </td>
+                                <td style="text-align: center;">
+                                    <a href="{{ url_for('edit_timeline', year=item.fiscal_year) }}" class="btn-warning"
+                                        style="padding: 6px 15px; font-size: 0.85rem; text-decoration: none; border-radius: 4px;">
+                                        <i class="fas fa-edit"></i> แก้ไข
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" style="text-align: center; padding: 40px; color: #999;">
+                                    <i class="fas fa-calendar-times"
+                                        style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                                    ยังไม่มีข้อมูลช่วงเวลายื่นคำขอ
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div style="margin-top: 20px; color: #64748b; font-size: 0.9rem; padding: 0 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    ระบบจะตรวจสอบสิทธิ์การยื่นคำขอโดยอ้างอิงจากปีงบประมาณปัจจบุันและช่วงเวลาที่ท่านกำหนดในหน้าจัดการนี้
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>
