@@ -1,5 +1,4 @@
 Flask
-Flask-SQLAlchemy
 python-docx
 openpyxl
 matplotlib

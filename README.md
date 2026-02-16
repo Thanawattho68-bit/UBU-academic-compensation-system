@@ -5,9 +5,9 @@
 ## Tech Stack
 - **Language:** Python 3.x
 - **Framework:** Flask (Web Framework)
-- **Database:** SQLite (Relational Database)
-- **ORM:** SQLAlchemy (Flask-SQLAlchemy)
-- **Frontend:** HTML5, Vanilla CSS, JavaScript
+- **Database:** SQLite (Embedded with `sqlite3` driver)
+- **Integration:** Native SQL Queries (No ORM for simplicity and performance)
+- **Frontend:** HTML5, Vanilla CSS (Premium Design), JavaScript
 
 ## การติดตั้งและเริ่มต้นใช้งาน
 
@@ -21,10 +21,11 @@ pip install -r requirements.txt
 ```
 
 ### 3. ตั้งค่าฐานข้อมูล (Database Migration)
-เนื่องจากระบบเปลี่ยนจาก JSON มาเป็นฐานข้อมูล SQLite ให้รันสคริปต์เพื่อย้ายข้อมูลครั้งแรก:
+เนื่องจากระบบเปลี่ยนจากระบบ JSON มาเป็นฐานข้อมูล SQLite เต็มรูปแบบ ให้รันสคริปต์เพื่อสร้าง Table และย้ายข้อมูล:
 ```bash
 python migrate_data.py
 ```
+*(หมายเหตุ: การรันสคริปต์นี้จะสร้างไฟล์ `instance/database.db` ให้โดยอัตโนมัติ)*
 
 ### 4. เริ่มรันระบบ
 รันเซิร์ฟเวอร์ด้วยคำสั่ง:
@@ -32,6 +33,17 @@ python migrate_data.py
 python app.py
 ```
 จากนั้นเข้าใช้งานผ่าน Browser ที่: `http://127.0.0.1:5000`
+
+---
+
+## โครงสร้างไฟล์ที่สำคัญ
+
+- `app.py`: ไฟล์หลักสำหรับรันระบบและจัดการ Route ต่างๆ
+- `database.py`: โมดูลสำหรับจัดการการเชื่อมต่อฐานข้อมูล SQLite และการ Query
+- `migrate_data.py`: สคริปต์สำหรับย้ายข้อมูลจากระบบ JSON เข้าสู่ฐานข้อมูล SQLite
+- `instance/database.db`: ไฟล์ฐานข้อมูลจริง (จะถูกสร้างอัตโนมัติ)
+- `templates/`: โฟลเดอร์เก็บไฟล์ HTML (Jinja2)
+- `static/`: โฟลเดอร์เก็บไฟล์ CSS, Images และ JavaScript
 
 ---
 

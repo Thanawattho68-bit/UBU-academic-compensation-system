@@ -4,66 +4,13 @@ import json
 import os
 from datetime import datetime
 import tempfile
-from flask_sqlalchemy import SQLAlchemy
+from database import init_db, query_db, execute_db
 
 app = Flask(__name__)
 app.secret_key = "academic_secret_key"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///database.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-db = SQLAlchemy(app)
 
-# --- DATABASE MODELS ---
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    name = db.Column(db.String(100))
-    role = db.Column(db.String(20))
-    title_name = db.Column(db.String(20))
-    academic_position = db.Column(db.String(100))
-    department = db.Column(db.String(100))
-    faculty = db.Column(db.String(100))
-    position_date = db.Column(db.String(20))
-    position_number = db.Column(db.String(50))
-
-class RequestRecord(db.Model):
-    id = db.Column(db.String(50), primary_key=True) # REQ-YYYY...
-    applicant_username = db.Column(db.String(80), nullable=False)
-    applicant_name = db.Column(db.String(100))
-    fiscal_year = db.Column(db.String(4))
-    status = db.Column(db.String(50))
-    date_submitted = db.Column(db.String(50))
-    total_score = db.Column(db.Float, default=0.0)
-    approved_amount = db.Column(db.Float, default=0.0)
-    comment = db.Column(db.Text)
-    timeline_status = db.Column(db.String(20))
-    batch_id = db.Column(db.String(50))
-    
-    # Store complex metadata as JSON string for simplicity during transition
-    applicant_info_json = db.Column(db.Text) 
-    works = db.relationship('WorkDetail', backref='request', lazy=True, cascade="all, delete-orphan")
-
-class WorkDetail(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    request_id = db.Column(db.String(50), db.ForeignKey('request_record.id'), nullable=False)
-    work_type = db.Column(db.String(50))
-    status = db.Column(db.String(50))
-    score_calc = db.Column(db.Float)
-    payment_calc = db.Column(db.Float)
-    details_json = db.Column(db.Text) # Store nested details as JSON string
-
-class Notification(db.Model):
-    id = db.Column(db.String(100), primary_key=True)
-    message = db.Column(db.Text, nullable=False)
-    recipient_role = db.Column(db.String(50))
-    recipient_username = db.Column(db.String(80))
-    req_id = db.Column(db.String(50))
-    is_read = db.Column(db.Boolean, default=False)
-    timestamp = db.Column(db.String(50))
-
-# Create tables
-with app.app_context():
-    db.create_all()
+# Initialize database
+init_db()
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'zip', 'rar'}
@@ -170,17 +117,12 @@ def get_current_fiscal_year():
     return today.year + 543
 
 def create_notification(message, recipient_role=None, recipient_username=None, req_id=None):
-    new_notif = Notification(
-        id=f"NOTIF-{datetime.now().strftime('%Y%m%d%H%M%S')}-{os.urandom(4).hex()}",
-        message=message,
-        recipient_role=recipient_role,
-        recipient_username=recipient_username,
-        req_id=req_id,
-        is_read=False,
-        timestamp=format_thai_date(datetime.now(), True)
-    )
-    db.session.add(new_notif)
-    db.session.commit()
+    notif_id = f"NOTIF-{datetime.now().strftime('%Y%m%d%H%M%S')}-{os.urandom(4).hex()}"
+    timestamp = format_thai_date(datetime.now(), True)
+    execute_db('''
+        INSERT INTO Notification (id, message, recipient_role, recipient_username, req_id, is_read, timestamp)
+        VALUES (?, ?, ?, ?, ?, 0, ?)
+    ''', (notif_id, message, recipient_role, recipient_username, req_id, timestamp))
 
 def save_data(filename, data):
     # Create a temporary file in the same directory as the target
@@ -654,7 +596,7 @@ def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
         # Check database instead of JSON
-        user = User.query.filter_by(username=username, password=password).first()
+        user = query_db('SELECT * FROM User WHERE username = ? AND password = ?', (username, password), one=True)
         
         # fallback to JSON during migration if user not in DB yet
         if not user:
@@ -662,31 +604,33 @@ def login():
              user_data = next((u for u in users_json if u['username'] == username and u['password'] == password), None)
              if user_data:
                  # Auto-migrate this user to DB
-                 user = User(
-                     username=user_data['username'],
-                     password=user_data['password'],
-                     role=user_data['role'],
-                     name=user_data.get('name'),
-                     title_name=user_data.get('title_name'),
-                     academic_position=user_data.get('academic_position'),
-                     department=user_data.get('department')
-                 )
-                 db.session.add(user)
-                 db.session.commit()
+                 execute_db('''
+                     INSERT INTO User (username, password, role, name, title_name, academic_position, department)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)
+                 ''', (
+                     user_data['username'],
+                     user_data['password'],
+                     user_data['role'],
+                     user_data.get('name'),
+                     user_data.get('title_name'),
+                     user_data.get('academic_position'),
+                     user_data.get('department')
+                 ))
+                 user = query_db('SELECT * FROM User WHERE username = ?', (username,), one=True)
 
         if user:
             # Store more info in session for UI display
             session.update({
-                'username': user.username, 
-                'role': user.role, 
-                'name': f"{user.title_name or ''} {user.name or ''}".strip(),
-                'position': user.academic_position or {
+                'username': user['username'], 
+                'role': user['role'], 
+                'name': f"{user['title_name'] or ''} {user['name'] or ''}".strip(),
+                'position': user['academic_position'] or {
                     'admin': 'ผู้ดูแลระบบ',
                     'administration': 'เจ้าหน้าที่งานบุคคล',
                     'research': 'เจ้าหน้าที่งานวิจัย',
                     'committee': 'คณะกรรมการประจำคณะ',
                     'applicant': 'ผู้ยื่นคำขอ'
-                }.get(user.role, user.role)
+                }.get(user['role'], user['role'])
             })
             return redirect(url_for('dashboard'))
         flash("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
@@ -697,31 +641,28 @@ def get_notifications():
     if 'username' not in session: return jsonify([])
     
     # Query database for notifications
-    notifs = Notification.query.filter(
-        (Notification.is_read == False) & 
-        ((Notification.recipient_username == session['username']) | 
-         (Notification.recipient_role == session['role']))
-    ).order_by(Notification.timestamp.desc()).all()
+    notifs = query_db('''
+        SELECT * FROM Notification 
+        WHERE is_read = 0 
+        AND (recipient_username = ? OR recipient_role = ?)
+        ORDER BY timestamp DESC
+    ''', (session['username'], session['role']))
     
     result = []
     for n in notifs:
         result.append({
-            "id": n.id,
-            "message": n.message,
-            "req_id": n.req_id,
-            "timestamp": n.timestamp
+            "id": n['id'],
+            "message": n['message'],
+            "req_id": n['req_id'],
+            "timestamp": n['timestamp']
         })
     return jsonify(result)
 
 @app.route('/api/notifications/read/<notif_id>', methods=['POST']) # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def read_notification(notif_id):
     if 'username' not in session: return jsonify({"success": False})
-    notif = Notification.query.get(notif_id)
-    if notif:
-        notif.is_read = True
-        db.session.commit()
-        return jsonify({"success": True})
-    return jsonify({"success": False})
+    execute_db('UPDATE Notification SET is_read = 1 WHERE id = ?', (notif_id,))
+    return jsonify({"success": True})
 
 @app.route('/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def notifications_page():
