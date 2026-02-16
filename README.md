@@ -52,12 +52,12 @@ python app.py
 - `@app.route('/')` - หน้าแรก (Entry Point)
 - `@app.route('/dashboard')` - หน้าหลักผู้ใช้งานและระบบค้นหา
 
-### 4. นายกฤษฎา ตะเคียนเกลี้ยง (3 Routes)
+### 4. นายกฤษดา ตะเคียนเกลี้ยง (3 Routes)
 - `@app.route('/manage/rounds')` - จัดการรอบการพิจารณา
 - `@app.route('/round_history')` - ประวัติรอบการพิจารณา
 - `@app.route('/view_round/<id>')` - รายละเอียดรอบการพิจารณารายครั้ง
 
-### 5. นายฤทธิชัย โสนะกาล (3 Routes)
+### 5. นายฤทธิชัย โลมะกาล (3 Routes)
 - `@app.route('/api/notifications')` - ระบบ API แจ้งเตือน
 - `@app.route('/api/notifications/read/<id>')` - API จัดการสถานะการอ่าน
 - `@app.route('/notifications')` - หน้าศูนย์รวมการแจ้งเตือน
@@ -66,11 +66,11 @@ python app.py
 - `@app.route('/appeals')` - รายการอุทธรณ์ผลการพิจารณา
 - `@app.route('/appeal/<id>')` - หน้าการยื่นอุทธรณ์สำหรับผู้ใช้
 
-### 7. นายศุภวัฒน์ โกรธา (2 Routes)
+### 7. นายศุกลวัฒณ์ ไกรษี (2 Routes)
 - `@app.route('/view_request/<id>')` - หน้าดูรายละเอียดคำขอรวม
 - `@app.route('/view_work/<id>/<idx>')` - หน้าดูรายละเอียดผลงานรายชิ้น
 
-### 8. นายฐิติวัฒน์ กุลบุตร (2 Routes)
+### 8. นายฐิติวัฒน์ ลุณบุตร (2 Routes)
 - `@app.route('/manage/timeline')` - จัดการกำหนดการเปิด-ปิดระบบ
 - `@app.route('/edit_timeline')` - แก้ไขข้อมูล Timeline
 
