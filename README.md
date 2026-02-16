@@ -5,9 +5,8 @@
 ## Tech Stack
 - **Language:** Python 3.x
 - **Framework:** Flask (Web Framework)
-- **Database:** SQLite (Embedded with `sqlite3` driver)
-- **Integration:** Native SQL Queries (No ORM for simplicity and performance)
-- **Frontend:** HTML5, Vanilla CSS (Premium Design), JavaScript
+- **Database:** SQLite (sqlite3)
+- **Frontend:** HTML5, Vanilla CSS, JavaScript
 
 ## การติดตั้งและเริ่มต้นใช้งาน
 
