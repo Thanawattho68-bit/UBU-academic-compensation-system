@@ -7,7 +7,6 @@ env/
 .env
 
 # Flask-specific
-instance/
 .webassets-cache
 
 # Data files (Exclude database-like JSONs if you want to keep data local, 
