@@ -20,9 +20,6 @@ notifications.json
 batches.json
 timeline.json
 
-# Uploads
-uploads/
-
 # OS-specific
 .DS_Store
 Thumbs.db
