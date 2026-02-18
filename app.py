@@ -768,9 +768,6 @@ def new_request():
     if 'username' not in session or session['role'] != 'applicant': return redirect(url_for('login'))
     
     can_submit = is_within_timeline()
-    if not can_submit:
-        flash("ไม่อยู่ในช่วงเวลาที่เปิดรับคำขอ")
-        return redirect(url_for('dashboard'))
     
     criteria = load_config('criteria.json', [])
 
@@ -904,7 +901,8 @@ def new_request():
         return redirect(url_for('dashboard'))
     
     timeline = load_config('timeline.json', {})
-    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year)
+    work_types = load_data('work_types.json')
+    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year, timeline=timeline, work_types=work_types, can_submit=can_submit)
 
 @app.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_request(req_id):
@@ -1471,6 +1469,52 @@ def edit_criteria():
 
 
 
+
+@app.route('/api/add_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (เพิ่มประเภทผลงาน)
+def api_add_work_type():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
+    
+    data = request.get_json()
+    label = data.get('label', '').strip()
+    if not label:
+        return jsonify({"success": False, "message": "กรุณาระบุชื่อประเภทผลงาน"})
+    
+    work_types = load_data('work_types.json')
+    
+    # Check for duplicate label
+    if any(wt['label'] == label for wt in work_types):
+        return jsonify({"success": False, "message": "ประเภทผลงานนี้มีอยู่แล้วในระบบ"})
+    
+    # Generate unique ID
+    new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+    new_type = {"id": new_id, "label": label, "is_custom": True}
+    work_types.append(new_type)
+    save_data('work_types.json', work_types)
+    
+    return jsonify({"success": True, "type": new_type})
+
+@app.route('/api/delete_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (ลบประเภทผลงาน)
+def api_delete_work_type():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
+    
+    data = request.get_json()
+    type_id = data.get('id', '')
+    
+    work_types = load_data('work_types.json')
+    target = next((wt for wt in work_types if wt['id'] == type_id), None)
+    
+    if not target:
+        return jsonify({"success": False, "message": "ไม่พบประเภทผลงานที่ต้องการลบ"})
+    
+    if not target.get('is_custom'):
+        return jsonify({"success": False, "message": "ไม่สามารถลบประเภทผลงานหลักของระบบได้"})
+    
+    work_types = [wt for wt in work_types if wt['id'] != type_id]
+    save_data('work_types.json', work_types)
+    
+    return jsonify({"success": True})
 
 @app.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (อัปโหลดไฟล์)
 def uploaded_file(req_id, work_id, filename):
