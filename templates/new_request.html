@@ -1024,6 +1024,7 @@
             works = works.filter(w => w.id !== id);
             document.getElementById(`work-${id}`).remove();
             updateWorkCount();
+            calculateEstimates();
         }
 
         function updateWork(id, key, value) {

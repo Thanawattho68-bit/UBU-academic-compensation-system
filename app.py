@@ -4,9 +4,14 @@ import json
 import os
 from datetime import datetime
 import tempfile
+from database import init_db, query_db, execute_db
 
 app = Flask(__name__)
 app.secret_key = "academic_secret_key"
+
+# Initialize database
+init_db()
+
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'doc', 'docx', 'zip', 'rar'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -48,31 +53,20 @@ def format_thai_date(date_obj, include_time=False):
 
 def parse_thai_date(date_str):
     if not date_str: return None
-    # Handle YYYY-MM-DD
+    # Handle YYYY-MM-DD (standard HTML5 date input)
     try:
         if '-' in date_str:
             return datetime.strptime(date_str, "%Y-%m-%d")
     except: pass
     
-    # Handle DD/MM/YYYY or DD/MM/YY (Thai BE)
+    # Handle DD/MM/YYYY (Thai BE)
     try:
-        parts = date_str.split('/')
-        if len(parts) == 3:
-            d = int(parts[0])
-            m = int(parts[1])
-            y = int(parts[2])
-            
-            # Handle 2-digit abbreviated Thai Year (e.g. 68 -> 2568)
-            if y < 100:
-                y += 2500
-            
-            # If year is B.E. (e.g. 2569), convert to A.D. for internal logic
-            if y > 2400:
-                y -= 543
-                
-            return datetime(y, m, d)
-    except: pass
-    return None
+        dt = datetime.strptime(date_str, "%d/%m/%Y")
+        # If year is B.E. (e.g. 2569), convert to A.D. for internal logic
+        if dt.year > 2400:
+            dt = dt.replace(year=dt.year - 543)
+        return dt
+    except: return None
 
 def is_within_timeline():
     # Load list of timelines
@@ -88,92 +82,25 @@ def is_within_timeline():
     # Find timeline for CURRENT fiscal year
     timeline = next((t for t in timelines if str(t.get('fiscal_year')) == str(current_fy)), None)
     
-    if not timeline:
+    if not timeline or not timeline.get('start_date') or not timeline.get('end_date'):
         return True # Default to open if not configured for this year
     
-    # NEW: Check mult-round configuration
-    # Logic: If specific rounds are defined (even just "Consideration"), we enforce strict checking against SUBMISSION rounds only.
-    # We do NOT fallback to global dates if rounds enable specific control.
-    if 'rounds' in timeline and isinstance(timeline['rounds'], list) and len(timeline['rounds']) > 0:
-        submission_rounds = [r for r in timeline['rounds'] if r.get('type') == 'submission']
-        
-        # If rounds exist but NO submission rounds defined -> Strictly Closed
-        if not submission_rounds:
-            return False
-
+    try:
         now = datetime.now()
         current_val = now.month * 100 + now.day
-        current_date_obj = now.date()
-
-        # Check if we are in ANY "submission" round
-        for r in submission_rounds:
-            try:
-                s_date_str = r['start_date']
-                e_date_str = r['end_date']
-                
-                # Check for Full Date Format (DD/MM/YYYY)
-                if s_date_str.count('/') == 2 and e_date_str.count('/') == 2:
-                        s_dt = parse_thai_date(s_date_str)
-                        e_dt = parse_thai_date(e_date_str)
-                        if s_dt and e_dt:
-                            # Compare full date objects
-                            if s_dt.date() <= current_date_obj <= e_dt.date(): return True
-                else:
-                    # Fallback to Month/Day logic
-                    start_d, start_m = map(int, s_date_str.split('/'))
-                    end_d, end_m = map(int, e_date_str.split('/'))
-                    
-                    start_val = start_m * 100 + start_d
-                    end_val = end_m * 100 + end_d
-                    
-                    if start_val <= end_val:
-                        if start_val <= current_val <= end_val: return True
-                    else:
-                        if current_val >= start_val or current_val <= end_val: return True
-            except: continue
         
-        # If we have rounds but didn't match any active submission round -> Closed
-        return False 
-            
-    # Fallback: If NO rounds are defined at all, use the Global Fiscal Year dates (Main Round)
-    # Also support Full Date for Main Round if provided
-    if timeline.get('start_date') and timeline.get('end_date'):
-         try:
-            now = datetime.now()
-            current_val = now.month * 100 + now.day
-            current_date_obj = now.date()
-            
-            s_date_str = timeline['start_date']
-            e_date_str = timeline['end_date']
-            
-            if s_date_str.count('/') == 2 and e_date_str.count('/') == 2:
-                 s_dt = parse_thai_date(s_date_str)
-                 e_dt = parse_thai_date(e_date_str)
-                 if s_dt and e_dt:
-                     return s_dt.date() <= current_date_obj <= e_dt.date()
-            
-            # Legacy Month/Day
-            start_d, start_m = map(int, s_date_str.split('/'))
-            end_d, end_m = map(int, e_date_str.split('/'))
-            
-            start_val = start_m * 100 + start_d
-            end_val = end_m * 100 + end_d
-            
-            if start_val <= end_val:
-                return start_val <= current_val <= end_val
-            else:
-                return current_val >= start_val or current_val <= end_val
-         except: return True
-
-    return True
-
-
-
-# ... (keep get_remaining_days and others) ...
-
-# ... (Previous routes) ...
-
-
+        start_d, start_m = map(int, timeline['start_date'].split('/'))
+        end_d, end_m = map(int, timeline['end_date'].split('/'))
+        
+        start_val = start_m * 100 + start_d
+        end_val = end_m * 100 + end_d
+        
+        if start_val <= end_val:
+            return start_val <= current_val <= end_val
+        else:
+            return current_val >= start_val or current_val <= end_val
+    except:
+        return True
 
 def get_remaining_days(start_date_str, limit_days=7):
     if not start_date_str: return limit_days
@@ -190,18 +117,12 @@ def get_current_fiscal_year():
     return today.year + 543
 
 def create_notification(message, recipient_role=None, recipient_username=None, req_id=None):
-    notifs = load_data('notifications.json')
-    new_notif = {
-        "id": f"NOTIF-{datetime.now().strftime('%Y%m%d%H%M%S')}-{os.urandom(4).hex()}",
-        "message": message,
-        "recipient_role": recipient_role,
-        "recipient_username": recipient_username,
-        "req_id": req_id,
-        "is_read": False,
-        "timestamp": format_thai_date(datetime.now(), True)
-    }
-    notifs.insert(0, new_notif)
-    save_data('notifications.json', notifs)
+    notif_id = f"NOTIF-{datetime.now().strftime('%Y%m%d%H%M%S')}-{os.urandom(4).hex()}"
+    timestamp = format_thai_date(datetime.now(), True)
+    execute_db('''
+        INSERT INTO Notification (id, message, recipient_role, recipient_username, req_id, is_read, timestamp)
+        VALUES (?, ?, ?, ?, ?, 0, ?)
+    ''', (notif_id, message, recipient_role, recipient_username, req_id, timestamp))
 
 def save_data(filename, data):
     # Create a temporary file in the same directory as the target
@@ -217,57 +138,10 @@ def save_data(filename, data):
             os.remove(temp_path)
         raise e
 
-@app.route('/')
+@app.route('/') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (หน้าแรก)
 def index():
     if 'username' in session: return redirect(url_for('dashboard'))
     return redirect(url_for('login'))
-
-def get_timeline_message(timeline):
-    if not timeline:
-        return ""
-    
-    # Check if we are in a CONSIDERATION round
-    if 'rounds' in timeline and isinstance(timeline['rounds'], list):
-        cid_rounds = [r for r in timeline['rounds'] if r.get('type') == 'consideration']
-        if cid_rounds:
-            try:
-                now = datetime.now()
-                current_date_obj = now.date()
-                current_val = now.month * 100 + now.day
-
-                for r in cid_rounds:
-                    try:
-                        s_date_str = r['start_date']
-                        e_date_str = r['end_date']
-                        name = r.get('name', 'รอบพิจารณา')
-                        
-                        in_round = False
-                        # Check Full Date
-                        if s_date_str.count('/') == 2 and e_date_str.count('/') == 2:
-                                s_dt = parse_thai_date(s_date_str)
-                                e_dt = parse_thai_date(e_date_str)
-                                if s_dt and e_dt and s_dt.date() <= current_date_obj <= e_dt.date():
-                                    in_round = True
-                        else:
-                            # Legacy
-                                start_d, start_m = map(int, s_date_str.split('/'))
-                                end_d, end_m = map(int, e_date_str.split('/'))
-                                s_val = start_m * 100 + start_d
-                                e_val = end_m * 100 + end_d
-                                if s_val <= e_val:
-                                    if s_val <= current_val <= e_val: in_round = True
-                                else:
-                                    if current_val >= s_val or current_val <= e_val: in_round = True
-                        
-                        if in_round:
-                            return f"ขออภัย! ขณะนี้อยู่ในช่วง {name} ({s_date_str} - {e_date_str})\nระบบจึงปิดการรับคำขอชั่วคราว"
-                    except: continue
-            except: pass
-
-    # Default Closed Message
-    start_date = timeline.get('start_date', '1/10')
-    return f"ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ {start_date} ของรอบปีงบประมาณถัดไป"
-
 @app.context_processor
 def inject_timeline():
     can_submit = is_within_timeline()
@@ -275,15 +149,10 @@ def inject_timeline():
     current_fy = str(get_current_fiscal_year())
     
     # Get the specific timeline for alerting
-    tl = {}
     if isinstance(timelines, list):
         tl = next((t for t in timelines if str(t.get('fiscal_year')) == current_fy), {})
     else:
         tl = timelines # Legacy
-        
-    timeline_message = ""
-    if not can_submit:
-        timeline_message = get_timeline_message(tl)
         
     has_submitted = False
     if 'username' in session and session['role'] == 'applicant':
@@ -293,7 +162,7 @@ def inject_timeline():
         if any(r.get('status') != 'แบบร่าง' for r in user_reqs):
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=tl, timeline_message=timeline_message, has_submitted_this_year=has_submitted)
+    return dict(can_submit=can_submit, timeline=tl, has_submitted_this_year=has_submitted)
 
 @app.template_filter('role_status_label')
 def role_status_label(status, role):
@@ -336,7 +205,7 @@ def role_status_label(status, role):
     # Default fallback
     return status
 
-@app.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST'])
+@app.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_work(req_id, work_index):
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -404,56 +273,17 @@ def rich_status_label(req, role):
 
 @app.template_filter('translate_work_type')
 def translate_work_type(initial_type):
-    types = load_config('work_types.json', [])
-    mapping = {t['id']: t['label'] for t in types}
-    # Fallback to hardcoded mapping for safety if file is empty/missing
-    if not mapping:
-        mapping = {
-            'research': 'บทความงานวิจัย',
-            'textbook': 'ตำราหรือหนังสือ',
-            'creative': 'งานสร้างสรรค์',
-            'social': 'ผลงานรับใช้ท้องถิ่นและสังคม',
-            'industry': 'ผลงานวิชาการเพื่ออุตสาหกรรม',
-            'teaching': 'ผลงานการสอน',
-            'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ',
-            'innovation': 'ผลงานนวัตกรรม'
-        }
-    return mapping.get(initial_type, initial_type)
-
-@app.route('/api/add_work_type', methods=['POST'])
-def add_work_type_api():
-    if 'username' not in session: return jsonify({"success": False, "message": "Unauthorized"}), 401
-    
-    label = request.json.get('label')
-    if not label: return jsonify({"success": False, "message": "Missing label"}), 400
-    
-    types = load_config('work_types.json', [])
-    # Check if already exists
-    if any(t['label'] == label for t in types):
-        return jsonify({"success": False, "message": "This type already exists"}), 400
-        
-    new_type = {
-        "id": f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-        "label": label,
-        "is_custom": True
+    mapping = {
+        'research': 'บทความงานวิจัย',
+        'textbook': 'ตำราหรือหนังสือ',
+        'creative': 'งานสร้างสรรค์',
+        'social': 'ผลงานรับใช้ท้องถิ่นและสังคม',
+        'industry': 'ผลงานวิชาการเพื่ออุตสาหกรรม',
+        'teaching': 'ผลงานการสอน',
+        'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ',
+        'innovation': 'ผลงานนวัตกรรม'
     }
-    types.append(new_type)
-    save_data('work_types.json', types)
-    return jsonify({'success': True, 'type': new_type})
-
-@app.route('/api/delete_work_type', methods=['POST'])
-def delete_work_type():
-    data = request.json
-    type_id = data.get('id')
-    
-    types = load_config('work_types.json', [])
-    # Only allow deleting custom types
-    new_types = [t for t in types if t['id'] != type_id or not t.get('is_custom')]
-    
-    if len(new_types) < len(types):
-        save_data('work_types.json', new_types)
-        return jsonify({'success': True})
-    return jsonify({'success': False, 'message': 'ไม่พบประเภทผลงานที่ต้องการลบ หรือเป็นประเภทมาตรฐาน'})
+    return mapping.get(initial_type, initial_type)
 
 @app.template_filter('translate_contribution')
 def translate_contribution(role):
@@ -592,7 +422,7 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
 # I will use multi_replace for that separately if needed, but here I'm instructed to add routes.
 # I will add routes at the end of file.
 
-@app.route('/manage/rounds', methods=['GET', 'POST'])
+@app.route('/manage/rounds', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
 def manage_rounds():
     if 'username' not in session or session['role'] not in ['administration', 'committee', 'admin']: # Committee might want to see history
          return redirect(url_for('login'))
@@ -641,7 +471,7 @@ def manage_rounds():
 
     return render_template('create_round.html', name=session['name'], role=session['role'], position=session.get('position',''), pending_reqs=pending_reqs)
 
-@app.route('/round_history')
+@app.route('/round_history') # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
 def round_history():
     if 'username' not in session or session['role'] not in ['administration', 'committee', 'admin']: 
          return redirect(url_for('login'))
@@ -649,7 +479,7 @@ def round_history():
     batches = load_data('batches.json')
     return render_template('round_history.html', name=session['name'], role=session['role'], position=session.get('position',''), batches=batches)
 
-@app.route('/view_round/<round_id>', methods=['GET', 'POST'])
+@app.route('/view_round/<round_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
 def view_round(round_id):
     if 'username' not in session: return redirect(url_for('login'))
     
@@ -761,19 +591,40 @@ def view_round(round_id):
 
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (เข้าสู่ระบบ)
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
-        users = load_data('users.json')
-        user = next((u for u in users if u['username'] == username and u['password'] == password), None)
+        # Check database instead of JSON
+        user = query_db('SELECT * FROM User WHERE username = ? AND password = ?', (username, password), one=True)
+        
+        # fallback to JSON during migration if user not in DB yet
+        if not user:
+             users_json = load_data('users.json')
+             user_data = next((u for u in users_json if u['username'] == username and u['password'] == password), None)
+             if user_data:
+                 # Auto-migrate this user to DB
+                 execute_db('''
+                     INSERT INTO User (username, password, role, name, title_name, academic_position, department)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)
+                 ''', (
+                     user_data['username'],
+                     user_data['password'],
+                     user_data['role'],
+                     user_data.get('name'),
+                     user_data.get('title_name'),
+                     user_data.get('academic_position'),
+                     user_data.get('department')
+                 ))
+                 user = query_db('SELECT * FROM User WHERE username = ?', (username,), one=True)
+
         if user:
             # Store more info in session for UI display
             session.update({
                 'username': user['username'], 
                 'role': user['role'], 
-                'name': f"{user.get('title_name', '')} {user['name']}".strip(),
-                'position': user.get('academic_position', '') or {
+                'name': f"{user['title_name'] or ''} {user['name'] or ''}".strip(),
+                'position': user['academic_position'] or {
                     'admin': 'ผู้ดูแลระบบ',
                     'administration': 'เจ้าหน้าที่งานบุคคล',
                     'research': 'เจ้าหน้าที่งานวิจัย',
@@ -785,31 +636,35 @@ def login():
         flash("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
     return render_template('login.html')
 
-@app.route('/api/notifications')
+@app.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def get_notifications():
     if 'username' not in session: return jsonify([])
-    notifs = load_data('notifications.json')
-    user_notifs = [
-        n for n in notifs 
-        if not n.get('is_read') and (
-            n.get('recipient_username') == session['username'] or
-            (n.get('recipient_role') and n.get('recipient_role') == session['role'])
-        )
-    ]
-    return jsonify(user_notifs)
+    
+    # Query database for notifications
+    notifs = query_db('''
+        SELECT * FROM Notification 
+        WHERE is_read = 0 
+        AND (recipient_username = ? OR recipient_role = ?)
+        ORDER BY timestamp DESC
+    ''', (session['username'], session['role']))
+    
+    result = []
+    for n in notifs:
+        result.append({
+            "id": n['id'],
+            "message": n['message'],
+            "req_id": n['req_id'],
+            "timestamp": n['timestamp']
+        })
+    return jsonify(result)
 
-@app.route('/api/notifications/read/<notif_id>', methods=['POST'])
+@app.route('/api/notifications/read/<notif_id>', methods=['POST']) # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def read_notification(notif_id):
     if 'username' not in session: return jsonify({"success": False})
-    notifs = load_data('notifications.json')
-    for n in notifs:
-        if n['id'] == notif_id:
-            n['is_read'] = True
-            break
-    save_data('notifications.json', notifs)
+    execute_db('UPDATE Notification SET is_read = 1 WHERE id = ?', (notif_id,))
     return jsonify({"success": True})
 
-@app.route('/notifications')
+@app.route('/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def notifications_page():
     if 'username' not in session: return redirect(url_for('login'))
     notifs = load_data('notifications.json')
@@ -823,7 +678,7 @@ def notifications_page():
     
     return render_template('notifications.html', name=session['name'], role=session['role'], position=session.get('position',''), notifications=user_notifs)
 
-@app.route('/appeals')
+@app.route('/appeals') # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
 def appeals_page():
     if 'username' not in session or session['role'] not in ['committee', 'applicant']:
         return redirect(url_for('login'))
@@ -838,7 +693,7 @@ def appeals_page():
     
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
 
-@app.route('/dashboard')
+@app.route('/dashboard') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (ค้นหาคำขอ)
 def dashboard():
     if 'username' not in session: return redirect(url_for('login'))
     
@@ -847,10 +702,10 @@ def dashboard():
     pending_reqs = []
     
     if session['role'] == 'applicant':
-        display_reqs = [r for r in all_reqs if r.get('applicant') == session['username']]
+        display_reqs = [r for r in all_reqs if r['applicant'] == session['username']]
     elif session['role'] in ['administration', 'research', 'committee']:
         # Show all non-draft requests
-        display_reqs = [r for r in all_reqs if r.get('status') != 'แบบร่าง']
+        display_reqs = [r for r in all_reqs if r['status'] != 'แบบร่าง']
         if session['role'] == 'administration':
             pending_reqs = [r for r in all_reqs if r.get('status') == 'รอเสนอพิจารณา']
     else:
@@ -860,12 +715,10 @@ def dashboard():
     all_users = []
     if session['role'] == 'admin':
         all_users = load_data('users.json')
-        role_order = {'admin': 1, 'administration': 2, 'research': 3, 'committee': 4, 'applicant': 5}
-        all_users.sort(key=lambda u: (role_order.get(u.get('role'), 99), u.get('name', '')))
     
     return render_template('dashboard.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=display_reqs, batches=batches, pending_reqs=pending_reqs, users=all_users)
 
-@app.route('/new_request', methods=['GET', 'POST'])
+@app.route('/new_request', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (ผู้ยื่น/แบบฟอร์ม)
 def new_request():
     if 'username' not in session or session['role'] != 'applicant': return redirect(url_for('login'))
     
@@ -1006,10 +859,9 @@ def new_request():
         return redirect(url_for('dashboard'))
     
     timeline = load_config('timeline.json', {})
-    work_types = load_config('work_types.json', [])
-    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year, work_types=work_types)
+    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year)
 
-@app.route('/view_request/<req_id>', methods=['GET', 'POST'])
+@app.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_request(req_id):
     if 'username' not in session: return redirect(url_for('login'))
     all_reqs = load_data('requests.json')
@@ -1355,7 +1207,7 @@ def view_request(req_id):
 
     return render_template('view_request.html', name=session['name'], role=session['role'], position=session.get('position',''), req=req_data, history=applicant_history, edit_remaining=edit_remaining, appeal_remaining=appeal_remaining, criteria=criteria)
 
-@app.route('/appeal/<req_id>', methods=['GET', 'POST'])
+@app.route('/appeal/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
 def appeal_request(req_id):
     if 'username' not in session or session['role'] != 'applicant': return redirect(url_for('login'))
     all_reqs = load_data('requests.json')
@@ -1393,12 +1245,12 @@ def appeal_request(req_id):
     return render_template('appeal_request.html', name=session['name'], role=session['role'], position=session.get('position',''), req=req_data, appeal_remaining=appeal_remaining)
 
 
-@app.route('/logout')
+@app.route('/logout') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (ออกจากระบบ)
 def logout():
     session.clear()
     return redirect(url_for('login'))
 
-@app.route('/manage_criteria')
+@app.route('/manage_criteria') # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ (Admin/เกณฑ์)
 def manage_criteria():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
@@ -1413,7 +1265,7 @@ def manage_criteria():
         
     return render_template('manage_criteria.html', criteria=criteria, name=session['name'], role=session['role'], timeline=timeline)
 
-@app.route('/manage/timeline', methods=['GET'])
+@app.route('/manage/timeline', methods=['GET']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
 def manage_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
@@ -1425,7 +1277,7 @@ def manage_timeline():
         
     return render_template('manage_timeline.html', name=session['name'], role=session['role'], timelines=timelines, position=session.get('position',''))
 
-@app.route('/edit_timeline', methods=['GET', 'POST'])
+@app.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
 def edit_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
@@ -1446,35 +1298,13 @@ def edit_timeline():
             flash(f"ลบข้อมูลปีงบประมาณ {fiscal_year} เรียบร้อยแล้ว")
             return redirect(url_for('manage_timeline'))
             
-        # Parse Rounds from JSON hidden field
-        rounds_json = request.form.get('rounds_data')
-        rounds = []
-        if rounds_json:
-            try:
-                rounds = json.loads(rounds_json)
-            except: pass
-            
-        # If no rounds passed (maybe older form or empty), try legacy fields fallback? 
-        # But we will update the form to send rounds.
-        # If user submits empty rounds, it means no rounds configured.
-        
-        # 1. Main Round (Fiscal Year Range) - Always 1/10 - 30/9 by default or user input
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
         
-        # 2. Sub Rounds (Special Submission Rounds)
-        rounds_json = request.form.get('rounds_data')
-        rounds = []
-        if rounds_json:
-            try:
-                rounds = json.loads(rounds_json)
-            except: pass
-            
         new_entry = {
             "fiscal_year": new_year,
-            "start_date": start_date, # Main Start
-            "end_date": end_date,     # Main End
-            "rounds": rounds          # Sub Rounds
+            "start_date": start_date,
+            "end_date": end_date
         }
         
         existing_idx = next((i for i, t in enumerate(timelines) if str(t.get('fiscal_year')) == str(new_year)), -1)
@@ -1489,18 +1319,7 @@ def edit_timeline():
 
     return render_template('edit_timeline.html', name=session['name'], role=session['role'], timeline=timeline_data, year=fiscal_year)
 
-@app.route('/set_default_main_round', methods=['POST'])
-def set_default_main_round():
-    if 'username' not in session or session['role'] != 'admin':
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    # Helper API to get default dates
-    return jsonify({
-        "start_date": "1/10",
-        "end_date": "30/9"
-    })
-
-@app.route('/edit_criteria', methods=['GET', 'POST'])
+@app.route('/edit_criteria', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ (เกณฑ์คะแนน)
 def edit_criteria():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
@@ -1608,101 +1427,9 @@ def edit_criteria():
 
 
 
-@app.route('/uploads/<req_id>/<work_id>/<filename>')
+@app.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (อัปโหลดไฟล์)
 def uploaded_file(req_id, work_id, filename):
     return send_from_directory(os.path.join(app.config['UPLOAD_FOLDER'], req_id, work_id), filename)
-
-@app.route('/api/check_work_duplicate', methods=['POST'])
-def check_work_duplicate():
-    if 'username' not in session or session['role'] != 'research':
-        return jsonify({'error': 'Unauthorized'}), 401
-        
-    data = request.json
-    title = data.get('title', '').strip()
-    pub_date_str = data.get('date_publish', '')
-    req_id = data.get('req_id', '')
-    
-    response = {
-        "is_duplicate": False,
-        "duplicate_details": [],
-        "is_old": False,
-        "age_years": 0,
-        "checked_title": title,
-        "checked_date": pub_date_str
-    }
-    
-    # 1. Check Age ( > 2 Years from Today)
-    if pub_date_str:
-        try:
-            # Try parsing YYYY-MM-DD
-            pub_date = None
-            if '-' in pub_date_str:
-                pub_date = datetime.strptime(pub_date_str, "%Y-%m-%d")
-            elif '/' in pub_date_str: # fallback for Thai format if mixed
-                pub_date = parse_thai_date(pub_date_str)
-            
-            if pub_date:
-                # Normalize logic: If year > 2400 (BE), convert to AD (already done in parse_thai_date or manually)
-                if pub_date.year > 2400:
-                    pub_date = pub_date.replace(year=pub_date.year - 543)
-                
-                now = datetime.now()
-                diff = now - pub_date
-                years = diff.days / 365.25
-                response['age_years'] = round(years, 2)
-                if years > 2:
-                    response['is_old'] = True
-        except Exception as e:
-            print(f"Date check error: {e}")
-            
-    
-    # 2. Check Duplicates
-    if title:
-        all_reqs = load_data('requests.json')
-        # Normalize title for comparison
-        target_title = title.lower().replace(" ", "")
-        
-        # Get Current Applicant for Self-Check
-        current_applicant = None
-        for r in all_reqs:
-            if r['id'] == req_id:
-                current_applicant = r['applicant']
-                break
-        
-        # New split response
-        response['self_duplicate_details'] = []
-        response['shared_details'] = []
-
-        for r in all_reqs:
-            # specific logic might be needed to exclude 'draft' or 'cancelled' if desired, 
-            # but usually duplicate check includes all history.
-            if r['id'] == req_id: continue # Skip works in CURRENT request (self)
-            
-            # Skip cancelled requests? Optional, but usually cancelled might just mean error.
-            # Let's keep checking cancelled too just in case.
-            
-            for w in r.get('works', []):
-                w_title = w.get('details', {}).get('title', '').strip()
-                if w_title.lower().replace(" ", "") == target_title:
-                    detail = {
-                        "req_id": r['id'],
-                        "applicant": r['applicant_name'],
-                        "fiscal_year": r.get('fiscal_year', '-'),
-                        "status": w.get('status', 'Unknown'),
-                        "date": w.get('details', {}).get('date_publish', '-')
-                    }
-                    
-                    if r['applicant'] == current_applicant:
-                        response['is_duplicate'] = True # Only flag strict duplicate for SELF
-                        response['self_duplicate_details'].append(detail)
-                    else:
-                        # Found usage by OTHER person (Shared Work)
-                        response['shared_details'].append(detail)
-                        
-        # Legacy field mapping for backward compat if frontend not fully updated yet
-        response['duplicate_details'] = response['self_duplicate_details'] + response['shared_details']
-
-    return jsonify(response)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
