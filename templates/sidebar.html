@@ -76,14 +76,13 @@
 
     function showTimelineAlert(event) {
         if (event) event.preventDefault();
-        var msg = {{ timeline_message | tojson
-    }};
-    if (!msg) {
-        const startDate = "{{ timeline.start_date }}";
-        msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+        var msg = {{ timeline_message | tojson }};
+        if (!msg) {
+            const startDate = "{{ timeline.start_date }}";
+            msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+        }
+        alert(msg);
     }
-    alert(msg);
-}
 
 
     function showAlreadySubmittedAlert(event) {

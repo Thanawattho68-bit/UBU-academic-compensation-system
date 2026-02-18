@@ -158,42 +158,44 @@
                                 {% set role_order = ['admin', 'administration', 'research', 'committee', 'applicant'] %}
 
                                 {% for role_key in role_order %}
-                                {% set role_users = [] %}
-                                {% for user in users if user.role == role_key %}
-                                {% if role_users.append(user) %}{% endif %}
+                                    {% set role_users = [] %}
+                                    {% for user in users if user.role == role_key %}
+                                        {% if role_users.append(user) %}{% endif %}
+                                    {% endfor %}
+
+                                    {% if role_users %}
+                                        <tr onclick="toggleUserGroup('group-{{ role_key }}')"
+                                            style="background: #f1f5f9; cursor: pointer; user-select: none;"
+                                            title="คลิกเพื่อ ย่อ/ขยาย">
+                                            <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
+                                                <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
+                                                    style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
+                                                สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
+                                            </td>
+                                        </tr>
+                                        {% for user in role_users %}
+                                            <tr class="group-{{ role_key }}" style="display: none;">
+                                                <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
+                                                <td>{{ user.username }}</td>
+                                                <td>{{ user.academic_position or '-' }}</td>
+                                                <td>{{ user.faculty or '-' }}</td>
+                                                <td style="text-align: center;">
+                                                    <span class="status-tag"
+                                                        style="background: #e2e8f0; color: #475569; border:none;">
+                                                        {{ user.role }}
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    {% endif %}
                                 {% endfor %}
 
-                                {% if role_users %}
-                                <tr onclick="toggleUserGroup('group-{{ role_key }}')"
-                                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
-                                    title="คลิกเพื่อ ย่อ/ขยาย">
-                                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
-                                        <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
-                                            style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
-                                        สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
-                                    </td>
-                                </tr>
-                                {% for user in role_users %}
-                                <tr class="group-{{ role_key }}" style="display: none;">
-                                {% for user in users %}
-                                <tr>
-                                    <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
-                                    <td>{{ user.username }}</td>
-                                        <td>{{ user.academic_position or '-' }}</td>
-                                    <td>{{ user.faculty or '-' }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="status-tag"
-                                            style="background: #e2e8f0; color: #475569; border:none;">
-                                            {{ user.role }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
-                                        ไม่พบข้อมูลผู้ใช้</td>
-                                </tr>
-                                {% endfor %}
+                                {% if not users %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
+                                            ไม่พบข้อมูลผู้ใช้</td>
+                                    </tr>
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>

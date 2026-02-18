@@ -154,6 +154,51 @@ def inject_timeline():
     else:
         tl = timelines # Legacy
         
+    # Generate timeline message
+    timeline_msg = ""
+    if tl and 'rounds' in tl and isinstance(tl['rounds'], list):
+        cid_rounds = [r for r in tl['rounds'] if r.get('type') == 'consideration']
+        try:
+            now = datetime.now()
+            current_date_obj = now.date()
+            current_val = now.month * 100 + now.day
+            for r in cid_rounds:
+                s_date_str = r.get('start_date', '')
+                e_date_str = r.get('end_date', '')
+                name = r.get('name', 'รอบพิจารณา')
+                
+                in_round = False
+                if s_date_str.count('/') == 2 and e_date_str.count('/') == 2:
+                    try:
+                        s_dt = parse_thai_date(s_date_str)
+                        e_dt = parse_thai_date(e_date_str)
+                        if s_dt and e_dt and s_dt.date() <= current_date_obj <= e_dt.date():
+                            in_round = True
+                    except:
+                        pass
+                else:
+                    try:
+                        start_d, start_m = map(int, s_date_str.split('/'))
+                        end_d, end_m = map(int, e_date_str.split('/'))
+                        s_val = start_m * 100 + start_d
+                        e_val = end_m * 100 + end_d
+                        if s_val <= e_val:
+                            if s_val <= current_val <= e_val: in_round = True
+                        else:
+                            if current_val >= s_val or current_val <= e_val: in_round = True
+                    except:
+                        pass
+                
+                if in_round:
+                    timeline_msg = f"ขออภัย! ขณะนี้อยู่ในช่วง {name} ({s_date_str} - {e_date_str})\nระบบจึงปิดการรับคำขอชั่วคราว"
+                    break
+        except:
+            pass
+    
+    if not timeline_msg and tl:
+        start_date = tl.get('start_date', '1/10')
+        timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ {start_date} ของรอบปีงบประมาณถัดไป"
+        
     has_submitted = False
     if 'username' in session and session['role'] == 'applicant':
         all_reqs = load_data('requests.json')
@@ -162,7 +207,7 @@ def inject_timeline():
         if any(r.get('status') != 'แบบร่าง' for r in user_reqs):
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=tl, has_submitted_this_year=has_submitted)
+    return dict(can_submit=can_submit, timeline=tl, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
 
 @app.template_filter('role_status_label')
 def role_status_label(status, role):
