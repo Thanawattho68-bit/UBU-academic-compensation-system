@@ -980,7 +980,7 @@
                         <div style="font-size: 0.85em; color: #555; margin-bottom: 5px;">
                             <i class="fas fa-link"></i> ลิงก์ผลงานเเละหลักฐาน (เช่น Google Drive, Dropbox, หรือลิงก์จากวารสาร/สำนักพิมพ์)
                         </div>
-                        <input type="url" class="evidence-url-input" placeholder="https://..." onchange="updateWork(${id}, 'evidence_url', this.value)" style="width:100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px;">
+                        <input type="url" class="evidence-url-input" placeholder="https://..." onchange="updateWork(${id}, 'evidence_url', this.value)" required style="width:100%; padding: 10px; border: 1px solid #ced4da; border-radius: 6px;">
                     </div>
 
                     <div id="evidence_file_container_${id}" style="display: none;">
@@ -1146,15 +1146,45 @@
             const subGroups = document.querySelectorAll(`.sub-${groupName}-${id}`);
             subGroups.forEach(el => el.style.display = 'none');
 
+            // If the level selector is changed, we generally want to clear
+            // any existing database choice because the context has shifted.
+            if (groupName === 'lvl') {
+                const dbRadios = document.querySelectorAll(`input[name="db_${id}"]`);
+                dbRadios.forEach(r => r.checked = false);
+
+                // update the work record: national is set explicitly from
+                // the radio that invoked showSubGroup, but for inter we
+                // should clear the earlier value so the user must choose
+                // again.
+                if (selectedValue === 'none') {
+                    updateWork(id, 'database', 'national');
+                } else if (selectedValue === 'inter') {
+                    updateWork(id, 'database', '');
+                }
+            }
+
             // Show the selected one
             const target = document.getElementById(`sub-${groupName}-${selectedValue}-${id}`);
             if (target) target.style.display = 'block';
         }
 
         function toggleEvidenceSource(id, type) {
-            document.getElementById(`evidence_link_container_${id}`).style.display = type === 'link' ? 'block' : 'none';
-            document.getElementById(`evidence_file_container_${id}`).style.display = type === 'file' ? 'block' : 'none';
+            const linkContainer = document.getElementById(`evidence_link_container_${id}`);
+            const fileContainer = document.getElementById(`evidence_file_container_${id}`);
+            linkContainer.style.display = type === 'link' ? 'block' : 'none';
+            fileContainer.style.display = type === 'file' ? 'block' : 'none';
             updateWork(id, 'evidence_type', type);
+
+            // Manage required attributes for inputs
+            const urlInput = linkContainer.querySelector('.evidence-url-input');
+            const fileInput = fileContainer.querySelector('input[type=file]');
+            if (type === 'link') {
+                if (urlInput) urlInput.required = true;
+                if (fileInput) fileInput.required = false;
+            } else {
+                if (urlInput) urlInput.required = false;
+                if (fileInput) fileInput.required = true;
+            }
         }
 
         function prepareData() {
@@ -1316,6 +1346,9 @@
                                         fileInfo.style.display = 'block';
                                         fileInfo.querySelector('.filename').innerText = w.details.evidence_file;
                                     }
+                                    // since a file already exists, we don't require a new upload
+                                    const fileInput = card.querySelector(`input[name="evidence_file_${id}"]`);
+                                    if (fileInput) fileInput.required = false;
                                 }
                             }
                         });

@@ -1,12 +1,12 @@
 [
     {
-        "id": "REQ-25690218094825",
-        "applicant": "user04",
-        "applicant_name": "นาย ศ. สมเกียรติยศ",
+        "id": "REQ-25690219142049",
+        "applicant": "user01",
+        "applicant_name": "นาย ผศ. สมชาย",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
-            "position_date": "10/10/2555",
+            "position_date": "01/01/2560",
             "position_number": "12345",
             "department": "วิทยาการคอมพิวเตอร์",
             "faculty": "วิทยาศาสตร์"
@@ -16,38 +16,50 @@
             {
                 "type": "research",
                 "details": {
-                    "id": 1771382880952,
+                    "contribution": "corresponding",
+                    "database": "national",
+                    "date_accept": "111111-11-11",
+                    "date_publish": "111111-11-11",
                     "evidence_type": "link",
-                    "title": "Fluk",
-                    "vol": "1",
-                    "journal_name": "1",
-                    "month": "1",
-                    "year_pub": "2569",
-                    "date_accept": "2026-02-18",
-                    "date_publish": "2026-02-18",
-                    "evidence_url": "http://127.0.0.1:5000/new_request",
+                    "evidence_url": "https://www.scopus.com/sourceid/10600153309#tabs=0",
+                    "id": 1771485769424,
                     "issue": "1",
-                    "database": "scopus_q1_q2",
-                    "contribution": "first"
+                    "journal_name": "test",
+                    "month": "1",
+                    "title": "ะำหะ",
+                    "vol": "1",
+                    "year_pub": "1"
                 },
-                "base_score": 1.25,
+                "base_score": 0.75,
                 "weight": 1.0,
-                "score_calc": 1.25,
-                "score_breakdown": "ฐาน 1.25 (Scopus Q1/Q2) x น้ำหนัก 1.0",
+                "score_calc": 0.75,
+                "score_breakdown": "ฐาน 0.75 (TCI/National) x น้ำหนัก 1.0",
                 "payment_calc": 0,
-                "status": "อนุมัติ"
+                "status": "อนุมัติ",
+                "comment": "ผ่านการอุทธรณ์",
+                "appeal_comment": "แนบหลักฐานเพิ่มเติ่มแล้วรบกวนตรวจสอบอีกรอบ",
+                "appeal_evidence": "www.https://test.com",
+                "already_appealed": true
             }
         ],
-        "date": "18/02/2569 09:48",
+        "date": "19/02/2569 14:23",
         "status": "อนุมัติ",
-        "score": 1.25,
+        "score": 0.75,
         "suggested_compensation": 5600.0,
-        "comment": "",
+        "comment": "กรอกความมีส่วนร่วมผิดครับ",
         "timeline_status": "ontime",
         "certify": true,
         "approved_amount": 5600.0,
-        "total_score": 1.25,
+        "return_date": "19/02/2569",
+        "title": null,
+        "category": null,
+        "evidence": null,
+        "total_score": 0.75,
         "total_compensation": 5600.0,
-        "batch_id": "ROUND-20260218095310"
+        "batch_id": "ROUND-20260219142536",
+        "appeal_date": "19/02/2569 14:31",
+        "appeal": {
+            "status": "อนุมัติ"
+        }
     }
 ]

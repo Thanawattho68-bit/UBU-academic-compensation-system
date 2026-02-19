@@ -348,7 +348,8 @@
                                 {% if role in ['applicant', 'administration'] %}
                                 <td>
                                     {% if req.works %}
-                                    <ul class="table-item-list score-list">
+                                    {% set scoreColor = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
+                                    <ul class="table-item-list score-list" style="color: {{ scoreColor }};">
                                         {% for w in req.works %}
                                         <li>{{
                                             "%.3f"|format(w.score_calc|float if w.score_calc else 0) }}</li>
@@ -362,8 +363,9 @@
                                 {% if role != 'research' %}
                                 <td>
                                     {% if req.approved_amount or req.suggested_compensation %}
-                                    <span style="color: var(--success-color); font-weight: bold;">
-                                        {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
+                                    {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
+                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
+                                    <span style="color: {{ color }}; font-weight: bold;">
                                         {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
                                         ฿</span>
                                     {% else %}

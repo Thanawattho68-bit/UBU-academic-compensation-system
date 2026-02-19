@@ -846,6 +846,31 @@ def new_request():
                     pass
             # If evidence_type is 'link', it will be handled by the JSON data already
 
+        # BEFORE CALCULATION: ensure that when submitting, each work has evidence
+        if action == 'submit':
+            missing = False
+            for w in works:
+                d = w.get('details', {})
+                ev_type = d.get('evidence_type')
+                if ev_type == 'link':
+                    if not d.get('evidence_url'):
+                        missing = True
+                        break
+                elif ev_type == 'file':
+                    if not d.get('evidence_file'):
+                        missing = True
+                        break
+                else:
+                    missing = True
+                    break
+            if missing:
+                flash("กรุณาแนบหลักฐานให้ครบถ้วนสำหรับทุกผลงานก่อนส่ง");
+                # preserve edit_id if editing
+                if edit_id:
+                    return redirect(url_for('new_request', edit_id=edit_id))
+                else:
+                    return redirect(url_for('new_request'))
+
         total_score = 0
         suggested_compensation = 0
         
