@@ -30,5 +30,10 @@
     {
         "id": "innovation",
         "label": "ผลงานนวัตกรรม"
+    },
+    {
+        "id": "custom_20260220104506",
+        "label": "rrrrrr",
+        "is_custom": true
     }
 ]

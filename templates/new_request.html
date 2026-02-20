@@ -941,7 +941,25 @@
                     </div>
 
                     <div class="sub-section">
-                        <h5>2. การมีส่วนร่วมในผลงาน</h5>
+                        <h5>2. ระดับผลงาน (Self-Assessment / Suggested Scale)</h5>
+                        <div class="checkbox-group">
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ A (คะแนน 1.00)</strong>
+                             </div>
+                             <div>
+                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                <strong>ระดับ B (คะแนน 0.75)</strong>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="sub-section">
+                        <h5>3. การมีส่วนร่วมในผลงาน</h5>
                         <div class="checkbox-group">
                              <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
                              <div><input type="radio" name="contrib_${id}" value="corresponding" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์บรรณกิจ (corresponding author)</div>
@@ -1082,7 +1100,7 @@
                     else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
                     else if (pt.includes('national')) { s = cs.national || 0.75; }
                     else { s = cs.international || 1.25; }
-                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type)) {
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || (w.type.startsWith('custom_') && w.data.level)) {
                     const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
                     const lvl = w.data.level;
                     if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }

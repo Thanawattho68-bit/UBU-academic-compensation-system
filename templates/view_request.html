@@ -131,11 +131,22 @@
                         <i class="fas fa-info-circle"></i> สถานะ: {{ full_label }}
                         {% endif %}
                     </h2>
-                    {% if req.comment and req.status in ['แก้ไข','ส่งคืน','ไม่อนุมัติ','ผลงานซ้ำซ้อน'] %}
+                    {% if req.status in ['แก้ไข','ส่งคืน','ไม่อนุมัติ','ผลงานซ้ำซ้อน'] %}
+                    {% set ns = namespace(comment=req.comment) %}
+                    {% if not ns.comment %}
+                    {% for w in req.works %}
+                    {% if w.comment and not ns.comment %}
+                    {% set ns.comment = w.comment %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if ns.comment %}
                     <div
                         style="margin-top: 12px; background: rgba(255,255,255,0.2); border-left: 4px solid white; padding: 10px 20px; border-radius: 0 8px 8px 0; color: white;">
-                        <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{ req.comment }}
+                        <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{ ns.comment }}
                     </div>
+                    {% endif %}
                     {% endif %}
                 </div>
 
@@ -263,6 +274,12 @@
                                                     <span style="color: #64748b;">•</span> {{ work.type |
                                                     translate_work_type }}
                                                 </span>
+                                                {% if work.comment %}
+                                                <div
+                                                    style="margin-top: 5px; font-size: 0.9rem; color: #dc3545; padding-left: 20px;">
+                                                    <strong>เหตุผล:</strong> {{ work.comment }}
+                                                </div>
+                                                {% endif %}
                                             </td>
                                             {% if role != 'research' %}
                                             <td

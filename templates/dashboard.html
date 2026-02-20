@@ -158,43 +158,43 @@
                                 {% set role_order = ['admin', 'administration', 'research', 'committee', 'applicant'] %}
 
                                 {% for role_key in role_order %}
-                                    {% set role_users = [] %}
-                                    {% for user in users if user.role == role_key %}
-                                        {% if role_users.append(user) %}{% endif %}
-                                    {% endfor %}
+                                {% set role_users = [] %}
+                                {% for user in users if user.role == role_key %}
+                                {% if role_users.append(user) %}{% endif %}
+                                {% endfor %}
 
-                                    {% if role_users %}
-                                        <tr onclick="toggleUserGroup('group-{{ role_key }}')"
-                                            style="background: #f1f5f9; cursor: pointer; user-select: none;"
-                                            title="คลิกเพื่อ ย่อ/ขยาย">
-                                            <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
-                                                <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
-                                                    style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
-                                                สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
-                                            </td>
-                                        </tr>
-                                        {% for user in role_users %}
-                                            <tr class="group-{{ role_key }}" style="display: none;">
-                                                <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
-                                                <td>{{ user.username }}</td>
-                                                <td>{{ user.academic_position or '-' }}</td>
-                                                <td>{{ user.faculty or '-' }}</td>
-                                                <td style="text-align: center;">
-                                                    <span class="status-tag"
-                                                        style="background: #e2e8f0; color: #475569; border:none;">
-                                                        {{ user.role }}
-                                                    </span>
-                                                </td>
-                                            </tr>
-                                        {% endfor %}
-                                    {% endif %}
+                                {% if role_users %}
+                                <tr onclick="toggleUserGroup('group-{{ role_key }}')"
+                                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
+                                    title="คลิกเพื่อ ย่อ/ขยาย">
+                                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
+                                        <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
+                                            style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
+                                        สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
+                                    </td>
+                                </tr>
+                                {% for user in role_users %}
+                                <tr class="group-{{ role_key }}" style="display: none;">
+                                    <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.academic_position or '-' }}</td>
+                                    <td>{{ user.faculty or '-' }}</td>
+                                    <td style="text-align: center;">
+                                        <span class="status-tag"
+                                            style="background: #e2e8f0; color: #475569; border:none;">
+                                            {{ user.role }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                                {% endif %}
                                 {% endfor %}
 
                                 {% if not users %}
-                                    <tr>
-                                        <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
-                                            ไม่พบข้อมูลผู้ใช้</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
+                                        ไม่พบข้อมูลผู้ใช้</td>
+                                </tr>
                                 {% endif %}
                             </tbody>
                         </table>
@@ -235,7 +235,7 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% elif role == 'applicant' %}
                                 <option value="ส่งแล้ว">ส่งแล้ว</option>
                                 <option value="รอตรวจประวัติการยื่นขอ">กำลังตรวจสอบคำขอ</option>
@@ -246,13 +246,13 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% elif role == 'research' %}
                                 <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ</option>
                                 <option value="ผลงานผ่าน">ไม่เคยใช้</option>
                                 <option value="ผลงานซ้ำซ้อน">เคยใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% else %}
                                 <option value="ส่งแล้ว">ส่งแล้ว</option>
                                 <option value="รอตรวจประวัติการยื่นขอ">รอตรวจประวัติการยื่นขอ</option>
@@ -264,7 +264,7 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานซ้ำซ้อน</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% endif %}
                             </select>
                         </div>
@@ -348,7 +348,8 @@
                                 {% if role in ['applicant', 'administration'] %}
                                 <td>
                                     {% if req.works %}
-                                    {% set scoreColor = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
+                                    {% set scoreColor = 'var(--danger-color)' if req.status in
+                                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
                                     <ul class="table-item-list score-list" style="color: {{ scoreColor }};">
                                         {% for w in req.works %}
                                         <li>{{
@@ -364,7 +365,8 @@
                                 <td>
                                     {% if req.approved_amount or req.suggested_compensation %}
                                     {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
-                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
+                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์']
+                                    else 'var(--success-color)' %}
                                     <span style="color: {{ color }}; font-weight: bold;">
                                         {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
                                         ฿</span>

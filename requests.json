@@ -61,5 +61,113 @@
         "appeal": {
             "status": "อนุมัติ"
         }
+    },
+    {
+        "id": "REQ-25690220094637",
+        "applicant": "user02",
+        "applicant_name": "นาง รศ. สมหญิง",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "position_date": "15/05/2558",
+            "position_number": "54321",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "fiscal_year": "2569",
+        "works": [
+            {
+                "type": "research",
+                "details": {
+                    "id": 1771555572386,
+                    "evidence_type": "link",
+                    "title": "Fluk",
+                    "vol": "1",
+                    "issue": "1",
+                    "month": "1",
+                    "year_pub": "2569",
+                    "date_accept": "2026-02-18",
+                    "date_publish": "2026-02-18",
+                    "evidence_url": "http://127.0.0.1:5000/new_request",
+                    "journal_name": "1",
+                    "database": "scopus_q1_q2",
+                    "contribution": "first"
+                },
+                "base_score": 1.25,
+                "weight": 1.0,
+                "score_calc": 1.25,
+                "score_breakdown": "ฐาน 1.25 (Scopus Q1/Q2) x น้ำหนัก 1.0",
+                "payment_calc": 0,
+                "status": "ผลงานซ้ำซ้อน"
+            }
+        ],
+        "date": "20/02/2569 09:46",
+        "status": "รอตรวจประวัติการยื่นขอ",
+        "score": 1.25,
+        "suggested_compensation": 9900.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "certify": true,
+        "approved_amount": 9900.0
+    },
+    {
+        "id": "REQ-25690220101735",
+        "applicant": "user03",
+        "applicant_name": "นาย ศ. สมศักดิ์",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "position_date": "10/10/2555",
+            "position_number": "99887",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "fiscal_year": "2569",
+        "works": [
+            {
+                "type": "research",
+                "details": {
+                    "id": 1771557427821,
+                    "evidence_type": "link",
+                    "title": "Fluk",
+                    "vol": "1",
+                    "issue": "1",
+                    "month": "1",
+                    "year_pub": "2569",
+                    "date_accept": "2026-02-18",
+                    "date_publish": "2026-02-18",
+                    "evidence_url": "http://127.0.0.1:5000/new_request",
+                    "journal_name": "1",
+                    "database": "scopus_q1_q2",
+                    "contribution": "first"
+                },
+                "base_score": 1.25,
+                "weight": 1.0,
+                "score_calc": 0,
+                "score_breakdown": "ไม่อนุมัติการพิจารณา / ผลงานซ้ำซ้อน",
+                "payment_calc": 0,
+                "status": "ไม่อนุมัติ",
+                "comment": "ไม่อนุมัติ",
+                "appeal_comment": "ทดลอง",
+                "appeal_evidence": "ทดลอง",
+                "already_appealed": true
+            }
+        ],
+        "date": "20/02/2569 10:17",
+        "status": "ไม่อนุมัติ",
+        "score": 0,
+        "suggested_compensation": 0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "certify": true,
+        "approved_amount": 0,
+        "total_score": 0,
+        "total_compensation": 0,
+        "batch_id": "ROUND-20260220103022",
+        "appeal_date": "20/02/2569 10:46",
+        "rejection_date": "20/02/2569",
+        "appeal": {
+            "status": "ไม่อนุมัติ"
+        }
     }
 ]

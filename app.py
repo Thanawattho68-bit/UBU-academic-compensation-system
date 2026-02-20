@@ -53,54 +53,107 @@ def format_thai_date(date_obj, include_time=False):
 
 def parse_thai_date(date_str):
     if not date_str: return None
+    date_str = date_str.strip()
     # Handle YYYY-MM-DD (standard HTML5 date input)
     try:
         if '-' in date_str:
             return datetime.strptime(date_str, "%Y-%m-%d")
     except: pass
     
-    # Handle DD/MM/YYYY (Thai BE)
-    try:
-        dt = datetime.strptime(date_str, "%d/%m/%Y")
-        # If year is B.E. (e.g. 2569), convert to A.D. for internal logic
-        if dt.year > 2400:
-            dt = dt.replace(year=dt.year - 543)
-        return dt
-    except: return None
+    # Handle DD/MM/YYYY or D/M/Y (Thai BE)
+    for fmt in ["%d/%m/%Y", "%d/%m/%y", "%d/%m"]:
+        try:
+            dt = datetime.strptime(date_str, fmt)
+            
+            # If it's just d/m, assume current year
+            if fmt == "%d/%m":
+                dt = dt.replace(year=datetime.now().year)
+            
+            if dt.year > 2400:
+                dt = dt.replace(year=dt.year - 543)
+            elif fmt == "%d/%m/%y":
+                # Always treat 2-digit year as BE (25xx)
+                # AD = (2500 + y) - 543 = 1957 + y
+                # Since strptime %y gives 2000 + y or 1900 + y:
+                if dt.year >= 2000:
+                    dt = dt.replace(year=dt.year - 43) # (2000+y) - 43 = 1957+y
+                else: 
+                    dt = dt.replace(year=dt.year + 57) # (1900+y) + 57 = 1957+y
+            
+            return dt
+        except: continue
+    return None
 
 def is_within_timeline():
     # Load list of timelines
     timelines = load_config('timeline.json', [])
     if not isinstance(timelines, list):
-        # Legacy single object support (convert if needed)
         if isinstance(timelines, dict):
             timelines = [{"fiscal_year": "2569", **timelines}]
         else:
-            return True # Fallback
+            return True
 
     current_fy = get_current_fiscal_year()
-    # Find timeline for CURRENT fiscal year
     timeline = next((t for t in timelines if str(t.get('fiscal_year')) == str(current_fy)), None)
     
-    if not timeline or not timeline.get('start_date') or not timeline.get('end_date'):
-        return True # Default to open if not configured for this year
-    
-    try:
-        now = datetime.now()
-        current_val = now.month * 100 + now.day
-        
-        start_d, start_m = map(int, timeline['start_date'].split('/'))
-        end_d, end_m = map(int, timeline['end_date'].split('/'))
-        
-        start_val = start_m * 100 + start_d
-        end_val = end_m * 100 + end_d
-        
-        if start_val <= end_val:
-            return start_val <= current_val <= end_val
-        else:
-            return current_val >= start_val or current_val <= end_val
-    except:
+    if not timeline:
         return True
+    
+    now = datetime.now()
+    
+    def check_period(start_str, end_str):
+        if not start_str or not end_str: return False
+        try:
+            # Try to handle d/m and d/m/y Formats
+            s_parts = start_str.split('/')
+            e_parts = end_str.split('/')
+            
+            if len(s_parts) == 2 and len(e_parts) == 2:
+                # MM/DD comparison
+                current_val = now.month * 100 + now.day
+                s_d, s_m = map(int, s_parts)
+                e_d, e_m = map(int, e_parts)
+                s_val = s_m * 100 + s_d
+                e_val = e_m * 100 + e_d
+                if s_val <= e_val:
+                    return s_val <= current_val <= end_val
+                else:
+                    return current_val >= s_val or current_val <= end_val
+            
+            # Full date comparison (D/M/Y or BE Year)
+            dt_start = parse_thai_date(start_str)
+            dt_end = parse_thai_date(end_str)
+            
+            if dt_start and dt_end:
+                # Set time to start of day and end of day
+                dt_start = dt_start.replace(hour=0, minute=0, second=0)
+                dt_end = dt_end.replace(hour=23, minute=59, second=59)
+                return dt_start <= now <= dt_end
+            
+            return False
+        except:
+            return False
+
+    # Check Sub Rounds FIRST - prioritize explicit windows
+    rounds = timeline.get('rounds', [])
+    if rounds:
+        # 1. If we are currently in a "Consideration" (closed) round -> CLOSED
+        for r in rounds:
+            if r.get('type') == 'consideration':
+                if check_period(r.get('start_date'), r.get('end_date')):
+                    return False
+        
+        # 2. If there are any "Submission" rounds, we MUST be in one to be OPEN
+        submission_rounds = [r for r in rounds if r.get('type') == 'submission']
+        if submission_rounds:
+            for r in submission_rounds:
+                if check_period(r.get('start_date'), r.get('end_date')):
+                    return True
+            # We are not in ANY submission round, even if global range is OK
+            return False 
+        
+    # Fallback to Main Round (Global range)
+    return check_period(timeline.get('start_date'), timeline.get('end_date'))
 
 def get_remaining_days(start_date_str, limit_days=7):
     if not start_date_str: return limit_days
@@ -144,65 +197,58 @@ def index():
     return redirect(url_for('login'))
 @app.context_processor
 def inject_timeline():
+    # We use our improved is_within_timeline check
     can_submit = is_within_timeline()
     timelines = load_config('timeline.json', [])
     current_fy = str(get_current_fiscal_year())
     
-    # Get the specific timeline for alerting
-    if isinstance(timelines, list):
-        tl = next((t for t in timelines if str(t.get('fiscal_year')) == current_fy), {})
-    else:
-        tl = timelines # Legacy
+    # Get the specific timeline for the current fiscal year
+    tl = next((t for t in timelines if str(t.get('fiscal_year')) == current_fy), {}) if isinstance(timelines, list) else timelines
         
-    # Generate timeline message
     timeline_msg = ""
-    if tl and 'rounds' in tl and isinstance(tl['rounds'], list):
-        cid_rounds = [r for r in tl['rounds'] if r.get('type') == 'consideration']
-        try:
-            now = datetime.now()
-            current_date_obj = now.date()
-            current_val = now.month * 100 + now.day
-            for r in cid_rounds:
-                s_date_str = r.get('start_date', '')
-                e_date_str = r.get('end_date', '')
-                name = r.get('name', 'รอบพิจารณา')
-                
-                in_round = False
-                if s_date_str.count('/') == 2 and e_date_str.count('/') == 2:
-                    try:
-                        s_dt = parse_thai_date(s_date_str)
-                        e_dt = parse_thai_date(e_date_str)
-                        if s_dt and e_dt and s_dt.date() <= current_date_obj <= e_dt.date():
-                            in_round = True
-                    except:
-                        pass
-                else:
-                    try:
-                        start_d, start_m = map(int, s_date_str.split('/'))
-                        end_d, end_m = map(int, e_date_str.split('/'))
-                        s_val = start_m * 100 + start_d
-                        e_val = end_m * 100 + end_d
-                        if s_val <= e_val:
-                            if s_val <= current_val <= e_val: in_round = True
-                        else:
-                            if current_val >= s_val or current_val <= e_val: in_round = True
-                    except:
-                        pass
-                
-                if in_round:
-                    timeline_msg = f"ขออภัย! ขณะนี้อยู่ในช่วง {name} ({s_date_str} - {e_date_str})\nระบบจึงปิดการรับคำขอชั่วคราว"
-                    break
-        except:
-            pass
+    now = datetime.now()
     
-    if not timeline_msg and tl:
+    if tl and 'rounds' in tl and isinstance(tl['rounds'], list):
+        rounds = tl['rounds']
+        
+        # 1. Check if we are currently in a "Consideration" (closed) round
+        for r in rounds:
+            if r.get('type') == 'consideration':
+                s_dt = parse_thai_date(r.get('start_date'))
+                e_dt = parse_thai_date(r.get('end_date'))
+                if s_dt and e_dt:
+                    # Adjust to start/end of day
+                    s_dt = s_dt.replace(hour=0, minute=0, second=0)
+                    e_dt = e_dt.replace(hour=23, minute=59, second=59)
+                    if s_dt <= now <= e_dt:
+                        name = r.get('name', 'รอบพิจารณา')
+                        timeline_msg = f"ขณะนี้ระบบปิดรับคำขอเนื่องจากอยู่ในช่วง '{name}'\n({r.get('start_date')} - {r.get('end_date')})"
+                        break
+
+        # 2. If not in a consideration round but still can't submit, check for the NEXT submission round
+        if not timeline_msg and not can_submit:
+            # Find submission rounds that start in the future
+            future_submissions = []
+            for r in rounds:
+                if r.get('type') == 'submission':
+                    s_dt = parse_thai_date(r.get('start_date'))
+                    if s_dt and s_dt > now:
+                        future_submissions.append((s_dt, r))
+            
+            if future_submissions:
+                # Get the soonest one
+                future_submissions.sort(key=lambda x: x[0])
+                next_round = future_submissions[0][1]
+                timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดรับคำขอ\nจะเปิดรับรอบถัดไป: '{next_round.get('name')}'\nในวันที่ {next_round.get('start_date')}"
+    
+    # 3. Fallback for main round if still no message and closed
+    if not timeline_msg and not can_submit:
         start_date = tl.get('start_date', '1/10')
         timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ {start_date} ของรอบปีงบประมาณถัดไป"
         
     has_submitted = False
     if 'username' in session and session['role'] == 'applicant':
         all_reqs = load_data('requests.json')
-        # Check if user has any non-draft request in the current fiscal year
         user_reqs = [r for r in all_reqs if r['applicant'] == session['username'] and str(r.get('fiscal_year')) == current_fy]
         if any(r.get('status') != 'แบบร่าง' for r in user_reqs):
             has_submitted = True
@@ -268,8 +314,8 @@ def view_work(req_id, work_index):
         # Admin is updating work details
         work = req['works'][work_index]
         
-        # Update details based on work type - ONLY ALLOW LEVEL UPDATES AS REQUESTED (for A+, A, B choices)
-        if work['type'] in ['social', 'industry', 'teaching', 'policy', 'innovation']:
+        # Update details based on work type - ALLOW LEVEL UPDATES for all relevant types including custom
+        if work['type'] in ['social', 'industry', 'teaching', 'policy', 'innovation'] or work['type'].startswith('custom_'):
             if 'level' in request.form:
                 work['details']['level'] = request.form.get('level')
             
@@ -328,7 +374,16 @@ def translate_work_type(initial_type):
         'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ',
         'innovation': 'ผลงานนวัตกรรม'
     }
-    return mapping.get(initial_type, initial_type)
+    if initial_type in mapping:
+        return mapping[initial_type]
+    
+    # Try to load from work_types.json if not in mapping
+    work_types = load_data('work_types.json')
+    wt = next((t for t in work_types if t['id'] == initial_type), None)
+    if wt:
+        return wt.get('label', initial_type)
+        
+    return initial_type
 
 @app.template_filter('translate_contribution')
 def translate_contribution(role):
@@ -383,7 +438,7 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
             elif db == 'scopus_other': s = rs.get('non_q', 1.00)
             elif db == 'national': s = rs.get('national', 0.75)
         
-        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation']:
+        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation'] or (w_type.startswith('custom_') and details.get('level')):
             # Use merged ABC scores
             type_scores = qs.get('merged_abc', {'a_plus': 1.25, 'a': 1.0, 'b': 0.75})
             lvl = details.get('level')
@@ -549,10 +604,6 @@ def view_round(round_id):
     works_breakdown = []
     for r in target_reqs:
         for idx, w in enumerate(r.get('works', [])):
-            # Skip duplicate works for committee
-            if w.get('status') == 'ผลงานซ้ำซ้อน':
-                continue
-                
             works_breakdown.append({
                 "req_id": r['id'],
                 "work_index": idx,
@@ -1368,11 +1419,18 @@ def edit_timeline():
             
         start_date = request.form.get('start_date')
         end_date = request.form.get('end_date')
+        rounds_json = request.form.get('rounds_data', '[]')
+        
+        try:
+            rounds_list = json.loads(rounds_json)
+        except:
+            rounds_list = []
         
         new_entry = {
             "fiscal_year": new_year,
             "start_date": start_date,
-            "end_date": end_date
+            "end_date": end_date,
+            "rounds": rounds_list
         }
         
         existing_idx = next((i for i, t in enumerate(timelines) if str(t.get('fiscal_year')) == str(new_year)), -1)
@@ -1494,6 +1552,83 @@ def edit_criteria():
 
 
 
+
+@app.route('/api/check_work_duplicate', methods=['POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบความซ้ำซ้อน)
+def api_check_work_duplicate():
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
+    
+    data = request.get_json()
+    title = data.get('title', '').strip()
+    date_publish_str = data.get('date_publish', '')
+    req_id = data.get('req_id', '')
+
+    if not title:
+        return jsonify({"success": False, "message": "กรุณาระบุชื่อผลงาน"})
+
+    all_reqs = load_data('requests.json')
+    
+    self_duplicates = []
+    shared_works = []
+    
+    current_req = next((r for r in all_reqs if r['id'] == req_id), None)
+    current_username = current_req['applicant'] if current_req else session['username']
+
+    for r in all_reqs:
+        # Skip checking against its own items if same request ID
+        # (Though we check titles, and one request can have multiple works)
+        # But usually we check against OTHER requests/years
+        if r['id'] == req_id:
+            # We skip checking against other works in the SAME request for now
+            # unless instructed otherwise. Usually duplicate check is across historical data.
+            continue
+        
+        for w in r.get('works', []):
+            w_title = w.get('details', {}).get('title', '').strip()
+            if w_title.lower() == title.lower():
+                item = {
+                    "id": r['id'],
+                    "applicant": r.get('applicant_name', r['applicant']),
+                    "status": r['status'],
+                    "fiscal_year": r.get('fiscal_year', '-')
+                }
+                if r['applicant'] == current_username:
+                    self_duplicates.append(item)
+                else:
+                    shared_works.append(item)
+
+    # Check Age (2 years limit)
+    is_old = False
+    age_years = 0
+    checked_date = False
+    
+    if date_publish_str:
+        dt_pub = parse_thai_date(date_publish_str)
+        if dt_pub:
+            checked_date = True
+            now = datetime.now()
+            # Simple year difference
+            age_years = now.year - dt_pub.year
+            # Check if it's more than 2 years
+            if age_years > 2:
+                is_old = True
+            # For exact 2-year boundary, could check months
+            elif age_years == 2:
+                if now.month < dt_pub.month or (now.month == dt_pub.month and now.day < dt_pub.day):
+                    # Not yet fully 2 years
+                    pass
+                else:
+                    is_old = True
+
+    return jsonify({
+        "success": True,
+        "is_duplicate": len(self_duplicates) > 0,
+        "self_duplicate_details": self_duplicates,
+        "shared_details": shared_works,
+        "is_old": is_old,
+        "age_years": age_years,
+        "checked_date": checked_date
+    })
 
 @app.route('/api/add_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (เพิ่มประเภทผลงาน)
 def api_add_work_type():
