@@ -372,6 +372,31 @@
                         </div>
                     </div>
                 `;
+            } else {
+                // Custom Work Type Rendering
+                template = `
+                    <h4>ประเภทผลงานกำหนดเอง: ${targetWork.type}</h4>
+                    <div class="form-group"><label>ชื่อผลงาน</label><textarea readonly rows="2" style="width:100%">${data.title || ''}</textarea></div>
+                    <div class="sub-section">
+                        <h5>1. การเผยแพร่</h5>
+                        <div class="form-group">
+                            <label>ฐานข้อมูล/แหล่งเผยแพร่ :</label>
+                            <input type="text" readonly value="${data.database || ''}" style="width:100%">
+                        </div>
+                        <div class="form-group">
+                            <label>วันที่เผยแพร่ :</label>
+                            <input type="text" readonly value="${data.date_publish || ''}" style="width:100%">
+                        </div>
+                    </div>
+                    <div class="sub-section">
+                        <h5>2. ระดับผลงาน</h5>
+                        <div class="checkbox-group">
+                             <div><input type="radio" name="level" value="level_a_plus" ${levelDisabledAttr} ${data.level === 'level_a_plus' ? 'checked' : ''}> ระดับ A+</div>
+                             <div><input type="radio" name="level" value="level_a" ${levelDisabledAttr} ${data.level === 'level_a' ? 'checked' : ''}> ระดับ A</div>
+                             <div><input type="radio" name="level" value="level_b" ${levelDisabledAttr} ${data.level === 'level_b' ? 'checked' : ''}> ระดับ B</div>
+                        </div>
+                    </div>
+                `;
             }
 
             // Contribution Section

@@ -73,14 +73,20 @@
 </aside>
 
 <script>
-function showTimelineAlert(event) {
-    if (event) event.preventDefault();
-    const startDate = "{{ timeline.start_date }}";
-    alert("ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป");
-}
 
-function showAlreadySubmittedAlert(event) {
-    if (event) event.preventDefault();
-    alert("คุณได้ยื่นคำขอสำหรับปีงบประมาณนี้เรียบร้อยแล้ว\nสามารถยื่นคำขอได้เพียงปีละ 1 ครั้งเท่านั้น");
-}
+    function showTimelineAlert(event) {
+        if (event) event.preventDefault();
+        var msg = {{ timeline_message | tojson }};
+        if (!msg) {
+            const startDate = "{{ timeline.start_date }}";
+            msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+        }
+        alert(msg);
+    }
+
+
+    function showAlreadySubmittedAlert(event) {
+        if (event) event.preventDefault();
+        alert("คุณได้ยื่นคำขอสำหรับปีงบประมาณนี้เรียบร้อยแล้ว\nสามารถยื่นคำขอได้เพียงปีละ 1 ครั้งเท่านั้น");
+    }
 </script>

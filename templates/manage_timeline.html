@@ -68,7 +68,19 @@
                             {% for item in timelines %}
                             <tr>
                                 <td style="font-weight: bold;">{{ item.fiscal_year }}</td>
-                                <td>{{ item.start_date }} ถึง {{ item.end_date }}</td>
+                                <td>
+                                    <div><strong>รอบปีงบประมาณ:</strong> {{ item.start_date }} ถึง {{ item.end_date }}
+                                    </div>
+                                    {% if item.rounds %}
+                                    <div style="margin-top: 5px; font-size: 0.85em; color: #666;">
+                                        {% for r in item.rounds %}
+                                        <div><i class="fas fa-dot-circle"
+                                                style="font-size: 0.6em; vertical-align: middle;"></i> {{ r.name }} ({{
+                                            r.type }}): {{ r.start_date }} - {{ r.end_date }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </td>
                                 <td>
                                     <!-- Simple check for active year based on month/day logic -->
                                     {% set today = 0 %} {# simplified flag #}

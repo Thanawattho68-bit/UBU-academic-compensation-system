@@ -131,6 +131,16 @@
                 {% if role == 'admin' %}
                 <div class="table-container">
                     <h2 style="margin-bottom: 20px;"><i class="fas fa-users-cog"></i> รายชื่อผู้ใช้ทั้งหมดในระบบ</h2>
+                    <div style="margin-bottom: 15px; display: flex; gap: 10px;">
+                        <button onclick="toggleAllGroups(true)" class="btn-secondary"
+                            style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;">
+                            <i class="fas fa-expand-alt"></i> เปิดทั้งหมด
+                        </button>
+                        <button onclick="toggleAllGroups(false)" class="btn-secondary"
+                            style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;">
+                            <i class="fas fa-compress-alt"></i> ปิดทั้งหมด
+                        </button>
+                    </div>
                     <div class="table-responsive-wrapper">
                         <table class="styled-table">
                             <thead>
@@ -143,8 +153,28 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {% for user in users %}
-                                <tr>
+                                {% set groups = users | groupby('role') %}
+                                {# Define order for roles #}
+                                {% set role_order = ['admin', 'administration', 'research', 'committee', 'applicant'] %}
+
+                                {% for role_key in role_order %}
+                                {% set role_users = [] %}
+                                {% for user in users if user.role == role_key %}
+                                {% if role_users.append(user) %}{% endif %}
+                                {% endfor %}
+
+                                {% if role_users %}
+                                <tr onclick="toggleUserGroup('group-{{ role_key }}')"
+                                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
+                                    title="คลิกเพื่อ ย่อ/ขยาย">
+                                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
+                                        <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
+                                            style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
+                                        สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
+                                    </td>
+                                </tr>
+                                {% for user in role_users %}
+                                <tr class="group-{{ role_key }}" style="display: none;">
                                     <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
                                     <td>{{ user.username }}</td>
                                     <td>{{ user.academic_position or '-' }}</td>
@@ -156,12 +186,16 @@
                                         </span>
                                     </td>
                                 </tr>
-                                {% else %}
+                                {% endfor %}
+                                {% endif %}
+                                {% endfor %}
+
+                                {% if not users %}
                                 <tr>
                                     <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
                                         ไม่พบข้อมูลผู้ใช้</td>
                                 </tr>
-                                {% endfor %}
+                                {% endif %}
                             </tbody>
                         </table>
                     </div>
@@ -201,7 +235,7 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% elif role == 'applicant' %}
                                 <option value="ส่งแล้ว">ส่งแล้ว</option>
                                 <option value="รอตรวจประวัติการยื่นขอ">กำลังตรวจสอบคำขอ</option>
@@ -212,13 +246,13 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% elif role == 'research' %}
                                 <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ</option>
                                 <option value="ผลงานผ่าน">ไม่เคยใช้</option>
                                 <option value="ผลงานซ้ำซ้อน">เคยใช้แล้ว</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% else %}
                                 <option value="ส่งแล้ว">ส่งแล้ว</option>
                                 <option value="รอตรวจประวัติการยื่นขอ">รอตรวจประวัติการยื่นขอ</option>
@@ -230,7 +264,7 @@
                                 <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
                                 <option value="ผลงานซ้ำซ้อน">ผลงานซ้ำซ้อน</option>
                                 <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
-                                <option value="ยกเลิก">ยกเลิก</option>
+
                                 {% endif %}
                             </select>
                         </div>
@@ -314,7 +348,9 @@
                                 {% if role in ['applicant', 'administration'] %}
                                 <td>
                                     {% if req.works %}
-                                    <ul class="table-item-list score-list">
+                                    {% set scoreColor = 'var(--danger-color)' if req.status in
+                                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
+                                    <ul class="table-item-list score-list" style="color: {{ scoreColor }};">
                                         {% for w in req.works %}
                                         <li>{{
                                             "%.3f"|format(w.score_calc|float if w.score_calc else 0) }}</li>
@@ -328,8 +364,10 @@
                                 {% if role != 'research' %}
                                 <td>
                                     {% if req.approved_amount or req.suggested_compensation %}
-                                    <span style="color: var(--success-color); font-weight: bold;">
-                                        {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
+                                    {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
+                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์']
+                                    else 'var(--success-color)' %}
+                                    <span style="color: {{ color }}; font-weight: bold;">
                                         {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
                                         ฿</span>
                                     {% else %}
@@ -405,6 +443,31 @@
                 {% endif %}
 
                 <script>
+                    function toggleUserGroup(groupClass) {
+                        const rows = document.querySelectorAll('.' + groupClass);
+                        const icon = document.getElementById('icon-' + groupClass);
+                        rows.forEach(row => {
+                            if (row.style.display === 'none') {
+                                row.style.display = '';
+                                if (icon) icon.style.transform = 'rotate(0deg)';
+                            } else {
+                                row.style.display = 'none';
+                                if (icon) icon.style.transform = 'rotate(-90deg)';
+                            }
+                        });
+                    }
+
+                    function toggleAllGroups(show) {
+                        const allRows = document.querySelectorAll('tr[class^="group-"]');
+                        const allIcons = document.querySelectorAll('i[id^="icon-group-"]');
+                        allRows.forEach(row => {
+                            row.style.display = show ? '' : 'none';
+                        });
+                        allIcons.forEach(icon => {
+                            icon.style.transform = show ? 'rotate(0deg)' : 'rotate(-90deg)';
+                        });
+                    }
+
                     let currentPage = 1;
                     let currentBatchPage = 1;
 

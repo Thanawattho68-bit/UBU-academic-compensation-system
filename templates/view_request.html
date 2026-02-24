@@ -26,6 +26,10 @@
             color: #94a3b8;
         }
 
+        .amount-danger {
+            color: #e74c3c;
+        }
+
         .badge-status {
             display: inline-block;
             padding: 8px 18px;
@@ -127,11 +131,22 @@
                         <i class="fas fa-info-circle"></i> สถานะ: {{ full_label }}
                         {% endif %}
                     </h2>
-                    {% if req.comment and req.status in ['แก้ไข','ส่งคืน','ไม่อนุมัติ','ผลงานซ้ำซ้อน'] %}
+                    {% if req.status in ['แก้ไข','ส่งคืน','ไม่อนุมัติ','ผลงานซ้ำซ้อน'] %}
+                    {% set ns = namespace(comment=req.comment) %}
+                    {% if not ns.comment %}
+                    {% for w in req.works %}
+                    {% if w.comment and not ns.comment %}
+                    {% set ns.comment = w.comment %}
+                    {% endif %}
+                    {% endfor %}
+                    {% endif %}
+
+                    {% if ns.comment %}
                     <div
                         style="margin-top: 12px; background: rgba(255,255,255,0.2); border-left: 4px solid white; padding: 10px 20px; border-radius: 0 8px 8px 0; color: white;">
-                        <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{ req.comment }}
+                        <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{ ns.comment }}
                     </div>
+                    {% endif %}
                     {% endif %}
                 </div>
 
@@ -259,6 +274,12 @@
                                                     <span style="color: #64748b;">•</span> {{ work.type |
                                                     translate_work_type }}
                                                 </span>
+                                                {% if work.comment %}
+                                                <div
+                                                    style="margin-top: 5px; font-size: 0.9rem; color: #dc3545; padding-left: 20px;">
+                                                    <strong>เหตุผล:</strong> {{ work.comment }}
+                                                </div>
+                                                {% endif %}
                                             </td>
                                             {% if role != 'research' %}
                                             <td
@@ -309,6 +330,14 @@
                                                     onmouseout="this.style.color='#64748b'">
                                                     <i class="fas fa-eye"></i>
                                                 </a>
+                                                {% if role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ' %}
+                                                <button type="button"
+                                                    onclick='checkDuplicate({{ work.details.title | tojson }}, {{ work.details.date_publish | tojson }}, "{{ req.id }}", this)'
+                                                    class="exclude-check"
+                                                    style="border: none; background: transparent; color: #f59e0b; font-size: 1.2rem; margin-left: 10px; cursor: pointer;">
+                                                    <i class="fas fa-search-plus" title="ตรวจสอบความซ้ำซ้อน/อายุ"></i>
+                                                </button>
+                                                {% endif %}
                                             </td>
                                         </tr>
                                         {% endfor %}
@@ -330,10 +359,10 @@
                                             </td>
                                             <td
                                                 style="padding: 24px; text-align: center; border-left: 1px solid #e2e8f0;">
+                                                {% set amt = (req.approved_amount or req.suggested_compensation)|float
+                                                %}
                                                 <span id="total_amount_display"
-                                                    class="amount-display {{ 'amount-rejected' if req.status == 'ไม่อนุมัติ' else 'amount-approved' }}">
-                                                    {% set amt = (req.approved_amount or
-                                                    req.suggested_compensation)|float %}
+                                                    class="amount-display {{ 'amount-danger' if (amt == 0 or req.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน', 'ยกเลิก', 'ซ้ำซ้อนบางส่วน']) else 'amount-approved' }}">
                                                     ฿{{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt)
                                                     }}
                                                 </span>
@@ -708,6 +737,79 @@
                     }
                 }
             });
+        }
+        function checkDuplicate(title, dateVal, reqId, btn) {
+            if (!title) { alert("ไม่มีชื่อผลงาน"); return; }
+
+            // Show loading state
+            const icon = btn.querySelector('i');
+            const originalClass = icon.className;
+            icon.className = "fas fa-spinner fa-spin";
+
+            fetch('/api/check_work_duplicate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ title: title, date_publish: dateVal, req_id: reqId })
+            })
+                .then(res => res.json())
+                .then(data => {
+                    icon.className = originalClass; // Restore icon
+
+                    let msg = "ผลการตรวจสอบ:\n----------------\n";
+                    let hasStrictIssue = false;
+                    let hasInfo = false;
+
+                    // 1. Check Age
+                    if (data.is_old) {
+                        msg += "⚠️ ผลงานนี้เผยแพร่เกิน 2 ปีแล้ว (" + data.age_years + " ปี)\n";
+                        hasStrictIssue = true;
+                    } else if (data.age_years > 0) {
+                        msg += "✅ ผลงานนี้เผยแพร่มาแล้ว " + data.age_years + " ปี (ยังไม่เกิน 2 ปี)\n";
+                    } else if (!data.checked_date) {
+                        msg += "⚠️ ไม่พบข้อมูลวันที่เผยแพร่\n";
+                    }
+
+                    msg += "\n----------------\n";
+
+                    // 2. Check Self Duplicates (Critical)
+                    if (data.is_duplicate && data.self_duplicate_details && data.self_duplicate_details.length > 0) {
+                        msg += "⛔ พบการขอซ้ำซ้อนด้วยตนเอง (Self-Duplicate) " + data.self_duplicate_details.length + " รายการ:\n";
+                        data.self_duplicate_details.forEach(d => {
+                            msg += "- โดย: " + d.applicant + " (สถานะ: " + d.status + ", ปี: " + d.fiscal_year + ")\n";
+                        });
+                        hasStrictIssue = true;
+                    }
+
+                    // 3. Check Shared Work (Info)
+                    if (data.shared_details && data.shared_details.length > 0) {
+                        msg += "ℹ️ พบการใช้งานร่วมโดยผู้อื่น (Shared Work) " + data.shared_details.length + " รายการ:\n";
+                        data.shared_details.forEach(d => {
+                            msg += "- โดย: " + d.applicant + " (สถานะ: " + d.status + ", ปี: " + d.fiscal_year + ")\n";
+                        });
+                        msg += "(ตรวจสอบว่าเป็นผู้ดำเนินการร่วมหรือไม่)\n";
+                        hasInfo = true;
+                    }
+
+                    if (!hasStrictIssue && !hasInfo) {
+                        msg += "✅ ไม่พบประวัติการใช้งานซ้ำในระบบ";
+                    }
+
+                    alert(msg);
+
+                    // Visual Indicator
+                    if (hasStrictIssue) {
+                        if (btn) btn.style.color = "#ef4444"; // Red (Block)
+                    } else if (hasInfo) {
+                        if (btn) btn.style.color = "#f59e0b"; // Orange (Warning/Check)
+                    } else {
+                        if (btn) btn.style.color = "#22c55e"; // Green (OK)
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    if (icon) icon.className = originalClass;
+                    alert("เกิดข้อผิดพลาดในการตรวจสอบ");
+                });
         }
     </script>
 </body>
