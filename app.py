@@ -1,4 +1,4 @@
-import flask
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify, send_from_directory
 from werkzeug.utils import secure_filename
 import json
 import os
@@ -205,7 +205,7 @@ def role_status_label(status, role):
     # Default fallback
     return status
 
-@app.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ ไกรษี (ตรวจสอบคำขอ)
+@app.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_work(req_id, work_index):
     if 'username' not in session:
         return redirect(url_for('login'))
@@ -595,8 +595,31 @@ def view_round(round_id):
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
+        # Check database instead of JSON
         user = query_db('SELECT * FROM User WHERE username = ? AND password = ?', (username, password), one=True)
+        
+        # fallback to JSON during migration if user not in DB yet
+        if not user:
+             users_json = load_data('users.json')
+             user_data = next((u for u in users_json if u['username'] == username and u['password'] == password), None)
+             if user_data:
+                 # Auto-migrate this user to DB
+                 execute_db('''
+                     INSERT INTO User (username, password, role, name, title_name, academic_position, department)
+                     VALUES (?, ?, ?, ?, ?, ?, ?)
+                 ''', (
+                     user_data['username'],
+                     user_data['password'],
+                     user_data['role'],
+                     user_data.get('name'),
+                     user_data.get('title_name'),
+                     user_data.get('academic_position'),
+                     user_data.get('department')
+                 ))
+                 user = query_db('SELECT * FROM User WHERE username = ?', (username,), one=True)
+
         if user:
+            # Store more info in session for UI display
             session.update({
                 'username': user['username'], 
                 'role': user['role'], 
@@ -610,8 +633,7 @@ def login():
                 }.get(user['role'], user['role'])
             })
             return redirect(url_for('dashboard'))
-        else:
-            flash("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+        flash("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
     return render_template('login.html')
 
 @app.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
@@ -839,7 +861,7 @@ def new_request():
     timeline = load_config('timeline.json', {})
     return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year)
 
-@app.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ ไกรษี (ตรวจสอบคำขอ)
+@app.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_request(req_id):
     if 'username' not in session: return redirect(url_for('login'))
     all_reqs = load_data('requests.json')

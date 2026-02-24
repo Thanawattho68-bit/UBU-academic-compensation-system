@@ -79,17 +79,17 @@ def init_db():
     conn.close()
 
 # Helper functions for common operations
-def query_db(query, argument=(), one=False):
-    connect = get_db_connection()
-    cursor = connect.execute(query, argument)
-    rv = cursor.fetchall()
-    connect.close()
+def query_db(query, args=(), one=False):
+    conn = get_db_connection()
+    cur = conn.execute(query, args)
+    rv = cur.fetchall()
+    conn.close()
     return (rv[0] if rv else None) if one else rv
 
-def execute_db(query, argument=()):
-    connect = get_db_connection()
-    cursor = connect.execute(query, argument)
-    connect.commit()
-    lastrowid = cursor.lastrowid
-    connect.close()
+def execute_db(query, args=()):
+    conn = get_db_connection()
+    cur = conn.execute(query, args)
+    conn.commit()
+    lastrowid = cur.lastrowid
+    conn.close()
     return lastrowid
