@@ -85,75 +85,28 @@ def parse_thai_date(date_str):
     return None
 
 def is_within_timeline():
-    # Load list of timelines
-    timelines = load_config('timeline.json', [])
-    if not isinstance(timelines, list):
-        if isinstance(timelines, dict):
-            timelines = [{"fiscal_year": "2569", **timelines}]
-        else:
-            return True
-
     current_fy = get_current_fiscal_year()
-    timeline = next((t for t in timelines if str(t.get('fiscal_year')) == str(current_fy)), None)
-    
-    if not timeline:
-        return True
-    
+    # Try current year, if not found, get the latest one available
+    config = query_db('SELECT * FROM FiscalYearConfig WHERE fiscal_year = ?', (str(current_fy),), one=True)
+    if not config:
+        config = query_db('SELECT * FROM FiscalYearConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+        
+    if not config:
+        return True # Default open if absolutely no config exists
+
     now = datetime.now()
     
-    def check_period(start_str, end_str):
-        if not start_str or not end_str: return False
-        try:
-            # Try to handle d/m and d/m/y Formats
-            s_parts = start_str.split('/')
-            e_parts = end_str.split('/')
-            
-            if len(s_parts) == 2 and len(e_parts) == 2:
-                # MM/DD comparison
-                current_val = now.month * 100 + now.day
-                s_d, s_m = map(int, s_parts)
-                e_d, e_m = map(int, e_parts)
-                s_val = s_m * 100 + s_d
-                e_val = e_m * 100 + e_d
-                if s_val <= e_val:
-                    return s_val <= current_val <= end_val
-                else:
-                    return current_val >= s_val or current_val <= end_val
-            
-            # Full date comparison (D/M/Y or BE Year)
-            dt_start = parse_thai_date(start_str)
-            dt_end = parse_thai_date(end_str)
-            
-            if dt_start and dt_end:
-                # Set time to start of day and end of day
-                dt_start = dt_start.replace(hour=0, minute=0, second=0)
-                dt_end = dt_end.replace(hour=23, minute=59, second=59)
-                return dt_start <= now <= dt_end
-            
-            return False
-        except:
-            return False
-
-    # Check Sub Rounds FIRST - prioritize explicit windows
-    rounds = timeline.get('rounds', [])
-    if rounds:
-        # 1. If we are currently in a "Consideration" (closed) round -> CLOSED
-        for r in rounds:
-            if r.get('type') == 'consideration':
-                if check_period(r.get('start_date'), r.get('end_date')):
-                    return False
-        
-        # 2. If there are any "Submission" rounds, we MUST be in one to be OPEN
-        submission_rounds = [r for r in rounds if r.get('type') == 'submission']
-        if submission_rounds:
-            for r in submission_rounds:
-                if check_period(r.get('start_date'), r.get('end_date')):
-                    return True
-            # We are not in ANY submission round, even if global range is OK
-            return False 
-        
-    # Fallback to Main Round (Global range)
-    return check_period(timeline.get('start_date'), timeline.get('end_date'))
+    # Simple check against global start/end dates in BE format (DD/MM/YYYY)
+    dt_main_start = parse_thai_date(config['start_date'])
+    dt_main_end = parse_thai_date(config['end_date'])
+    
+    if dt_main_start and dt_main_end:
+        # Set time to start of day and end of day
+        dt_main_start = dt_main_start.replace(hour=0, minute=0, second=0)
+        dt_main_end = dt_main_end.replace(hour=23, minute=59, second=59)
+        return dt_main_start <= now <= dt_main_end
+    
+    return True
 
 def get_remaining_days(start_date_str, limit_days=7):
     if not start_date_str: return limit_days
@@ -197,63 +150,31 @@ def index():
     return redirect(url_for('login'))
 @app.context_processor
 def inject_timeline():
-    # We use our improved is_within_timeline check
     can_submit = is_within_timeline()
-    timelines = load_config('timeline.json', [])
     current_fy = str(get_current_fiscal_year())
     
-    # Get the specific timeline for the current fiscal year
-    tl = next((t for t in timelines if str(t.get('fiscal_year')) == current_fy), {}) if isinstance(timelines, list) else timelines
-        
+    # Fetch config from DB (Try current, fallback to latest)
+    config = query_db('SELECT * FROM FiscalYearConfig WHERE fiscal_year = ?', (current_fy,), one=True)
+    if not config:
+        config = query_db('SELECT * FROM FiscalYearConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+    
     timeline_msg = ""
     now = datetime.now()
     
-    if tl and 'rounds' in tl and isinstance(tl['rounds'], list):
-        rounds = tl['rounds']
-        
-        # 1. Check if we are currently in a "Consideration" (closed) round
-        for r in rounds:
-            if r.get('type') == 'consideration':
-                s_dt = parse_thai_date(r.get('start_date'))
-                e_dt = parse_thai_date(r.get('end_date'))
-                if s_dt and e_dt:
-                    # Adjust to start/end of day
-                    s_dt = s_dt.replace(hour=0, minute=0, second=0)
-                    e_dt = e_dt.replace(hour=23, minute=59, second=59)
-                    if s_dt <= now <= e_dt:
-                        name = r.get('name', 'รอบพิจารณา')
-                        timeline_msg = f"ขณะนี้ระบบปิดรับคำขอเนื่องจากอยู่ในช่วง '{name}'\n({r.get('start_date')} - {r.get('end_date')})"
-                        break
-
-        # 2. If not in a consideration round but still can't submit, check for the NEXT submission round
-        if not timeline_msg and not can_submit:
-            # Find submission rounds that start in the future
-            future_submissions = []
-            for r in rounds:
-                if r.get('type') == 'submission':
-                    s_dt = parse_thai_date(r.get('start_date'))
-                    if s_dt and s_dt > now:
-                        future_submissions.append((s_dt, r))
-            
-            if future_submissions:
-                # Get the soonest one
-                future_submissions.sort(key=lambda x: x[0])
-                next_round = future_submissions[0][1]
-                timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดรับคำขอ\nจะเปิดรับรอบถัดไป: '{next_round.get('name')}'\nในวันที่ {next_round.get('start_date')}"
-    
-    # 3. Fallback for main round if still no message and closed
-    if not timeline_msg and not can_submit:
-        start_date = tl.get('start_date', '1/10')
+    # Simple message if system is closed based on global range
+    if not can_submit:
+        start_date = config['start_date'] if config else '01/10'
         timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ {start_date} ของรอบปีงบประมาณถัดไป"
         
     has_submitted = False
     if 'username' in session and session['role'] == 'applicant':
-        all_reqs = load_data('requests.json')
-        user_reqs = [r for r in all_reqs if r['applicant'] == session['username'] and str(r.get('fiscal_year')) == current_fy]
-        if any(r.get('status') != 'แบบร่าง' for r in user_reqs):
+        # Check from DB instead of JSON
+        user_req = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? AND fiscal_year = ? AND status != ?', 
+                           (session['username'], current_fy, 'แบบร่าง'), one=True)
+        if user_req:
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=tl, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
+    return dict(can_submit=can_submit, timeline=config, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
 
 @app.template_filter('role_status_label')
 def role_status_label(status, role):
@@ -691,31 +612,9 @@ def view_round(round_id):
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
-        # Check database instead of JSON
-        user = query_db('SELECT * FROM User WHERE username = ? AND password = ?', (username, password), one=True)
-        
-        # fallback to JSON during migration if user not in DB yet
-        if not user:
-             users_json = load_data('users.json')
-             user_data = next((u for u in users_json if u['username'] == username and u['password'] == password), None)
-             if user_data:
-                 # Auto-migrate this user to DB
-                 execute_db('''
-                     INSERT INTO User (username, password, role, name, title_name, academic_position, department)
-                     VALUES (?, ?, ?, ?, ?, ?, ?)
-                 ''', (
-                     user_data['username'],
-                     user_data['password'],
-                     user_data['role'],
-                     user_data.get('name'),
-                     user_data.get('title_name'),
-                     user_data.get('academic_position'),
-                     user_data.get('department')
-                 ))
-                 user = query_db('SELECT * FROM User WHERE username = ?', (username,), one=True)
+        user = query_db('SELECT * FROM account WHERE username = ? AND password = ?', (username, password), one=True)
 
         if user:
-            # Store more info in session for UI display
             session.update({
                 'username': user['username'], 
                 'role': user['role'], 
@@ -730,6 +629,7 @@ def login():
             })
             return redirect(url_for('dashboard'))
         flash("ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง")
+
     return render_template('login.html')
 
 @app.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
@@ -1384,36 +1284,50 @@ def manage_criteria():
         
     return render_template('manage_criteria.html', criteria=criteria, name=session['name'], role=session['role'], timeline=timeline)
 
-@app.route('/manage/timeline', methods=['GET']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+@app.route('/manage/timeline') # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
 def manage_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
     
-    timelines = load_config('timeline.json', [])
-    if isinstance(timelines, dict): timelines = []
-    
-    timelines.sort(key=lambda x: str(x.get('fiscal_year', '')), reverse=True)
-        
-    return render_template('manage_timeline.html', name=session['name'], role=session['role'], timelines=timelines, position=session.get('position',''))
+    # Fetch from DB
+    configs = query_db('SELECT * FROM FiscalYearConfig ORDER BY fiscal_year DESC')
+    return render_template('manage_timeline.html', name=session['name'], role=session['role'], timelines=configs, position=session.get('position',''))
 
 @app.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
 def edit_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('login'))
     
-    timelines = load_config('timeline.json', [])
-    if isinstance(timelines, dict): timelines = []
-    
     fiscal_year = request.args.get('year')
-    timeline_data = next((t for t in timelines if str(t.get('fiscal_year')) == str(fiscal_year)), None)
+    config = query_db('SELECT * FROM FiscalYearConfig WHERE fiscal_year = ?', (fiscal_year,), one=True)
+    rounds = query_db('SELECT * FROM TimelineRound WHERE fiscal_year = ?', (fiscal_year,))
+    
+    # Convert rounds to list of dicts for template JS
+    rounds_list = []
+    for r in rounds:
+        rounds_list.append({
+            "name": r['round_name'],
+            "type": r['round_type'],
+            "start_date": r['start_date'],
+            "end_date": r['end_date']
+        })
+
+    timeline_data = None
+    if config:
+        timeline_data = {
+            "fiscal_year": config['fiscal_year'],
+            "start_date": config['start_date'],
+            "end_date": config['end_date'],
+            "rounds": rounds_list
+        }
     
     if request.method == 'POST':
         action = request.form.get('action')
         new_year = request.form.get('fiscal_year')
         
         if action == 'delete':
-            timelines = [t for t in timelines if str(t.get('fiscal_year')) != str(fiscal_year)]
-            save_data('timeline.json', timelines)
+            execute_db('DELETE FROM FiscalYearConfig WHERE fiscal_year = ?', (fiscal_year,))
+            # TimelineRound will be deleted by ON DELETE CASCADE
             flash(f"ลบข้อมูลปีงบประมาณ {fiscal_year} เรียบร้อยแล้ว")
             return redirect(url_for('manage_timeline'))
             
@@ -1422,24 +1336,24 @@ def edit_timeline():
         rounds_json = request.form.get('rounds_data', '[]')
         
         try:
-            rounds_list = json.loads(rounds_json)
+            rounds_input = json.loads(rounds_json)
         except:
-            rounds_list = []
+            rounds_input = []
         
-        new_entry = {
-            "fiscal_year": new_year,
-            "start_date": start_date,
-            "end_date": end_date,
-            "rounds": rounds_list
-        }
+        # Save Config
+        execute_db('''
+            INSERT OR REPLACE INTO FiscalYearConfig (fiscal_year, start_date, end_date)
+            VALUES (?, ?, ?)
+        ''', (new_year, start_date, end_date))
         
-        existing_idx = next((i for i, t in enumerate(timelines) if str(t.get('fiscal_year')) == str(new_year)), -1)
-        if existing_idx > -1:
-            timelines[existing_idx] = new_entry
-        else:
-            timelines.append(new_entry)
+        # Save Rounds (Delete old and re-insert)
+        execute_db('DELETE FROM TimelineRound WHERE fiscal_year = ?', (new_year,))
+        for r in rounds_input:
+            execute_db('''
+                INSERT INTO TimelineRound (fiscal_year, round_name, round_type, start_date, end_date)
+                VALUES (?, ?, ?, ?, ?)
+            ''', (new_year, r.get('name'), r.get('type'), r.get('start_date'), r.get('end_date')))
             
-        save_data('timeline.json', timelines)
         flash(f"บันทึกข้อมูลปีงบประมาณ {new_year} เรียบร้อยแล้ว")
         return redirect(url_for('manage_timeline'))
 

@@ -73,6 +73,37 @@ def migrate():
                     ))
         print(f"✅ Migrated {len(reqs)} requests and their associated works.")
 
+    # 4. Migrate Criteria
+    if os.path.exists('criteria.json'):
+        with open('criteria.json', 'r', encoding='utf-8') as f:
+            criteria_list = json.load(f)
+            for c in criteria_list:
+                execute_db('''
+                    INSERT INTO Criteria (fiscal_year, quality_scores_json, role_weights_json, payment_rules_json)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    c.get('fiscal_year'),
+                    json.dumps(c.get('quality_scores', {}), ensure_ascii=False),
+                    json.dumps(c.get('role_weights', {}), ensure_ascii=False),
+                    json.dumps(c.get('payment_rules', {}), ensure_ascii=False)
+                ))
+        print(f"✅ Migrated {len(criteria_list)} criteria configs.")
+
+    # 5. Migrate Work Types
+    if os.path.exists('work_types.json'):
+        with open('work_types.json', 'r', encoding='utf-8') as f:
+            work_types = json.load(f)
+            for wt in work_types:
+                execute_db('''
+                    INSERT INTO WorkType (id, label, is_custom)
+                    VALUES (?, ?, ?)
+                ''', (
+                    wt.get('id'),
+                    wt.get('label'),
+                    1 if wt.get('is_custom') else 0
+                ))
+        print(f"✅ Migrated {len(work_types)} work types.")
+
     print("\n✨ Migration finished successfully!")
     print("💡 You can now safely backup and remove your .json files.")
     print("💡 Don't forget to update your app.py to use database queries everywhere!")

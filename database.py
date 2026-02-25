@@ -74,6 +74,47 @@ def init_db():
             timestamp TEXT
         )
     ''')
+
+    # FiscalYearConfig table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS FiscalYearConfig (
+            fiscal_year TEXT PRIMARY KEY,
+            start_date TEXT, -- Format: DD/MM/YYYY (BE)
+            end_date TEXT    -- Format: DD/MM/YYYY (BE)
+        )
+    ''')
+
+    # TimelineRound table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS TimelineRound (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fiscal_year TEXT,
+            round_name TEXT,
+            round_type TEXT, -- 'submission' หรือ 'consideration'
+            start_date TEXT, -- Format: DD/MM/YYYY (BE)
+            end_date TEXT,   -- Format: DD/MM/YYYY (BE)
+            FOREIGN KEY (fiscal_year) REFERENCES FiscalYearConfig (fiscal_year) ON DELETE CASCADE
+        )
+    ''')
+
+    # Criteria table (Approach 2: JSON storage with fiscal_year PK)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS Criteria (
+            fiscal_year TEXT PRIMARY KEY,
+            quality_scores_json TEXT,
+            role_weights_json TEXT,
+            payment_rules_json TEXT
+        )
+    ''')
+
+    # WorkType table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS WorkType (
+            id TEXT PRIMARY KEY,
+            label TEXT NOT NULL,
+            is_custom INTEGER DEFAULT 0
+        )
+    ''')
     
     conn.commit()
     conn.close()
