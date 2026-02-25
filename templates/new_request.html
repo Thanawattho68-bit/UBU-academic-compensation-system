@@ -362,7 +362,7 @@
             if (!confirm("ต้องการลบประเภทผลงานนี้ออกจากระบบใช่หรือไม่?")) return;
 
             try {
-                const response = await fetch('/api/delete_work_type', {
+                const response = await fetch("{{ url_for('api.api_delete_work_type') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id: typeId })
@@ -385,7 +385,7 @@
             if (!label || label.trim() === "") return;
 
             try {
-                const response = await fetch('/api/add_work_type', {
+                const response = await fetch("{{ url_for('api.api_add_work_type') }}", {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ label: label.trim() })

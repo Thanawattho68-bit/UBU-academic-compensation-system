@@ -324,7 +324,7 @@
                                             </td>
                                             <td
                                                 style="padding: 20px; text-align: center; border-bottom: 1px solid #edf2f7; border-left: 1px solid #edf2f7;">
-                                                <a href="{{ url_for('view_work', req_id=req.id, work_index=loop.index0) }}"
+                                                <a href="{{ url_for('requests.view_work', req_id=req.id, work_index=loop.index0) }}"
                                                     style="color: #64748b; font-size: 1.2rem; transition: color 0.2s;"
                                                     onmouseover="this.style.color='#3b82f6'"
                                                     onmouseout="this.style.color='#64748b'">
@@ -580,7 +580,7 @@
                                 {% if role == 'applicant' and req.status in ['แบบร่าง', 'แก้ไข'] %}
                                 <div
                                     style="display: flex; gap: 15px; padding: 20px; background: #fff8e1; border-radius: 12px; border: 1px solid #ffeeba; margin-bottom: 20px;">
-                                    <a href="{{ url_for('new_request', edit_id=req.id) }}" class="btn-secondary"
+                                    <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-secondary"
                                         style="text-decoration: none;">แก้ไขข้อมูลทั้งหมด</a>
                                     <button type="submit" name="action" value="submit"
                                         class="btn-primary">ยืนยันการส่งคำขอ</button>
@@ -617,7 +617,7 @@
 
                         {% if role != 'applicant' %}
                         <br>
-                        <a href="{{ url_for('dashboard') }}" style="color: grey;"><i class="fas fa-arrow-left"></i>
+                        <a href="{{ url_for('main.dashboard') }}" style="color: grey;"><i class="fas fa-arrow-left"></i>
                             กลับหน้าหลัก</a>
                         {% endif %}
                     </div>
@@ -746,7 +746,7 @@
             const originalClass = icon.className;
             icon.className = "fas fa-spinner fa-spin";
 
-            fetch('/api/check_work_duplicate', {
+            fetch("{{ url_for('api.api_check_work_duplicate') }}", {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ title: title, date_publish: dateVal, req_id: reqId })

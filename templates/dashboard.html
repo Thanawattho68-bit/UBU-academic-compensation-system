@@ -88,7 +88,7 @@
                                         </span>
                                     </td>
                                     <td style="text-align: center;">
-                                        <a href="{{ url_for('view_round', round_id=b.id) }}" class="btn-view"
+                                        <a href="{{ url_for('rounds.view_round', round_id=b.id) }}" class="btn-view"
                                             title="{{ 'พิจารณา' if b.status == 'รอการพิจารณา' else 'ดูรายละเอียด' }}">
                                             <i
                                                 class="fas {{ 'fa-search' if b.status == 'รอการพิจารณา' else 'fa-eye' }}"></i>
@@ -298,7 +298,7 @@
 
                     {% if role == 'administration' %}
                     <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-                        <a href="{{ url_for('manage_rounds') }}" class="btn-primary"
+                        <a href="{{ url_for('rounds.manage_rounds') }}" class="btn-primary"
                             style="padding: 8px 15px; font-size: 0.9rem;">
                             <i class="fas fa-folder-plus"></i> สร้างรอบพิจารณา
                         </a>
@@ -385,12 +385,12 @@
                                 <td style="text-align: center;">
 
                                     {% if req.status == 'แบบร่าง' %}
-                                    <a href="{{ url_for('new_request', edit_id=req.id) }}" class="btn-view"
+                                    <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-view"
                                         title="แก้ไข (ร่าง)">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     {% else %}
-                                    <a href="{{ url_for('view_request', req_id=req.id) }}" class="btn-view"
+                                    <a href="{{ url_for('requests.view_request', req_id=req.id) }}" class="btn-view"
                                         title="ดูรายละเอียด">
                                         <i class="fas fa-eye"></i>
                                     </a>
@@ -398,7 +398,7 @@
 
                                     {% if role == 'applicant' and req.status in ['ส่งแล้ว', 'แก้ไข',
                                     'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
-                                    <form method="POST" action="{{ url_for('view_request', req_id=req.id) }}"
+                                    <form method="POST" action="{{ url_for('requests.view_request', req_id=req.id) }}"
                                         style="display: inline;" onclick="event.stopPropagation();">
                                         <input type="hidden" name="action" value="cancel">
                                         <button type="submit" class="btn-view" title="ยกเลิกคำขอ"

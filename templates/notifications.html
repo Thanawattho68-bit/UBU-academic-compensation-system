@@ -111,13 +111,13 @@
     <script>
         function markReadAndRedirect(notifId, reqId) {
             // Call API to mark as read first
-            fetch(`/api/notifications/read/${notifId}`, { method: 'POST' })
+            fetch("{{ url_for('main.read_notification', notif_id='NOTIF_ID') }}".replace('NOTIF_ID', notifId), { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.success) {
                         // Redirect if reqId exists, else just reload to update UI
                         if (reqId && reqId !== 'None') {
-                            window.location.href = `/view_request/${reqId}`;
+                            window.location.href = "{{ url_for('requests.view_request', req_id='REQ_ID') }}".replace('REQ_ID', reqId);
                         } else {
                             window.location.reload();
                         }
