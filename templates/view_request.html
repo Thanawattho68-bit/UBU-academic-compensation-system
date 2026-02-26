@@ -240,7 +240,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for work in req.works %}
+                                        {% for work in req.works if not (role == 'committee' and work.status == 'ผลงานซ้ำซ้อน') %}
+
                                         {% set row_bg = '#ffffff' %}
                                         {% set badge_color = '#94a3b8' %}
 

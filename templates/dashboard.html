@@ -23,110 +23,7 @@
             <section class="content-area">
 
 
-                {% if role == 'committee' %}
-                <div class="table-container">
-                    <h2 style="margin-bottom: 20px;"><i class="fas fa-clipboard-list"></i> ชุดคำขอ</h2>
-
-                    <div class="filter-bar-container"
-                        style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ค้นหา</label>
-                            <div class="input-with-icon" style="position: relative;">
-                                <i class="fas fa-search"
-                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                                <input type="text" id="batchSearchInput" onkeyup="filterBatchesTable()"
-                                    placeholder="ชื่อรอบ หรือเลขที่..."
-                                    style="padding: 8px 10px 8px 35px; border: 1px solid #e2e8f0; border-radius: 6px; width: 220px; font-size: 0.9rem;">
-                            </div>
-                        </div>
-
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">สถานะ</label>
-                            <select id="batchStatusFilter" onchange="filterBatchesTable()"
-                                style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 150px; font-size: 0.9rem;">
-                                <option value="">ทั้งหมด</option>
-                                <option value="รอการพิจารณา">รอการพิจารณา</option>
-                                <option value="ประกาศผลพิจารณาแล้ว">ประกาศผลพิจารณาแล้ว</option>
-                            </select>
-                        </div>
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ปีงบประมาณ</label>
-                            <input type="text" id="batchFiscalFilter" onkeyup="filterBatchesTable()"
-                                placeholder="เช่น 2568"
-                                style="padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 120px; font-size: 0.9rem;">
-                        </div>
-                    </div>
-
-                    <div class="table-responsive-wrapper">
-                        <table class="styled-table" id="batchesTable">
-                            <thead>
-                                <tr>
-                                    <th>ชื่อรอบ / ครั้งที่ประชุม</th>
-                                    <th>ปีงบประมาณ</th>
-                                    <th>วันที่สร้าง</th>
-                                    <th>จำนวนคำขอ</th>
-                                    <th>สถานะ</th>
-                                    <th style="text-align: center; width: 80px;">จัดการ</th>
-                                </tr>
-                            </thead>
-                            <tbody id="batchesBody">
-                                {% for b in batches %}
-                                <tr class="batch-row" data-status="{{ b.status }}" data-fy="{{ b.fiscal_year }}">
-                                    <td>
-                                        <strong>{{ b.name }}</strong>
-                                        <div style="font-size: 0.8em; color: #666;">{{ b.id }}</div>
-                                    </td>
-                                    <td>{{ b.fiscal_year or '-' }}</td>
-                                    <td>{{ b.created_date }}</td>
-                                    <td style="text-align: center;">{{ b.req_ids|length }} รายการ</td>
-                                    <td>
-                                        <span class="status-tag status-{{ b.status }}">
-                                            {{ b.status | role_status_label(role) }}
-                                        </span>
-                                    </td>
-                                    <td style="text-align: center;">
-                                        <a href="{{ url_for('rounds.view_round', round_id=b.id) }}" class="btn-view"
-                                            title="{{ 'พิจารณา' if b.status == 'รอการพิจารณา' else 'ดูรายละเอียด' }}">
-                                            <i
-                                                class="fas {{ 'fa-search' if b.status == 'รอการพิจารณา' else 'fa-eye' }}"></i>
-                                        </a>
-                                    </td>
-                                </tr>
-                                {% else %}
-                                <tr id="noBatchesRow">
-                                    <td colspan="6" style="text-align: center; padding: 30px; color: #999;">
-                                        <i class="fas fa-folder-open"
-                                            style="font-size: 2em; margin-bottom: 10px;"></i><br>
-                                        ไม่พบชุดคำขอในขณะนี้
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <div id="paginationControlsBatches">
-                            <!-- Buttons injected by JS -->
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label style="font-size: 0.85rem; color: #64748b;">แสดงผล:</label>
-                            <select id="rowsPerPageBatches" onchange="currentBatchPage=1; applyBatchPagination()"
-                                style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; width: 130px; font-size: 0.9rem; background: white; cursor: pointer;">
-                                <option value="10">10 รายการ</option>
-                                <option value="20">20 รายการ</option>
-                                <option value="30">30 รายการ</option>
-                                <option value="40">40 รายการ</option>
-                                <option value="50">50 รายการ</option>
-                                <option value="1000">ทั้งหมด</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+                {# Removed Committee Batch Section #}
 
                 {% if role == 'admin' %}
                 <div class="table-container">
@@ -202,7 +99,7 @@
                 </div>
                 {% endif %}
 
-                {% if role != 'committee' and role != 'admin' %}
+                {% if role != 'admin' %}
                 <div class="table-container">
                     <div class="filter-bar-container"
                         style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
@@ -296,14 +193,7 @@
 
                     </div>
 
-                    {% if role == 'administration' %}
-                    <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-                        <a href="{{ url_for('rounds.manage_rounds') }}" class="btn-primary"
-                            style="padding: 8px 15px; font-size: 0.9rem;">
-                            <i class="fas fa-folder-plus"></i> สร้างรอบพิจารณา
-                        </a>
-                    </div>
-                    {% endif %}
+                    {# Removed Create Round Button #}
 
                     <table class="styled-table" id="requestsTable">
                         <thead>

@@ -7,8 +7,10 @@ routes/api.py
 """
 
 import os
+import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session, send_from_directory, current_app
+from database import query_db, execute_db
 from utils import load_data, save_data, parse_thai_date
 
 api_bp = Blueprint('api', __name__)
@@ -27,21 +29,23 @@ def api_check_work_duplicate():
     if not title:
         return jsonify({"success": False, "message": "กรุณาระบุชื่อผลงาน"})
 
-    all_reqs = load_data('requests.json')
+    all_rows = query_db('SELECT * FROM RequestRecord')
+    all_reqs = []
+    for r in all_rows:
+        req = dict(r)
+        req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
+        req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
+        req['applicant'] = req['applicant_username']
+        all_reqs.append(req)
     
     self_duplicates = []
     shared_works = []
     
     current_req = next((r for r in all_reqs if r['id'] == req_id), None)
-    current_username = current_req['applicant'] if current_req else session['username']
+    current_username = current_req['applicant_username'] if current_req else session['username']
 
     for r in all_reqs:
-        # Skip checking against its own items if same request ID
-        # (Though we check titles, and one request can have multiple works)
-        # But usually we check against OTHER requests/years
         if r['id'] == req_id:
-            # We skip checking against other works in the SAME request for now
-            # unless instructed otherwise. Usually duplicate check is across historical data.
             continue
         
         for w in r.get('works', []):
@@ -53,7 +57,7 @@ def api_check_work_duplicate():
                     "status": r['status'],
                     "fiscal_year": r.get('fiscal_year', '-')
                 }
-                if r['applicant'] == current_username:
+                if r['applicant_username'] == current_username:
                     self_duplicates.append(item)
                 else:
                     shared_works.append(item)
@@ -68,15 +72,11 @@ def api_check_work_duplicate():
         if dt_pub:
             checked_date = True
             now = datetime.now()
-            # Simple year difference
             age_years = now.year - dt_pub.year
-            # Check if it's more than 2 years
             if age_years > 2:
                 is_old = True
-            # For exact 2-year boundary, could check months
             elif age_years == 2:
                 if now.month < dt_pub.month or (now.month == dt_pub.month and now.day < dt_pub.day):
-                    # Not yet fully 2 years
                     pass
                 else:
                     is_old = True
@@ -102,19 +102,16 @@ def api_add_work_type():
     if not label:
         return jsonify({"success": False, "message": "กรุณาระบุชื่อประเภทผลงาน"})
     
-    work_types = load_data('work_types.json')
-    
-    # Check for duplicate label
-    if any(wt['label'] == label for wt in work_types):
+    # Check for duplicate label in DB
+    existing = query_db('SELECT * FROM WorkType WHERE label = ?', (label,), one=True)
+    if existing:
         return jsonify({"success": False, "message": "ประเภทผลงานนี้มีอยู่แล้วในระบบ"})
     
     # Generate unique ID
     new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    new_type = {"id": new_id, "label": label, "is_custom": True}
-    work_types.append(new_type)
-    save_data('work_types.json', work_types)
+    execute_db('INSERT INTO WorkType (id, label, is_custom) VALUES (?, ?, ?)', (new_id, label, 1))
     
-    return jsonify({"success": True, "type": new_type})
+    return jsonify({"success": True, "type": {"id": new_id, "label": label, "is_custom": True}})
 
 
 @api_bp.route('/api/delete_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (ลบประเภทผลงาน)
@@ -125,21 +122,34 @@ def api_delete_work_type():
     data = request.get_json()
     type_id = data.get('id', '')
     
-    work_types = load_data('work_types.json')
-    target = next((wt for wt in work_types if wt['id'] == type_id), None)
+    target = query_db('SELECT * FROM WorkType WHERE id = ?', (type_id,), one=True)
     
     if not target:
         return jsonify({"success": False, "message": "ไม่พบประเภทผลงานที่ต้องการลบ"})
     
-    if not target.get('is_custom'):
+    if not target['is_custom']:
         return jsonify({"success": False, "message": "ไม่สามารถลบประเภทผลงานหลักของระบบได้"})
     
-    work_types = [wt for wt in work_types if wt['id'] != type_id]
-    save_data('work_types.json', work_types)
+    execute_db('DELETE FROM WorkType WHERE id = ?', (type_id,))
     
     return jsonify({"success": True})
 
 
 @api_bp.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (อัปโหลดไฟล์)
 def uploaded_file(req_id, work_id, filename):
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
+    
+    # เชื่อมต่อกับ database.db เพื่อตรวจสอบข้อมูลคำขอและสิทธิ์การเข้าถึง
+    req = query_db('SELECT * FROM RequestRecord WHERE id = ?', (req_id,), one=True)
+    if not req:
+        return jsonify({"success": False, "message": "ไม่พบข้อมูลคำขอในฐานข้อมูล"}), 404
+        
+    role = session['role']
+    username = session['username']
+    
+    # ตรวจสอบสิทธิ์: ถ้าเป็นผู้สมัคร ต้องดูได้เฉพาะของตัวเอง (ผู้ดูแลและกรรมการดูได้หมด)
+    if role == 'applicant' and req['applicant_username'] != username:
+        return jsonify({"success": False, "message": "คุณไม่มีสิทธิ์เข้าถึงไฟล์นี้"}), 403
+        
     return send_from_directory(os.path.join(current_app.config['UPLOAD_FOLDER'], req_id, work_id), filename)

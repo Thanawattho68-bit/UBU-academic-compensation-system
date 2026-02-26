@@ -40,11 +40,8 @@ def dashboard():
     display_reqs = []
     for row in rows:
         r = dict(row)
-        # แปลงข้อมูล JSON ที่เก็บเป็น TEXT ใน DB กลับเป็น Object
         r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
         r['applicant_info'] = json.loads(r['applicant_info_json']) if r.get('applicant_info_json') else {}
-        
-        # แมพชื่อฟิลด์เพื่อให้เข้ากับตัวแปรที่ template dashboard.html ใช้งาน
         r['applicant'] = r['applicant_username']
         r['date'] = r['date_submitted']
         r['score'] = r['total_score']
@@ -54,9 +51,6 @@ def dashboard():
     pending_reqs = []
     if role == 'administration':
         pending_reqs = [r for r in display_reqs if r.get('status') == 'รอเสนอพิจารณา']
-    
-    # ดึงข้อมูลรอบการพิจารณา (Batch) - ยังคงดึงจาก JSON เพื่อความเข้ากันได้กับระบบเดิมที่ยังไม่มี table Batch ใน DB
-    batches = load_data('batches.json')
     
     # สำหรับสิทธิ์ admin ดึงข้อมูลรายชื่อผู้ใช้งานทั้งหมด
     all_users = []
@@ -69,7 +63,7 @@ def dashboard():
                            role=role, 
                            position=session.get('position',''), 
                            requests=display_reqs, 
-                           batches=batches, 
+                           batches=[], # Remove batches
                            pending_reqs=pending_reqs, 
                            users=all_users)
 
@@ -107,14 +101,15 @@ def read_notification(notif_id):
 @main_bp.route('/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
 def notifications_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
-    notifs = load_data('notifications.json')
     
-    # Filter for user
-    user_notifs = [
-        n for n in notifs 
-        if n.get('recipient_username') == session['username'] or
-           (n.get('recipient_role') and n.get('recipient_role') == session['role'])
-    ]
+    # Get from DB
+    notifs_rows = query_db('''
+        SELECT * FROM Notification 
+        WHERE recipient_username = ? OR (recipient_role = ?)
+        ORDER BY timestamp DESC
+    ''', (session['username'], session['role']))
+    
+    user_notifs = [dict(n) for n in notifs_rows]
     
     return render_template('notifications.html', name=session['name'], role=session['role'], position=session.get('position',''), notifications=user_notifs)
 
@@ -124,12 +119,17 @@ def appeals_page():
     if 'username' not in session or session['role'] not in ['committee', 'applicant']:
         return redirect(url_for('auth.login'))
     
-    all_reqs = load_data('requests.json')
-    # Filter for appeal statuses
     if session['role'] == 'committee':
-        appeal_reqs = [r for r in all_reqs if r.get('status') in ['รอการอุทธรณ์', 'ยื่นอุทธรณ์', 'กำลังพิจารณาอุทธรณ์', 'รอพิจารณาอุทธรณ์']]
+        rows = query_db('SELECT * FROM RequestRecord WHERE status IN (?, ?, ?, ?)', 
+                       ('รอการอุทธรณ์', 'ยื่นอุทธรณ์', 'กำลังพิจารณาอุทธรณ์', 'รอพิจารณาอุทธรณ์'))
     else:
-        # Applicant sees their own appeals
-        appeal_reqs = [r for r in all_reqs if r['applicant'] == session['username'] and r.get('status') == 'รอการอุทธรณ์']
+        rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? AND status = ?', 
+                       (session['username'], 'รอการอุทธรณ์'))
+    
+    appeal_reqs = []
+    for row in rows:
+        r = dict(row)
+        r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
+        appeal_reqs.append(r)
     
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
