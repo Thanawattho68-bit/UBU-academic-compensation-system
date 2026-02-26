@@ -24,9 +24,9 @@ def manage_criteria():
     criteria = []
     for r in rows:
         c = dict(r)
-        c['quality_scores'] = json.loads(c['quality_scores']) if r.get('quality_scores') else {}
-        c['role_weights'] = json.loads(c['role_weights']) if r.get('role_weights') else {}
-        c['payment_rules'] = json.loads(c['payment_rules']) if r.get('payment_rules') else {}
+        c['quality_scores'] = json.loads(c['quality_scores']) if c.get('quality_scores') else {}
+        c['role_weights'] = json.loads(c['role_weights']) if c.get('role_weights') else {}
+        c['payment_rules'] = json.loads(c['payment_rules']) if c.get('payment_rules') else {}
         criteria.append(c)
         
     return render_template('manage_criteria.html', criteria=criteria, name=session['name'], role=session['role'])
