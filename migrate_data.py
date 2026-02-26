@@ -16,20 +16,20 @@ def migrate():
     init_db()
     print("✅ Database tables recreated.")
 
-    # 1. Migrate Users
+    # 1. Migrate Users to Account table
     if os.path.exists('users.json'):
         with open('users.json', 'r', encoding='utf-8') as f:
             users = json.load(f)
             for u in users:
                 execute_db('''
-                    INSERT INTO User (username, password, role, name, title_name, academic_position, department, faculty, position_date, position_number)
+                    INSERT INTO Account (username, password, role, name, title_name, academic_position, department, faculty, position_date, position_number)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     u['username'], u['password'], u['role'], u.get('name'),
                     u.get('title_name'), u.get('academic_position'), u.get('department'),
                     u.get('faculty'), u.get('position_date'), u.get('position_number')
                 ))
-        print(f"✅ Migrated {len(users)} users.")
+        print(f"✅ Migrated {len(users)} users to Account table.")
 
     # 2. Migrate Notifications
     if os.path.exists('notifications.json'):
@@ -45,33 +45,23 @@ def migrate():
                 ))
         print(f"✅ Migrated {len(notifs)} notifications.")
 
-    # 3. Migrate Requests & WorkDetails
+    # 3. Migrate Requests
     if os.path.exists('requests.json'):
         with open('requests.json', 'r', encoding='utf-8') as f:
             reqs = json.load(f)
             for r in reqs:
                 execute_db('''
-                    INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, comment, timeline_status, batch_id, applicant_info_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, comment, timeline_status, batch_id, applicant_info_json, works_json)
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     r['id'], r['applicant'], r['applicant_name'], r.get('fiscal_year'),
                     r.get('status'), r.get('date'), float(r.get('score', 0) or 0),
                     float(r.get('approved_amount', 0) or 0), r.get('comment', ''),
                     r.get('timeline_status'), r.get('batch_id'),
-                    json.dumps(r.get('applicant_info', {}), ensure_ascii=False)
+                    json.dumps(r.get('applicant_info', {}), ensure_ascii=False),
+                    json.dumps(r.get('works', []), ensure_ascii=False)
                 ))
-                
-                # Migrate Works within this Request
-                for w in r.get('works', []):
-                    execute_db('''
-                        INSERT INTO WorkDetail (request_id, work_type, status, score_calc, payment_calc, details_json)
-                        VALUES (?, ?, ?, ?, ?, ?)
-                    ''', (
-                        r['id'], w.get('type'), w.get('status'),
-                        float(w.get('score_calc', 0) or 0), float(w.get('payment_calc', 0) or 0),
-                        json.dumps(w.get('details', {}), ensure_ascii=False)
-                    ))
-        print(f"✅ Migrated {len(reqs)} requests and their associated works.")
+        print(f"✅ Migrated {len(reqs)} requests (including works).")
 
     # 4. Migrate Criteria
     if os.path.exists('criteria.json'):
@@ -79,7 +69,7 @@ def migrate():
             criteria_list = json.load(f)
             for c in criteria_list:
                 execute_db('''
-                    INSERT INTO Criteria (fiscal_year, quality_scores_json, role_weights_json, payment_rules_json)
+                    INSERT INTO Criteria (fiscal_year, quality_scores, role_weights, payment_rules)
                     VALUES (?, ?, ?, ?)
                 ''', (
                     c.get('fiscal_year'),

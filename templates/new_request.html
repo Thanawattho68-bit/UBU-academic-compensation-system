@@ -315,8 +315,6 @@
                 <div id="type-item-{{ t.id }}" style="display: flex; align-items: stretch; gap: 5px;">
                     <button onclick="addWork('{{ t.id }}', '{{ t.label }}')" class="btn-secondary"
                         style="flex: 1; text-align: left; padding: 12px 20px; border: 1px solid #e2e8f0; background: #fff; color: #2c3e50; transition: all 0.2s;">
-                        <i class="fas fa-chevron-right"
-                            style="margin-right: 10px; color: #3498db; font-size: 0.8rem;"></i>
                         {{ t.label }}
                     </button>
                     {% if t.is_custom %}
@@ -324,7 +322,6 @@
                         style="background: #fff; border: 1px solid #fed7d7; color: #e53e3e; padding: 0 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
                         title="ลบประเภทนี้ออกจากระบบ" onmouseover="this.style.background='#fff5f5'"
                         onmouseout="this.style.background='#fff'">
-                        <i class="fas fa-trash-alt"></i>
                     </button>
                     {% endif %}
                 </div>

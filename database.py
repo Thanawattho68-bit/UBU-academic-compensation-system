@@ -13,9 +13,9 @@ def init_db():
     conn = get_db_connection()
     cursor = conn.cursor()
     
-    # User table
+    # Account table (Renamed from User)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS User (
+        CREATE TABLE IF NOT EXISTS Account (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
@@ -30,7 +30,7 @@ def init_db():
         )
     ''')
     
-    # RequestRecord table
+    # RequestRecord table (Simplified with works_json)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS RequestRecord (
             id TEXT PRIMARY KEY,
@@ -44,21 +44,8 @@ def init_db():
             comment TEXT,
             timeline_status TEXT,
             batch_id TEXT,
-            applicant_info_json TEXT
-        )
-    ''')
-    
-    # WorkDetail table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS WorkDetail (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            request_id TEXT NOT NULL,
-            work_type TEXT,
-            status TEXT,
-            score_calc REAL,
-            payment_calc REAL,
-            details_json TEXT,
-            FOREIGN KEY (request_id) REFERENCES RequestRecord (id) ON DELETE CASCADE
+            applicant_info_json TEXT,
+            works_json TEXT
         )
     ''')
     
@@ -97,13 +84,13 @@ def init_db():
         )
     ''')
 
-    # Criteria table (Approach 2: JSON storage with fiscal_year PK)
+    # Criteria table (JSON storage)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS Criteria (
             fiscal_year TEXT PRIMARY KEY,
-            quality_scores_json TEXT,
-            role_weights_json TEXT,
-            payment_rules_json TEXT
+            quality_scores TEXT,
+            role_weights TEXT,
+            payment_rules TEXT
         )
     ''')
 

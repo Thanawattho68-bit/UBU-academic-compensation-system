@@ -75,7 +75,7 @@ def inject_timeline():
         if user_req:
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=config, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
+    return dict(can_submit=can_submit, timeline=dict(config) if config else None, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
 
 # ──────────────────────────────────────────────
 # Template Filters
@@ -83,83 +83,48 @@ def inject_timeline():
 
 @app.template_filter('role_status_label')
 def role_status_label(status, role):
-    # Admin (Administration)
-    if role == 'administration':
-        if status == 'ส่งแล้ว': return 'รอตรวจสอบ'
-        if status == 'แก้ไข': return 'ส่งคืนแก้ไขแล้ว'
-        if status == 'รอตรวจประวัติการยื่นขอ': return 'ส่งให้งานวิจัยแล้ว'
-        if status == 'ผลงานผ่าน': return 'รอคำนวนค่าตอบแทน'
-        if status == 'ผลงานซ้ำซ้อน': return 'ผลงานเคยถูกใช้แล้ว'
-        if status == 'ซ้ำซ้อนบางส่วน': return 'ซ้ำซ้อนบางส่วน'
-        if status == 'รอเสนอพิจารณา': return 'รอจัดชุด (พร้อมเสนอ)'
-        if status == 'อยู่ในรอบพิจารณา': return 'เสนอคณะกรรมการแล้ว'
-
-    # Research
-    if role == 'research':
-        if status == 'รอตรวจประวัติการยื่นขอ': return 'รอตรวจสอบ'
-        if status == 'ผลงานผ่าน': return 'ไม่เคยใช้'
-        if status == 'ผลงานซ้ำซ้อน': return 'เคยใช้แล้ว'
-        if status == 'ซ้ำซ้อนบางส่วน': return 'ซ้ำซ้อนบางส่วน'
-
-    # Committee
-    if role == 'committee':
-        if status == 'อยู่ในรอบพิจารณา': return 'รอการพิจารณา (ในรอบ)'
-        if status == 'รอการพิจารณา': return 'รอการพิจารณา' # Legacy fallback
-        if status == 'รอการอุทธรณ์': return 'รอพิจารณาอุทธรณ์'
-
-    # Applicant
-    if role == 'applicant':
-        if status == 'ส่งแล้ว': return 'ส่งแล้ว'
-        if status == 'รอตรวจประวัติการยื่นขอ': return 'กำลังตรวจสอบคำขอ'
-        if status == 'ผลงานผ่าน': return 'ผ่าน (รอเจ้าหน้าที่งานบุคคลส่งรอบพิจารณา)'
-        if status == 'ผลงานซ้ำซ้อน': return 'ผลงานเคยถูกใช้แล้ว'
-        if status == 'ซ้ำซ้อนบางส่วน': return 'ซ้ำซ้อนบางส่วน'
-        if status == 'อยู่ในรอบพิจารณา': return 'รอผลการพิจารณา (รอบ)'
-        if status == 'รอการพิจารณา': return 'รอการพิจารณา'
-    
-    if status == 'ยกเลิก': return 'ยกเลิก'
-
-    # Default fallback
-    return status
+    labels = {
+        'administration': {
+            'ส่งแล้ว': 'รอตรวจสอบ', 'แก้ไข': 'ส่งคืนแก้ไขแล้ว', 'รอตรวจประวัติการยื่นขอ': 'ส่งให้งานวิจัยแล้ว',
+            'ผลงานผ่าน': 'รอคำนวนค่าตอบแทน', 'ผลงานซ้ำซ้อน': 'ผลงานเคยถูกใช้แล้ว', 'ซ้ำซ้อนบางส่วน': 'ซ้ำซ้อนบางส่วน',
+            'รอเสนอพิจารณา': 'รอจัดชุด (พร้อมเสนอ)', 'อยู่ในรอบพิจารณา': 'เสนอคณะกรรมการแล้ว'
+        },
+        'research': {
+            'รอตรวจประวัติการยื่นขอ': 'รอตรวจสอบ', 'ผลงานผ่าน': 'ไม่เคยใช้', 
+            'ผลงานซ้ำซ้อน': 'เคยใช้แล้ว', 'ซ้ำซ้อนบางส่วน': 'ซ้ำซ้อนบางส่วน'
+        },
+        'committee': {
+            'อยู่ในรอบพิจารณา': 'รอการพิจารณา (ในรอบ)', 'รอการพิจารณา': 'รอการพิจารณา', 'รอการอุทธรณ์': 'รอพิจารณาอุทธรณ์'
+        },
+        'applicant': {
+            'ส่งแล้ว': 'ส่งแล้ว', 'รอตรวจประวัติการยื่นขอ': 'กำลังตรวจสอบคำขอ', 
+            'ผลงานผ่าน': 'ผ่าน (รอเจ้าหน้าที่งานบุคคลส่งรอบพิจารณา)', 'ผลงานซ้ำซ้อน': 'ผลงานเคยถูกใช้แล้ว',
+            'ซ้ำซ้อนบางส่วน': 'ซ้ำซ้อนบางส่วน', 'อยู่ในรอบพิจารณา': 'รอผลการพิจารณา (รอบ)', 'รอการพิจารณา': 'รอการพิจารณา'
+        }
+    }
+    return labels.get(role, {}).get(status, 'ยกเลิก' if status == 'ยกเลิก' else status)
 
 
 @app.template_filter('rich_status_label')
 def rich_status_label(req, role):
     status = req.get('status', '')
-    if status == 'อนุมัติ':
-        # Check if any individual work was rejected
-        works = req.get('works', [])
-        has_rejected = any(w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] for w in works)
-        if has_rejected:
-            return 'อนุมัติ (ไม่อนุญาตบางส่วน)'
-    
-    # Fallback to standard role-based logic
+    if status == 'อนุมัติ' and any(w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] for w in req.get('works', [])):
+        return 'อนุมัติ (ไม่อนุญาตบางส่วน)'
     return role_status_label(status, role)
 
 
 @app.template_filter('translate_work_type')
 def translate_work_type(initial_type):
-    from utils import load_data
     mapping = {
-        'research': 'บทความงานวิจัย',
-        'textbook': 'ตำราหรือหนังสือ',
-        'creative': 'งานสร้างสรรค์',
-        'social': 'ผลงานรับใช้ท้องถิ่นและสังคม',
-        'industry': 'ผลงานวิชาการเพื่ออุตสาหกรรม',
-        'teaching': 'ผลงานการสอน',
-        'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ',
-        'innovation': 'ผลงานนวัตกรรม'
+        'research': 'บทความงานวิจัย', 'textbook': 'ตำราหรือหนังสือ', 'creative': 'งานสร้างสรรค์',
+        'social': 'ผลงานรับใช้ท้องถิ่นและสังคม', 'industry': 'ผลงานวิชาการเพื่ออุตสาหกรรม',
+        'teaching': 'ผลงานการสอน', 'policy': 'ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ', 'innovation': 'ผลงานนวัตกรรม'
     }
-    if initial_type in mapping:
-        return mapping[initial_type]
+    if initial_type in mapping: return mapping[initial_type]
     
-    # Try to load from work_types.json if not in mapping
-    work_types = load_data('work_types.json')
-    wt = next((t for t in work_types if t['id'] == initial_type), None)
-    if wt:
-        return wt.get('label', initial_type)
-        
-    return initial_type
+    from utils import load_data
+    wt = next((t for t in load_data('work_types.json') if t['id'] == initial_type), None)
+    return wt.get('label', initial_type) if wt else initial_type
 
 
 @app.template_filter('translate_contribution')

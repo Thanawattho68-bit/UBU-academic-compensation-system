@@ -174,116 +174,57 @@ def create_notification(message, recipient_role=None, recipient_username=None, r
 # ──────────────────────────────────────────────
 
 def calculate_compensation(works_list, position_str, fiscal_year_req):
-    # Load config
-    all_criteria = load_config('criteria.json', [])
-    if isinstance(all_criteria, dict): all_criteria = []
+    from database import query_db
+    import json
     
-    # Find matching criteria or use default/latest
-    criteria = next((c for c in all_criteria if str(c.get('fiscal_year')) == str(fiscal_year_req)), None)
-    if not criteria and all_criteria:
-        criteria = all_criteria[0]
-        
-    qs = criteria.get('quality_scores', {}) if criteria else {}
-    rw = criteria.get('role_weights', {}) if criteria else {}
-    pr = criteria.get('payment_rules', {}) if criteria else {}
-
+    row = query_db('SELECT * FROM Criteria WHERE fiscal_year = ?', (str(fiscal_year_req),), one=True)
+    if not row: row = query_db('SELECT * FROM Criteria ORDER BY fiscal_year DESC LIMIT 1', one=True)
+    
+    if row:
+        qs = json.loads(row['quality_scores']) if row['quality_scores'] else {}
+        rw = json.loads(row['role_weights']) if row['role_weights'] else {}
+        pr = json.loads(row['payment_rules']) if row['payment_rules'] else {}
+    else: qs, rw, pr = {}, {}, {}
     score_sum = 0
-    
-    # Normalize Position
     pos = position_str.strip() if position_str else ""
-    is_asst = 'ผู้ช่วยศาสตราจารย์' in pos
-    is_assoc = 'รองศาสตราจารย์' in pos
-    is_prof = 'ศาสตราจารย์' in pos and not is_asst and not is_assoc
+    pos_key = 'asst_prof' if 'ผู้ช่วยศาสตราจารย์' in pos else ('assoc_prof' if 'รองศาสตราจารย์' in pos else ('prof' if 'ศาสตราจารย์' in pos else ''))
     
     for w in works_list:
         if w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']:
-            w['score_calc'] = 0
-            w['payment_calc'] = 0
-            w['score_breakdown'] = "ไม่อนุมัติการพิจารณา / ผลงานซ้ำซ้อน"
+            w.update({'score_calc': 0, 'payment_calc': 0, 'score_breakdown': "ไม่อนุมัติการพิจารณา / ผลงานซ้ำซ้อน"})
             continue
 
-        w_type = w.get('type')
-        details = w.get('details', {})
-        s = 0.0
-        weight = 0.0
+        w_type, details = w.get('type'), w.get('details', {})
+        s, weight = 0.0, 0.0
         
-        # 1. Determine Base Score (S)
+        # 1. Base Score (S)
         if w_type == 'research':
-            rs = qs.get('research', {})
-            db = details.get('database')
-            if db == 'scopus_q1_q2': s = rs.get('tier1', 1.25)
-            elif db == 'scopus_other': s = rs.get('non_q', 1.00)
-            elif db == 'national': s = rs.get('national', 0.75)
-        
-        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation'] or (w_type.startswith('custom_') and details.get('level')):
-            # Use merged ABC scores
-            type_scores = qs.get('merged_abc', {'a_plus': 1.25, 'a': 1.0, 'b': 0.75})
-            lvl = details.get('level')
-            if lvl == 'level_a_plus': s = type_scores.get('a_plus', 1.25)
-            elif lvl == 'level_a': s = type_scores.get('a', 1.00)
-            elif lvl == 'level_b': s = type_scores.get('b', 0.75)
-            else: s = type_scores.get('a', 1.00)
-
+            db_map = {'scopus_q1_q2': 'tier1', 'scopus_other': 'non_q', 'national': 'national'}
+            s = qs.get('research', {}).get(db_map.get(details.get('database'), 'national'), 0.75)
+        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation'] or w_type.startswith('custom_'):
+            lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
+            s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
         elif w_type == 'textbook':
-            ts = qs.get('textbook', {'publisher': 1.25, 'general': 1.0})
-            pt = details.get('publish_type')
-            if pt == 'inter': s = ts.get('publisher', 1.25)
-            elif pt == 'local': s = ts.get('general', 1.00)
-            else: s = ts.get('publisher', 1.25)
-            
+            s = qs.get('textbook', {}).get('publisher' if details.get('publish_type') != 'local' else 'general', 1.25)
         elif w_type == 'creative':
-            cs = qs.get('creative', {'international': 1.25, 'cooperation': 1.00, 'national': 0.75})
+            cre_map = {'inter': 'international', 'coop': 'cooperation', 'national': 'national'}
             pt = details.get('publish_type', '')
-            if 'inter' in pt: s = cs.get('international', 1.25)
-            elif 'coop' in pt: s = cs.get('cooperation', 1.00)
-            elif 'national' in pt: s = cs.get('national', 0.75)
-            else: s = cs.get('international', 1.25)
+            found_key = next((k for k in cre_map if k in pt), 'international')
+            s = qs.get('creative', {}).get(cre_map[found_key], 1.25)
         
-        # 2. Determine Weight (W)
-        role = details.get('contribution')
-        if role in ['first', 'corresponding', 'main']:
-            weight = rw.get('main', 1.0)
-        elif role in ['intellectual', 'co']:
-            weight = rw.get('co', 0.5)
-        else:
-            weight = 0.0
-            
-        # Net Score
+        # 2. Weight (W)
+        weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
         net = s * weight
-        w['base_score'] = s
-        w['weight'] = weight
-        w['score_calc'] = net
-        
-        # Breakdown Text
-        base_info = ""
-        if w_type == 'research':
-            db = details.get('database', '-')
-            if db == 'scopus_q1_q2': base_info = "Scopus Q1/Q2"
-            elif db == 'scopus_other': base_info = "Scopus Other"
-            elif db == 'national': base_info = "TCI/National"
-        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation']:
-            lvl = details.get('level', '-')
-            base_info = f"{w_type.capitalize()} ({lvl.replace('level_', '').upper()})"
-        else:
-            base_info = w_type.capitalize()
-            
-        w['score_breakdown'] = f"ฐาน {s} ({base_info}) x น้ำหนัก {weight}"
-        w['payment_calc'] = 0 
+        w.update({'base_score': s, 'weight': weight, 'score_calc': net, 'payment_calc': 0})
+        w['score_breakdown'] = f"ฐาน {s} x น้ำหนัก {weight}"
         score_sum += net
 
     # 3. Calculate compensation based on Tiers
     comp = 0
-    pos_key = 'asst_prof' if is_asst else ('assoc_prof' if is_assoc else ('prof' if is_prof else ''))
-    
-    if pos_key:
-        tiers = pr.get(pos_key, [])
-        if isinstance(tiers, dict): # Handle legacy single tier
-             if score_sum >= tiers.get('min_score', 0): comp = tiers.get('amount', 0)
-        elif isinstance(tiers, list):
-            # Only consider up to 2 tiers as requested (though logic finds best fit anyway)
-            applicable_tiers = [t for t in tiers if score_sum >= float(t.get('min_score', 0))]
-            if applicable_tiers:
-                applicable_tiers.sort(key=lambda x: float(x.get('min_score', 0)), reverse=True)
-                comp = float(applicable_tiers[0].get('amount', 0))
+    if pos_key and pr.get(pos_key):
+        tiers = pr[pos_key]
+        applicable = [t for t in (tiers if isinstance(tiers, list) else [tiers]) if score_sum >= float(t.get('min_score', 0))]
+        if applicable:
+            comp = float(sorted(applicable, key=lambda x: float(x.get('min_score', 0)))[-1].get('amount', 0))
 
     return score_sum, comp
