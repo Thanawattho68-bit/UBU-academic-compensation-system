@@ -6,6 +6,5 @@ routes/__init__.py
 from .auth import auth_bp
 from .main import main_bp
 from .requests import requests_bp
-from .rounds import rounds_bp
 from .admin import admin_bp
 from .api import api_bp
