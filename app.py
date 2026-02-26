@@ -34,12 +34,12 @@ if not os.path.exists(UPLOAD_FOLDER):
 # ──────────────────────────────────────────────
 # ลงทะเบียน Blueprints
 # ──────────────────────────────────────────────
-from routes import auth_bp, main_bp, requests_bp, rounds_bp, admin_bp, api_bp
+from routes import auth_bp, main_bp, requests_bp, admin_bp, api_bp
 
 app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(requests_bp)
-app.register_blueprint(rounds_bp)
+# app.register_blueprint(rounds_bp) # Remove Batching
 app.register_blueprint(admin_bp)
 app.register_blueprint(api_bp)
 
@@ -126,9 +126,9 @@ def translate_work_type(initial_type):
     }
     if initial_type in mapping: return mapping[initial_type]
     
-    from utils import load_data
-    wt = next((t for t in load_data('work_types.json') if t['id'] == initial_type), None)
-    return wt.get('label', initial_type) if wt else initial_type
+    # Check DB
+    wt = query_db('SELECT * FROM WorkType WHERE id = ?', (initial_type,), one=True)
+    return wt['label'] if wt else initial_type
 
 
 @app.template_filter('translate_contribution')
