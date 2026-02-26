@@ -27,12 +27,12 @@
                         <h2 style="color: var(--primary-color); margin: 0;">
                             <i class="fas fa-edit"></i> {{ 'เพิ่ม' if year == 'new' else 'แก้ไข' }}ช่วงเวลายื่นคำขอ
                         </h2>
-                        <a href="{{ url_for('manage_timeline') }}" style="color: #666; text-decoration: none;">
+                        <a href="{{ url_for('admin.manage_timeline') }}" style="color: #666; text-decoration: none;">
                             <i class="fas fa-times"></i> ปรับปรุงรายการ
                         </a>
                     </div>
 
-                    <form action="{{ url_for('edit_timeline', year=year) }}" method="POST">
+                    <form action="{{ url_for('admin.edit_timeline', year=year) }}" method="POST">
                         <div class="form-group">
                             <label>ปีงบประมาณ</label>
                             <input type="text" name="fiscal_year" value="{{ timeline.fiscal_year if timeline else '' }}"
@@ -167,7 +167,7 @@
                                 {% endif %}
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <a href="{{ url_for('manage_timeline') }}" class="btn-secondary"
+                                <a href="{{ url_for('admin.manage_timeline') }}" class="btn-secondary"
                                     style="text-decoration: none;">ยกเลิก</a>
                                 <button type="submit" class="btn-primary">
                                     <i class="fas fa-save"></i> บันทึกข้อมูล

@@ -127,3 +127,56 @@ def edit_criteria():
         }
 
     return render_template('edit_criteria.html', data=criteria_data, name=session['name'], role=session['role'])
+
+
+@admin_bp.route('/manage_timeline') # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+def manage_timeline():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    # Fetch all from DB
+    rows = query_db('SELECT * FROM TimelineConfig ORDER BY fiscal_year DESC')
+    timelines = []
+    for r in rows:
+        t = dict(r)
+        t['rounds'] = json.loads(t['rounds_json']) if t.get('rounds_json') else []
+        timelines.append(t)
+        
+    return render_template('manage_timeline.html', timelines=timelines, name=session['name'], role=session['role'])
+
+
+@admin_bp.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+def edit_timeline():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+
+    year = request.args.get('year')
+    row = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (year,), one=True)
+    
+    timeline_data = None
+    if row:
+        timeline_data = dict(row)
+        timeline_data['rounds'] = json.loads(timeline_data['rounds_json']) if timeline_data.get('rounds_json') else []
+
+    if request.method == 'POST':
+        action = request.form.get('action')
+        fiscal_year = request.form.get('fiscal_year')
+        
+        if action == 'delete':
+            execute_db('DELETE FROM TimelineConfig WHERE fiscal_year = ?', (fiscal_year,))
+            flash(f"ลบข้อมูลปีงบประมาณ {fiscal_year} เรียบร้อยแล้ว")
+            return redirect(url_for('admin.manage_timeline'))
+        
+        start_date = request.form.get('start_date')
+        end_date = request.form.get('end_date')
+        rounds_json = request.form.get('rounds_data', '[]')
+        
+        execute_db('''
+            INSERT OR REPLACE INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
+            VALUES (?, ?, ?, ?)
+        ''', (fiscal_year, start_date, end_date, rounds_json))
+        
+        flash("บันทึกข้อมูลเรียบร้อยแล้ว")
+        return redirect(url_for('admin.manage_timeline'))
+
+    return render_template('edit_timeline.html', timeline=timeline_data, year=year, name=session['name'], role=session['role'])
