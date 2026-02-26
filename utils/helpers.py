@@ -114,25 +114,37 @@ def get_current_fiscal_year():
 def is_within_timeline():
     current_fy = get_current_fiscal_year()
     # Try current year, if not found, get the latest one available
-    config = query_db('SELECT * FROM FiscalYearConfig WHERE fiscal_year = ?', (str(current_fy),), one=True)
+    config = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (str(current_fy),), one=True)
     if not config:
-        config = query_db('SELECT * FROM FiscalYearConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+        config = query_db('SELECT * FROM TimelineConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
         
     if not config:
         return True # Default open if absolutely no config exists
 
     now = datetime.now()
     
-    # Simple check against global start/end dates in BE format (DD/MM/YYYY)
+    # 1. Check global range
     dt_main_start = parse_thai_date(config['start_date'])
     dt_main_end = parse_thai_date(config['end_date'])
     
     if dt_main_start and dt_main_end:
-        # Set time to start of day and end of day
         dt_main_start = dt_main_start.replace(hour=0, minute=0, second=0)
         dt_main_end = dt_main_end.replace(hour=23, minute=59, second=59)
-        return dt_main_start <= now <= dt_main_end
-    
+        if not (dt_main_start <= now <= dt_main_end):
+             return False
+
+    # 2. Check for 'consideration' rounds (system closed)
+    rounds = json.loads(config['rounds_json']) if config['rounds_json'] else []
+    for r in rounds:
+        if r.get('type') == 'consideration':
+            s_dt = parse_thai_date(r.get('start_date'))
+            e_dt = parse_thai_date(r.get('end_date'))
+            if s_dt and e_dt:
+                s_dt = s_dt.replace(hour=0, minute=0, second=0)
+                e_dt = e_dt.replace(hour=23, minute=59, second=59)
+                if s_dt <= now <= e_dt:
+                    return False # Closed during consideration
+
     return True
 
 

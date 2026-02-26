@@ -30,7 +30,7 @@ def init_db():
         )
     ''')
     
-    # RequestRecord table (Simplified with works_json)
+    # RequestRecord table (Upgraded with Audit Trail)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS RequestRecord (
             id TEXT PRIMARY KEY,
@@ -41,11 +41,17 @@ def init_db():
             date_submitted TEXT,
             total_score REAL DEFAULT 0.0,
             approved_amount REAL DEFAULT 0.0,
-            comment TEXT,
+            comments_json TEXT,
             timeline_status TEXT,
             batch_id TEXT,
             applicant_info_json TEXT,
-            works_json TEXT
+            works_json TEXT,
+            admin_viewer TEXT,
+            research_viewer TEXT,
+            committee_approver TEXT,
+            final_approver TEXT,
+            decision_reason TEXT,
+            history_json TEXT
         )
     ''')
     
@@ -62,25 +68,13 @@ def init_db():
         )
     ''')
 
-    # FiscalYearConfig table
+    # TimelineConfig table (Merged & Flexible)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS FiscalYearConfig (
+        CREATE TABLE IF NOT EXISTS TimelineConfig (
             fiscal_year TEXT PRIMARY KEY,
-            start_date TEXT, -- Format: DD/MM/YYYY (BE)
-            end_date TEXT    -- Format: DD/MM/YYYY (BE)
-        )
-    ''')
-
-    # TimelineRound table
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS TimelineRound (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            fiscal_year TEXT,
-            round_name TEXT,
-            round_type TEXT, -- 'submission' หรือ 'consideration'
-            start_date TEXT, -- Format: DD/MM/YYYY (BE)
-            end_date TEXT,   -- Format: DD/MM/YYYY (BE)
-            FOREIGN KEY (fiscal_year) REFERENCES FiscalYearConfig (fiscal_year) ON DELETE CASCADE
+            start_date TEXT,
+            end_date TEXT,
+            rounds_json TEXT
         )
     ''')
 

@@ -51,12 +51,13 @@ def migrate():
             reqs = json.load(f)
             for r in reqs:
                 execute_db('''
-                    INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, comment, timeline_status, batch_id, applicant_info_json, works_json)
+                    INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, comments_json, timeline_status, batch_id, applicant_info_json, works_json)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     r['id'], r['applicant'], r['applicant_name'], r.get('fiscal_year'),
                     r.get('status'), r.get('date'), float(r.get('score', 0) or 0),
-                    float(r.get('approved_amount', 0) or 0), r.get('comment', ''),
+                    float(r.get('approved_amount', 0) or 0), 
+                    json.dumps([{"role": "system", "text": r.get('comment', ''), "name": "System", "timestamp": r.get('date', '')}] if r.get('comment') else [], ensure_ascii=False),
                     r.get('timeline_status'), r.get('batch_id'),
                     json.dumps(r.get('applicant_info', {}), ensure_ascii=False),
                     json.dumps(r.get('works', []), ensure_ascii=False)
@@ -79,7 +80,26 @@ def migrate():
                 ))
         print(f"✅ Migrated {len(criteria_list)} criteria configs.")
 
-    # 5. Migrate Work Types
+    # 5. Migrate Timeline (To new Merged Table)
+    if os.path.exists('timeline.json'):
+        with open('timeline.json', 'r', encoding='utf-8') as f:
+            timelines = json.load(f)
+            # Ensure timelines is a list
+            if not isinstance(timelines, list): timelines = [timelines]
+            
+            for t in timelines:
+                execute_db('''
+                    INSERT INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    str(t.get('fiscal_year', '')),
+                    t.get('start_date', '01/10'),
+                    t.get('end_date', '30/09'),
+                    json.dumps(t.get('rounds', []), ensure_ascii=False)
+                ))
+        print(f"✅ Migrated {len(timelines)} timeline configs to TimelineConfig table.")
+
+    # 6. Migrate Work Types
     if os.path.exists('work_types.json'):
         with open('work_types.json', 'r', encoding='utf-8') as f:
             work_types = json.load(f)

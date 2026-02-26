@@ -55,9 +55,13 @@ def inject_timeline():
     current_fy = str(get_current_fiscal_year())
     
     # Fetch config from DB (Try current, fallback to latest)
-    config = query_db('SELECT * FROM FiscalYearConfig WHERE fiscal_year = ?', (current_fy,), one=True)
-    if not config:
-        config = query_db('SELECT * FROM FiscalYearConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+    config_row = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (current_fy,), one=True)
+    if not config_row:
+        config_row = query_db('SELECT * FROM TimelineConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+    
+    config = dict(config_row) if config_row else None
+    if config and config.get('rounds_json'):
+        config['rounds'] = json.loads(config['rounds_json'])
     
     timeline_msg = ""
     now = datetime.now()
@@ -75,7 +79,7 @@ def inject_timeline():
         if user_req:
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=dict(config) if config else None, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
+    return dict(can_submit=can_submit, timeline=config, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
 
 # ──────────────────────────────────────────────
 # Template Filters
@@ -143,4 +147,4 @@ def translate_contribution(role):
 # Run App
 # ──────────────────────────────────────────────
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5001)
