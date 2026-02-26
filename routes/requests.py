@@ -258,9 +258,26 @@ def view_request(req_id):
                 execute_db('UPDATE RequestRecord SET status = ? WHERE id = ?', ('รอตรวจประวัติการยื่นขอ', req_id))
                 create_notification(f"คำขอ {req_id} รอตรวจประวัติ", recipient_role='research', req_id=req_id)
             elif action == 'mark_ready': 
-                # SKIP BATCHING: Go straight to Committee
-                execute_db('UPDATE RequestRecord SET status = ? WHERE id = ?', ('รอการพิจารณา', req_id))
-                create_notification(f"คำขอ {req_id} รอการพิจารณา", recipient_role='committee', req_id=req_id)
+                # FILTER: Remove works that were marked as duplicate by research
+                filtered_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']
+                
+                if not filtered_works:
+                    flash("ไม่สามารถส่งคำขอให้คณะกรรมการได้เนื่องจากผลงานทั้งหมดถูกพบว่าซ้ำซ้อน")
+                    return redirect(url_for('requests.view_request', req_id=req_id))
+
+                # Re-calculate compensation for the filtered set
+                s, c = calculate_compensation(filtered_works, req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                
+                # Update DB with filtered works and set status to 'รอการพิจารณา'
+                execute_db('''
+                    UPDATE RequestRecord 
+                    SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL 
+                    WHERE id = ?
+                ''', ('รอการพิจารณา', json.dumps(filtered_works, ensure_ascii=False), s, c, req_id))
+                
+                create_notification(f"คำขอ {req_id} รอการพิจารณา (ส่งรายบุคคล)", recipient_role='committee', req_id=req_id)
+                flash(f"ส่งคำขอ {req_id} ให้คณะกรรมการพิจารณาเรียบร้อยแล้ว (ยกเว้นรายการซ้ำซ้อน)")
+                redirect_url = url_for('main.dashboard')
             elif action == 'reject':
                 execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ? WHERE id = ?', ('ไม่อนุมัติ', request.form.get('comment', ''), req_id))
                 create_notification(f"คำขอ {req_id} ไม่ผ่านการอนุมัติ", recipient_username=req_data['applicant_username'], req_id=req_id)
@@ -285,33 +302,35 @@ def view_request(req_id):
                 
                 dups = any(w.get('status') == 'ผลงานซ้ำซ้อน' for w in req_data['works'])
                 passes = any(w.get('status') == 'ผลงานผ่าน' for w in req_data['works'])
-                new_status = 'ซ้ำซ้อนบางส่วน' if dups and passes else ('ผลงานซ้ำซ้อน' if dups else 'ผลงานผ่าน')
+                
+                # If everything is duplicate, it's just 'ผลงานซ้ำซ้อน'
+                if dups and not passes:
+                    new_status = 'ผลงานซ้ำซ้อน'
+                elif dups and passes:
+                    new_status = 'ซ้ำซ้อนบางส่วน'
+                else:
+                    new_status = 'ผลงานผ่าน'
                 
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 execute_db('''
                     UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ? 
                     WHERE id = ?
                 ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
-                create_notification(f"ตรวจสอบผลงาน {req_id} แล้ว", recipient_role='administration', req_id=req_id)
+                create_notification(f"ตรวจสอบผลงาน {req_id} แล้ว กรุณาส่งพิจารณาต่อ", recipient_role='administration', req_id=req_id)
             
             if 'finalize' not in action:
                 execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
             redirect_url = url_for('requests.view_request', req_id=req_id) if 'finalize' not in action else url_for('main.dashboard')
 
-        # Committee Actions (Individual Processing)
-        elif session['role'] == 'committee' and req_data['status'] in ['รอการพิจารณา', 'รอการอุทธรณ์', 'อยู่ในรอบพิจารณา']:
+        # Committee Actions (Individual Processing - NO BATCHING)
+        elif session['role'] == 'committee' and req_data['status'] in ['รอการพิจารณา', 'รอการอุทธรณ์']:
             is_appeal = req_data['status'] == 'รอการอุทธรณ์'
             status = 'อนุมัติ' if action == 'approve' else 'ไม่อนุมัติ'
             
             # Update individual works mapping
             for idx, w in enumerate(req_data['works']):
-                # ONLY update works that are NOT duplicate and NOT already processed (or re-process)
-                if w.get('status') in ['ผลงานผ่าน', 'รอการพิจารณา', 'รอการอุทธรณ์']:
-                    # If this is a specific action from a form that might specify per-work status
-                    # But for now, user asked for "Send to committee" and "Individual" but 
-                    # usually committee decides on the whole request based on eligible works.
-                    # Or they can approve/reject individual items in a loop.
-                    # Let's support bulk decision for the request as a whole for now but mark works.
+                # ONLY update works that are NOT duplicate (though they should be filtered out already)
+                if w.get('status') != 'ผลงานซ้ำซ้อน':
                     decision = request.form.get(f"status_{req_id}_{idx}", 'approve' if action == 'approve' else 'reject')
                     if decision == 'approve':
                         w['status'] = 'อนุมัติ'
@@ -328,6 +347,7 @@ def view_request(req_id):
             
             create_notification(f"คำขอ {req_id} มีผล {status}", recipient_username=req_data['applicant_username'], req_id=req_id)
             flash(f"ดำเนินการพิจารณาคำขอ {req_id} เรียบร้อยแล้ว")
+            return redirect(url_for('main.dashboard'))
 
         return redirect(redirect_url)
 
