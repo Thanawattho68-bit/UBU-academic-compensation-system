@@ -7,6 +7,7 @@ Route หน้าหลัก: index, dashboard, notifications, appeals
   - นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
 """
 
+import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from database import query_db, execute_db
 from utils import load_data, format_thai_date
@@ -24,26 +25,53 @@ def index():
 def dashboard():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
-    all_reqs = load_data('requests.json')
-    batches = load_data('batches.json')
-    pending_reqs = []
+    role = session['role']
+    username = session['username']
     
-    if session['role'] == 'applicant':
-        display_reqs = [r for r in all_reqs if r['applicant'] == session['username']]
-    elif session['role'] in ['administration', 'research', 'committee']:
-        # Show all non-draft requests
-        display_reqs = [r for r in all_reqs if r['status'] != 'แบบร่าง']
-        if session['role'] == 'administration':
-            pending_reqs = [r for r in all_reqs if r.get('status') == 'รอเสนอพิจารณา']
+    # ดึงข้อมูลคำขอจาก database โดยกรองตามสิทธิ์การใช้งาน
+    if role == 'applicant':
+        rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ?', (username,))
+    elif role in ['administration', 'research', 'committee']:
+        # สำหรับเจ้าหน้าที่และกรรมการ ให้เห็นคำขอทั้งหมดที่ไม่ใช่แบบร่าง
+        rows = query_db('SELECT * FROM RequestRecord WHERE status != ?', ('แบบร่าง',))
     else:
-        display_reqs = []
+        rows = []
     
-    # Load users for admin role
+    display_reqs = []
+    for row in rows:
+        r = dict(row)
+        # แปลงข้อมูล JSON ที่เก็บเป็น TEXT ใน DB กลับเป็น Object
+        r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
+        r['applicant_info'] = json.loads(r['applicant_info_json']) if r.get('applicant_info_json') else {}
+        
+        # แมพชื่อฟิลด์เพื่อให้เข้ากับตัวแปรที่ template dashboard.html ใช้งาน
+        r['applicant'] = r['applicant_username']
+        r['date'] = r['date_submitted']
+        r['score'] = r['total_score']
+        display_reqs.append(r)
+    
+    # กรองรายการที่รอเสนอพิจารณา (เฉพาะสำหรับสิทธิ์ administration)
+    pending_reqs = []
+    if role == 'administration':
+        pending_reqs = [r for r in display_reqs if r.get('status') == 'รอเสนอพิจารณา']
+    
+    # ดึงข้อมูลรอบการพิจารณา (Batch) - ยังคงดึงจาก JSON เพื่อความเข้ากันได้กับระบบเดิมที่ยังไม่มี table Batch ใน DB
+    batches = load_data('batches.json')
+    
+    # สำหรับสิทธิ์ admin ดึงข้อมูลรายชื่อผู้ใช้งานทั้งหมด
     all_users = []
-    if session['role'] == 'admin':
-        all_users = load_data('users.json')
+    if role == 'admin':
+        user_rows = query_db('SELECT * FROM Account')
+        all_users = [dict(u) for u in user_rows]
     
-    return render_template('dashboard.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=display_reqs, batches=batches, pending_reqs=pending_reqs, users=all_users)
+    return render_template('dashboard.html', 
+                           name=session['name'], 
+                           role=role, 
+                           position=session.get('position',''), 
+                           requests=display_reqs, 
+                           batches=batches, 
+                           pending_reqs=pending_reqs, 
+                           users=all_users)
 
 
 @main_bp.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
