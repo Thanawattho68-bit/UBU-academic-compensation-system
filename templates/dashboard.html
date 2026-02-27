@@ -251,8 +251,8 @@
                                 {% endif %}
                                 {% if role != 'research' %}
                                 <td>
-                                    {% if req.approved_amount or req.suggested_compensation %}
-                                    {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
+                                    {% if req.approved_amount %}
+                                    {% set amt = (req.approved_amount)|float %}
                                     {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์']
                                     else 'var(--success-color)' %}
                                     <span style="color: {{ color }}; font-weight: bold;">

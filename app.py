@@ -10,6 +10,7 @@ app.py
 from flask import Flask, session
 from database import init_db, query_db
 import os
+import json
 
 # ──────────────────────────────────────────────
 # สร้าง Flask App
