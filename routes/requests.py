@@ -144,7 +144,14 @@ def new_request():
     if request.method == 'POST':
         action, now_dt = request.form.get('action'), datetime.now()
         if action == 'submit' and not can_submit:
-             flash("ไม่อยู่ในช่วงเวลาที่เปิดรับคำขอ"); return redirect(url_for('requests.new_request'))
+             # Check if this is a resubmission of a returned request
+             is_resubmission = False
+             if edit_req and edit_req.get('status') == 'แก้ไข':
+                 is_resubmission = True
+             
+             if not is_resubmission:
+                 flash("ไม่อยู่ในช่วงเวลาที่เปิดรับคำขอ")
+                 return redirect(url_for('requests.new_request', edit_id=edit_id))
 
         req_id = request.form.get('req_id') or f"REQ-{now_dt.year + 543}{now_dt.strftime('%m%d%H%M%S')}"
         works = json.loads(request.form.get('works_data', '[]'))
