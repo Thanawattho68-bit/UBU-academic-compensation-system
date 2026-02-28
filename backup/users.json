@@ -1,0 +1,98 @@
+[
+    {
+        "username": "user01",
+        "password": "123",
+        "name": "ผศ. สมชาย",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": "ผู้ช่วยศาสตราจารย์",
+        "department": "วิทยาการคอมพิวเตอร์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "01/01/2560",
+        "position_number": "12345"
+    },
+    {
+        "username": "user02",
+        "password": "123",
+        "name": "รศ. สมหญิง",
+        "role": "applicant",
+        "title_name": "นาง",
+        "academic_position": "รองศาสตราจารย์",
+        "department": "คณิตศาสตร์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "15/05/2558",
+        "position_number": "54321"
+    },
+    {
+        "username": "user03",
+        "password": "123",
+        "name": "ศ. สมศักดิ์",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": "ศาสตราจารย์",
+        "department": "ฟิสิกส์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "10/10/2555",
+        "position_number": "99887"
+    },
+    {
+        "username": "admin_work",
+        "password": "123",
+        "name": "เจ้าหน้าที่งานบุคคล",
+        "role": "administration",
+        "title_name": "นาย",
+        "academic_position": null,
+        "department": null,
+        "faculty": null,
+        "position_date": null,
+        "position_number": null
+    },
+    {
+        "username": "research01",
+        "password": "123",
+        "name": "เจ้าหน้าที่งานวิจัย",
+        "role": "research",
+        "title_name": "นาง",
+        "academic_position": null,
+        "department": null,
+        "faculty": null,
+        "position_date": null,
+        "position_number": null
+    },
+    {
+        "username": "board01",
+        "password": "123",
+        "name": "คณะกรรมการประจำคณะ",
+        "role": "committee",
+        "title_name": "นาย",
+        "academic_position": null,
+        "department": null,
+        "faculty": null,
+        "position_date": null,
+        "position_number": null
+    },
+    {
+        "username": "root",
+        "password": "123",
+        "name": "ผู้ดูแลระบบ",
+        "role": "admin",
+        "title_name": "นาย",
+        "academic_position": null,
+        "department": null,
+        "faculty": null,
+        "position_date": null,
+        "position_number": null
+    },
+    {
+        "username": "user04",
+        "password": "123",
+        "name": "ศ. สมเกียรติยศ",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": "ผู้ช่วยศาสตราจารย์",
+        "department": "วิทยาการคอมพิวเตอร์",
+        "faculty": null,
+        "position_date": null,
+        "position_number": null
+    }
+]

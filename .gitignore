@@ -15,10 +15,8 @@ env/
 # *.json
 # Actually, for this project, let's keep criteria.json but exclude dynamic data
 requests.json
-users.json
 notifications.json
 batches.json
-timeline.json
 
 # Business Data (SQLite)
 instance/
