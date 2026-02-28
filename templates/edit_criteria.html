@@ -46,21 +46,9 @@
         {% include 'sidebar.html' %}
 
         <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
-                <div class="notifications-wrapper" style="position: relative; margin-right: 25px; cursor: pointer;">
-                    <i class="fas fa-bell" id="bellIcon" style="font-size: 1.4rem; color: #555;"></i>
-                    <span id="badge"
-                        style="display:none; position: absolute; top: -5px; right: -5px; background: #dc3545; color: white; border-radius: 50%; padding: 2px 5px; font-size: 0.7rem; font-weight: bold; line-height: 1;">0</span>
-                    <div id="notifDropdown"
-                        style="display:none; position: absolute; top: 40px; right: -10px; width: 300px; background: white; border: 1px solid #e0e0e0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); z-index: 1000; border-radius: 6px; overflow: hidden;">
-                        <div
-                            style="padding: 10px 15px; background: #f8f9fa; border-bottom: 1px solid #eee; font-weight: 600; color: #333;">
-                            การแจ้งเตือน</div>
-                        <div id="notifList"></div>
-                    </div>
-                </div>
-                <div class="user-profile">
-                    <i class="fas fa-user-shield"></i> ผู้ดูแลระบบ
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-edit"></i> จัดการเกณฑ์และคะแนน
                 </div>
             </header>
 

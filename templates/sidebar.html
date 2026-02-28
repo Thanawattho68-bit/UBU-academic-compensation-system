@@ -77,8 +77,7 @@
 
   function showTimelineAlert(event) {
     if (event) event.preventDefault();
-    var msg = {{ timeline_message | tojson
-  }};
+    var msg = JSON.parse('{{ (timeline_message | default("")) | tojson | safe }}');
   if (!msg) {
     const startDate = "{{ timeline.start_date }}";
     msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
