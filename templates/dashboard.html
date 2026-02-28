@@ -74,7 +74,7 @@
                                 <tr class="group-{{ role_key }}" style="display: none;">
                                     <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
                                     <td>{{ user.username }}</td>
-                                    <td>{{ user.academic_position or '-' }}</td>
+                                    <td>{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else (user.academic_position or '-') }}</td>
                                     <td>{{ user.faculty or '-' }}</td>
                                     <td style="text-align: center;">
                                         <span class="status-tag"

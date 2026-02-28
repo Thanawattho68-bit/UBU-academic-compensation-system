@@ -119,6 +119,15 @@ def new_request():
         criteria_list.append(d)
         
     user_profile = dict(query_db('SELECT * FROM Account WHERE username = ?', (session['username'],), one=True) or {})
+    if user_profile and user_profile.get('academic_position'):
+        try:
+            user_profile['academic_position'] = json.loads(user_profile['academic_position'])
+            if not isinstance(user_profile['academic_position'], list):
+                user_profile['academic_position'] = [user_profile['academic_position']]
+        except (json.JSONDecodeError, TypeError):
+            # If not a JSON list, handle as single string
+            pass
+
     work_types = [dict(wt) for wt in query_db('SELECT * FROM WorkType')]
 
     # Check for edit mode
