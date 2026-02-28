@@ -81,15 +81,15 @@ python app.py
 
 ## รายละเอียดผู้รับผิดชอบและระบบงาน (Update 2026)
 
-### 1. นางสาวฐิติรัตน์ แสงห้าว (Blueprint: `main`)
+### 1. นางสาวฐิติรัตน์ แสงห้าว (Blueprint: `main`, `auth`)
 
 - `@main_bp.route('/')` - หน้าแรก (Gateway เช็คสิทธิ์การเข้าใช้งาน)
 - `@main_bp.route('/dashboard')` - หน้าหลักผู้ใช้งานและระบบค้นหาข้อมูลคำขอ
-
-### 2. นาย ธนวรรธ ทองตื้อ (Blueprint: `auth`, `requests`, `api`)
-
 - `@auth_bp.route('/login')` - ระบบเข้าสู่ระบบ
 - `@auth_bp.route('/logout')` - ระบบออกจากระบบ
+
+### 2. นาย ธนวรรธ ทองตื้อ (Blueprint: `requests`, `api`)
+
 - `@requests_bp.route('/new_request')` - แบบฟอร์มยื่นคำขอใหม่ (Form Logic)
 - `@api_bp.route('/api/add_work_type')` - ระบบเพิ่มประเภทผลงานทางวิชาการ
 - `@api_bp.route('/uploads/...')` - ระบบจัดการไฟล์หลักฐานที่อัปโหลด

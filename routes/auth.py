@@ -1,7 +1,7 @@
 """
 routes/auth.py
 จัดการ route เข้าสู่ระบบและออกจากระบบ
-ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (เข้าสู่ระบบ / ออกจากระบบ)
+ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (เข้าสู่ระบบ / ออกจากระบบ)
 """
 
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
@@ -10,7 +10,7 @@ from database import query_db
 auth_bp = Blueprint('auth', __name__)
 
 
-@auth_bp.route('/login', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (เข้าสู่ระบบ)
+@auth_bp.route('/login', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (เข้าสู่ระบบ)
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
@@ -35,7 +35,7 @@ def login():
     return render_template('login.html')
 
 
-@auth_bp.route('/logout') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (ออกจากระบบ)
+@auth_bp.route('/logout') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (ออกจากระบบ)
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))
