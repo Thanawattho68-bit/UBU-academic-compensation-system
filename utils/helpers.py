@@ -224,7 +224,19 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         pr = json.loads(row['payment_rules']) if row['payment_rules'] else {}
     else: qs, rw, pr = {}, {}, {}
     score_sum = 0
-    pos = position_str.strip() if position_str else ""
+    # Handle position_str which might be a JSON string, a list, or a plain string
+    pos_data = position_str
+    if isinstance(pos_data, str) and pos_data.startswith('[') and pos_data.endswith(']'):
+        try:
+            pos_data = json.loads(pos_data)
+        except:
+            pass
+    
+    if isinstance(pos_data, list):
+        pos = " ".join(pos_data)
+    else:
+        pos = str(pos_data or "").strip()
+
     pos_key = 'asst_prof' if 'ผู้ช่วยศาสตราจารย์' in pos else ('assoc_prof' if 'รองศาสตราจารย์' in pos else ('prof' if 'ศาสตราจารย์' in pos else ''))
     
     for w in works_list:

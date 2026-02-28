@@ -11,7 +11,13 @@
         {{ name }}
       </div>
       <div style="font-size: 0.8rem; color: #bdc3c7; font-weight: 300">
-        {% if position %} {{ position }} {% endif %}
+        {% if position %}
+          {% if position is string %}
+            {{ position }}
+          {% else %}
+            {{ position | join(' / ') }}
+          {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>

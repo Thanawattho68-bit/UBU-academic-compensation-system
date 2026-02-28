@@ -154,7 +154,7 @@
 
                             <div style="display: flex; align-items: center;">
                                 <span style="font-weight: normal; color: #555;">ตำแหน่ง :</span>
-                                <input type="text" name="academic_position" value="{{ user.academic_position }}"
+                                <input type="text" name="academic_position" value="{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else user.academic_position }}"
                                     readonly
                                     style="border: none; background: transparent; color: #000; font-weight: normal; font-size: 1rem; padding: 0; margin-left: 8px; width: auto; flex-grow: 1; outline: none; font-family: inherit;">
                             </div>
@@ -1132,7 +1132,8 @@
             });
 
             // 3. Total Compensation based on totalScore
-            const pos = ACADEMIC_POSITION || "";
+            const posData = ACADEMIC_POSITION || "";
+            const pos = Array.isArray(posData) ? posData.join(' ') : posData;
             let posKey = "";
             if (pos.includes('ผู้ช่วยศาสตราจารย์')) posKey = "asst_prof";
             else if (pos.includes('รองศาสตราจารย์')) posKey = "assoc_prof";

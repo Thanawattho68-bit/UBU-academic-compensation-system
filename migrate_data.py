@@ -14,19 +14,32 @@ def migrate():
             print("⚠️ Could not remove database file (it might be in use). Skipping removal.")
     
     init_db()
-    print("✅ Database tables recreated.")
+    print("✅ Database tables initialized.")
+
+    # Explicitly clear tables in case file removal failed
+    tables = ['Account', 'Notification', 'RequestRecord', 'TimelineConfig', 'Criteria', 'WorkType']
+    for table in tables:
+        try:
+            execute_db(f"DELETE FROM {table}")
+            print(f"🧹 Cleared existing data from {table}.")
+        except Exception as e:
+            print(f"⚠️ Failed to clear table {table}: {e}")
 
     # 1. Migrate Users to Account table
     if os.path.exists('backup/users.json'):
         with open('backup/users.json', 'r', encoding='utf-8') as f:
             users = json.load(f)
             for u in users:
+                pos = u.get('academic_position')
+                if isinstance(pos, list):
+                    pos = json.dumps(pos, ensure_ascii=False)
+                
                 execute_db('''
                     INSERT INTO Account (username, password, role, name, title_name, academic_position, department, faculty, position_date, position_number)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     u['username'], u['password'], u['role'], u.get('name'),
-                    u.get('title_name'), u.get('academic_position'), u.get('department'),
+                    u.get('title_name'), pos, u.get('department'),
                     u.get('faculty'), u.get('position_date'), u.get('position_number')
                 ))
         print(f"✅ Migrated {len(users)} users to Account table.")

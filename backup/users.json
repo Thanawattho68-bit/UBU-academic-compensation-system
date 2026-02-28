@@ -5,7 +5,7 @@
         "name": "ผศ. สมชาย",
         "role": "applicant",
         "title_name": "นาย",
-        "academic_position": "ผู้ช่วยศาสตราจารย์",
+        "academic_position": ["ผู้ช่วยศาสตราจารย์", "หัวหน้าภาควิชา"],
         "department": "วิทยาการคอมพิวเตอร์",
         "faculty": "วิทยาศาสตร์",
         "position_date": "01/01/2560",
@@ -17,7 +17,7 @@
         "name": "รศ. สมหญิง",
         "role": "applicant",
         "title_name": "นาง",
-        "academic_position": "รองศาสตราจารย์",
+        "academic_position": ["รองศาสตราจารย์", "รองคณบดีฝ่ายวิจัย"],
         "department": "คณิตศาสตร์",
         "faculty": "วิทยาศาสตร์",
         "position_date": "15/05/2558",
@@ -29,7 +29,7 @@
         "name": "ศ. สมศักดิ์",
         "role": "applicant",
         "title_name": "นาย",
-        "academic_position": "ศาสตราจารย์",
+        "academic_position": ["ศาสตราจารย์"],
         "department": "ฟิสิกส์",
         "faculty": "วิทยาศาสตร์",
         "position_date": "10/10/2555",
@@ -41,11 +41,11 @@
         "name": "เจ้าหน้าที่งานบุคคล",
         "role": "administration",
         "title_name": "นาย",
-        "academic_position": null,
-        "department": null,
-        "faculty": null,
-        "position_date": null,
-        "position_number": null
+        "academic_position": ["เจ้าหน้าที่ชำนาญการ"],
+        "department": "กองบริหารงานบุคคล",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "01/01/2560",
+        "position_number": "ADM001"
     },
     {
         "username": "research01",
@@ -53,11 +53,11 @@
         "name": "เจ้าหน้าที่งานวิจัย",
         "role": "research",
         "title_name": "นาง",
-        "academic_position": null,
-        "department": null,
-        "faculty": null,
-        "position_date": null,
-        "position_number": null
+        "academic_position": ["เจ้าหน้าที่วิเคราะห์นโยบายและแผน"],
+        "department": "กองวิจัยและนวัตกรรม",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "15/05/2562",
+        "position_number": "RES001"
     },
     {
         "username": "board01",
@@ -65,11 +65,11 @@
         "name": "คณะกรรมการประจำคณะ",
         "role": "committee",
         "title_name": "นาย",
-        "academic_position": null,
-        "department": null,
-        "faculty": null,
-        "position_date": null,
-        "position_number": null
+        "academic_position": ["รองศาสตราจารย์"],
+        "department": "บริหารธุรกิจ",
+        "faculty": "บริหารศาสตร์",
+        "position_date": "20/08/2550",
+        "position_number": "COM001"
     },
     {
         "username": "root",
@@ -77,11 +77,11 @@
         "name": "ผู้ดูแลระบบ",
         "role": "admin",
         "title_name": "นาย",
-        "academic_position": null,
-        "department": null,
-        "faculty": null,
-        "position_date": null,
-        "position_number": null
+        "academic_position": ["อาจารย์"],
+        "department": "เทคโนโลยีสารสนเทศ",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "01/01/2550",
+        "position_number": "SYS001"
     },
     {
         "username": "user04",
@@ -89,10 +89,10 @@
         "name": "ศ. สมเกียรติยศ",
         "role": "applicant",
         "title_name": "นาย",
-        "academic_position": "ผู้ช่วยศาสตราจารย์",
+        "academic_position": ["ผู้ช่วยศาสตราจารย์"],
         "department": "วิทยาการคอมพิวเตอร์",
-        "faculty": null,
-        "position_date": null,
-        "position_number": null
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "12/12/2565",
+        "position_number": "APP004"
     }
 ]
