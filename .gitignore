@@ -21,8 +21,8 @@ batches.json
 timeline.json
 
 # Business Data (SQLite)
-instance/
-*.db
+# instance/
+# *.db
 
 # OS-specific
 .DS_Store
