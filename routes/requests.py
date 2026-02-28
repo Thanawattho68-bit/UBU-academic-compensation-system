@@ -23,6 +23,24 @@ from utils import (
 requests_bp = Blueprint('requests', __name__)
 
 
+def log_history(req_id, action, comment=""):
+    """ บันทึกประวัติการดำเนินการลงใน RequestRecord """
+    row = query_db('SELECT history_json FROM RequestRecord WHERE id = ?', (req_id,), one=True)
+    history = json.loads(row['history_json']) if row and row['history_json'] else []
+    
+    history.append({
+        "timestamp": format_thai_date(datetime.now(), True),
+        "user": session.get('username'),
+        "name": session.get('name'),
+        "role": session.get('role'),
+        "action": action,
+        "comment": comment
+    })
+    
+    execute_db('UPDATE RequestRecord SET history_json = ? WHERE id = ?', 
+               (json.dumps(history, ensure_ascii=False), req_id))
+
+
 @requests_bp.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
 def view_work(req_id, work_index):
     if 'username' not in session:
@@ -35,6 +53,8 @@ def view_work(req_id, work_index):
     req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
     req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
     req['applicant'] = req['applicant_username'] # Compatibility
+    req['date'] = req['date_submitted']
+    req['score'] = req['total_score']
     
     if request.method == 'POST':
         if session['role'] != 'administration':
@@ -161,11 +181,13 @@ def new_request():
                     status = ?, total_score = ?, approved_amount = ?, applicant_info_json = ?, works_json = ?, date_submitted = ?
                 WHERE id = ?
             ''', ("ส่งแล้ว" if action == "submit" else "แบบร่าง", score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), format_thai_date(now_dt, True), req_id))
+            log_history(req_id, "ส่งคำขอ" if action == "submit" else "บันทึกแบบร่าง")
         else:
             execute_db('''
                 INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, timeline_status, applicant_info_json, works_json)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, "ontime" if can_submit else "late", json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
+            log_history(req_id, "สร้างคำขอใหม่" + (" (ส่ง)" if action == "submit" else " (แบบร่าง)"))
 
         if action == "submit": create_notification(f"มีคำขอใหม่ {req_id} จาก {session['name']}", recipient_role='administration', req_id=req_id)
         
@@ -187,6 +209,8 @@ def view_request(req_id):
     req_data['works'] = json.loads(req_data['works_json']) if req_data.get('works_json') else []
     req_data['applicant_info'] = json.loads(req_data['applicant_info_json']) if req_data.get('applicant_info_json') else {}
     req_data['applicant'] = req_data['applicant_username'] # Compatibility
+    req_data['date'] = req_data['date_submitted']
+    req_data['score'] = req_data['total_score']
 
     # Redirect drafts to edit page instead of view summary
     if req_data.get('status') == 'แบบร่าง' and session['role'] == 'applicant':
@@ -212,6 +236,7 @@ def view_request(req_id):
                 if req_data.get('status') in ['แบบร่าง', 'ส่งแล้ว', 'แก้ไข', 'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา', 'รอการพิจารณา']:
                     req_data.update({'status': 'ยกเลิก', 'cancel_date': format_thai_date(datetime.now(), True)})
                     execute_db('UPDATE RequestRecord SET status = ? WHERE id = ?', ('ยกเลิก', req_id))
+                    log_history(req_id, "ยกเลิกคำขอ")
                     create_notification(f"คำขอ {req_id} ถูกยกเลิกโดยผู้ยื่น", recipient_role='administration', req_id=req_id)
                     flash("ยกเลิกคำขอเรียบร้อยแล้ว")
                 else: flash("ไม่สามารถยกเลิกคำขอได้ในสถานะนี้")
@@ -231,6 +256,7 @@ def view_request(req_id):
                     execute_db('''
                         UPDATE RequestRecord SET status = ?, works_json = ? WHERE id = ?
                     ''', ('รอการอุทธรณ์', json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                    log_history(req_id, "ยื่นอุทธรณ์", reason)
                     create_notification(f"มีการยื่นอุทธรณ์คำขอ {req_id}", recipient_role='committee', req_id=req_id)
                     flash("ส่งคำอุทธรณ์เรียบร้อยแล้ว")
                 else: flash("ไม่พบรายการที่สามารถยื่นอุทธรณ์ได้")
@@ -252,10 +278,14 @@ def view_request(req_id):
             if action == 'return':
                 comment = request.form.get('comment', '').strip()
                 if not comment: flash("กรุณาระบุสิ่งที่ต้องแก้ไข"); return redirect(url_for('requests.view_request', req_id=req_id))
-                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ? WHERE id = ?', ('แก้ไข', comment, req_id))
+                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ?, admin_viewer = ? WHERE id = ?', 
+                           ('แก้ไข', comment, session['username'], req_id))
+                log_history(req_id, "ส่งคืนแก้ไข", comment)
                 create_notification(f"คำขอ {req_id} ถูกส่งคืน: {comment}", recipient_username=req_data['applicant_username'], req_id=req_id)
             elif action == 'pass':
-                execute_db('UPDATE RequestRecord SET status = ? WHERE id = ?', ('รอตรวจประวัติการยื่นขอ', req_id))
+                execute_db('UPDATE RequestRecord SET status = ?, admin_viewer = ? WHERE id = ?', 
+                           ('รอตรวจประวัติการยื่นขอ', session['username'], req_id))
+                log_history(req_id, "ส่งตรวจสอบประวัติ (งานวิจัย)")
                 create_notification(f"คำขอ {req_id} รอตรวจประวัติ", recipient_role='research', req_id=req_id)
             elif action == 'mark_ready': 
                 # FILTER: Remove works that were marked as duplicate by research
@@ -271,15 +301,17 @@ def view_request(req_id):
                 # Update DB with filtered works and set status to 'รอการพิจารณา'
                 execute_db('''
                     UPDATE RequestRecord 
-                    SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL 
+                    SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL, admin_viewer = ?
                     WHERE id = ?
-                ''', ('รอการพิจารณา', json.dumps(filtered_works, ensure_ascii=False), s, c, req_id))
-                
+                ''', ('รอการพิจารณา', json.dumps(filtered_works, ensure_ascii=False), s, c, session['username'], req_id))
+                log_history(req_id, "ส่งให้คณะกรรมการพิจารณา")
                 create_notification(f"คำขอ {req_id} รอการพิจารณา (ส่งรายบุคคล)", recipient_role='committee', req_id=req_id)
                 flash(f"ส่งคำขอ {req_id} ให้คณะกรรมการพิจารณาเรียบร้อยแล้ว (ยกเว้นรายการซ้ำซ้อน)")
                 redirect_url = url_for('main.dashboard')
             elif action == 'reject':
-                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ? WHERE id = ?', ('ไม่อนุมัติ', request.form.get('comment', ''), req_id))
+                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ?, admin_viewer = ? WHERE id = ?', 
+                           ('ไม่อนุมัติ', request.form.get('comment', ''), session['username'], req_id))
+                log_history(req_id, "ไม่อนุมัติ (โดยงานบุคคล)", request.form.get('comment', ''))
                 create_notification(f"คำขอ {req_id} ไม่ผ่านการอนุมัติ", recipient_username=req_data['applicant_username'], req_id=req_id)
             else: # Manual Save
                 execute_db('UPDATE RequestRecord SET works_json = ?, total_score = ?, approved_amount = ? WHERE id = ?', 
@@ -313,9 +345,10 @@ def view_request(req_id):
                 
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ? 
+                    UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, research_viewer = ? 
                     WHERE id = ?
-                ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
+                ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
+                log_history(req_id, "ตรวจความซ้ำซ้อนเรียบร้อย", f"ผลลัพธ์: {new_status}")
                 create_notification(f"ตรวจสอบผลงาน {req_id} แล้ว กรุณาส่งพิจารณาต่อ", recipient_role='administration', req_id=req_id)
             
             if 'finalize' not in action:
@@ -341,9 +374,10 @@ def view_request(req_id):
             s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
             
             execute_db('''
-                UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?
+                UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
                 WHERE id = ?
-            ''', (status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
+            ''', (status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], request.form.get('comment', ''), req_id))
+            log_history(req_id, f"ผลการพิจารณา: {status}", request.form.get('comment', ''))
             
             create_notification(f"คำขอ {req_id} มีผล {status}", recipient_username=req_data['applicant_username'], req_id=req_id)
             flash(f"ดำเนินการพิจารณาคำขอ {req_id} เรียบร้อยแล้ว")

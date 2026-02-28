@@ -163,6 +163,8 @@ input[type=number] {
 .content-area {
     padding: 30px 40px;
     flex: 1;
+    background-color: #e0e0e0;
+    min-height: calc(100vh - 70px);
 }
 
 /* Welcome Banner */

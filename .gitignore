@@ -20,6 +20,10 @@ notifications.json
 batches.json
 timeline.json
 
+# Business Data (SQLite)
+# instance/
+# *.db
+
 # OS-specific
 .DS_Store
 Thumbs.db
