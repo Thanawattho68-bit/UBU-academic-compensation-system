@@ -1,0 +1,47 @@
+[
+    {
+        "id": "research",
+        "label": "บทความงานวิจัย",
+        "is_custom": 0
+    },
+    {
+        "id": "textbook",
+        "label": "ตำราหรือหนังสือ",
+        "is_custom": 0
+    },
+    {
+        "id": "creative",
+        "label": "งานสร้างสรรค์",
+        "is_custom": 0
+    },
+    {
+        "id": "social",
+        "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+        "is_custom": 0
+    },
+    {
+        "id": "industry",
+        "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+        "is_custom": 0
+    },
+    {
+        "id": "teaching",
+        "label": "ผลงานการสอน",
+        "is_custom": 0
+    },
+    {
+        "id": "policy",
+        "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+        "is_custom": 0
+    },
+    {
+        "id": "innovation",
+        "label": "ผลงานนวัตกรรม",
+        "is_custom": 0
+    },
+    {
+        "id": "custom_20260220104506",
+        "label": "rrrrrr",
+        "is_custom": 1
+    }
+]
