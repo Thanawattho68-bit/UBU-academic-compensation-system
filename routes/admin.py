@@ -7,6 +7,7 @@ routes/admin.py
 """
 
 import json
+from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import query_db, execute_db
 from utils import load_config, save_data
@@ -143,6 +144,44 @@ def manage_timeline():
         timelines.append(t)
         
     return render_template('manage_timeline.html', timelines=timelines, name=session['name'], role=session['role'])
+
+
+@admin_bp.route('/manage_work_types', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ (Admin/ประเภทผลงาน)
+def manage_work_types():
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    if request.method == 'POST':
+        action = request.form.get('action')
+        if action == 'add':
+            label = request.form.get('label', '').strip()
+            if not label:
+                flash("กรุณาระบุชื่อประเภทผลงาน")
+            else:
+                existing = query_db('SELECT * FROM WorkType WHERE label = ?', (label,), one=True)
+                if existing:
+                    flash("ประเภทผลงานนี้มีอยู่แล้วในระบบ")
+                else:
+                    new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+                    execute_db('INSERT INTO WorkType (id, label, is_custom) VALUES (?, ?, ?)', (new_id, label, 1))
+                    flash(f"เพิ่มประเภทผลงาน '{label}' เรียบร้อยแล้ว")
+        
+        elif action == 'delete':
+            type_id = request.form.get('id')
+            target = query_db('SELECT * FROM WorkType WHERE id = ?', (type_id,), one=True)
+            if target:
+                if not target['is_custom']:
+                    flash("ไม่สามารถลบประเภทผลงานหลักของระบบได้")
+                else:
+                    execute_db('DELETE FROM WorkType WHERE id = ?', (type_id,))
+                    flash(f"ลบประเภทผลงานเรียบร้อยแล้ว")
+            else:
+                flash("ไม่พบประเภทผลงานที่ต้องการลบ")
+        
+        return redirect(url_for('admin.manage_work_types'))
+
+    work_types = query_db('SELECT * FROM WorkType')
+    return render_template('manage_work_types.html', work_types=work_types, name=session['name'], role=session['role'])
 
 
 @admin_bp.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)

@@ -12,11 +12,11 @@
       </div>
       <div style="font-size: 0.8rem; color: #bdc3c7; font-weight: 300">
         {% if position %}
-          {% if position is string %}
-            {{ position }}
-          {% else %}
-            {{ position | join(' / ') }}
-          {% endif %}
+        {% if position is string %}
+        {{ position }}
+        {% else %}
+        {{ position | join(' / ') }}
+        {% endif %}
         {% endif %}
       </div>
     </div>
@@ -56,6 +56,10 @@
       class="{% if request.endpoint == 'admin.manage_timeline' %}active{% endif %}">
       <i class="fas fa-calendar-alt"></i> จัดการช่วงเวลายื่นคำขอ
     </a>
+    <a href="{{ url_for('admin.manage_work_types') }}"
+      class="{% if request.endpoint == 'admin.manage_work_types' %}active{% endif %}">
+      <i class="fas fa-tasks"></i> จัดการประเภทผลงาน
+    </a>
 
     {% endif %}
     <a href="{{ url_for('main.notifications_page') }}"
@@ -84,11 +88,11 @@
   function showTimelineAlert(event) {
     if (event) event.preventDefault();
     var msg = JSON.parse('{{ (timeline_message | default("")) | tojson | safe }}');
-  if (!msg) {
-    const startDate = "{{ timeline.start_date }}";
-    msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
-  }
-  alert(msg);
+    if (!msg) {
+      const startDate = "{{ timeline.start_date }}";
+      msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+    }
+    alert(msg);
   }
 
 

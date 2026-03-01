@@ -111,7 +111,8 @@
         {% include 'sidebar.html' %}
 
         <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+            <header class="top-bar"
+                style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
                 <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
                     <i class="fas fa-file-signature"></i> ยื่นคำขอใหม่
                 </div>
@@ -154,7 +155,8 @@
 
                             <div style="display: flex; align-items: center;">
                                 <span style="font-weight: normal; color: #555;">ตำแหน่ง :</span>
-                                <input type="text" name="academic_position" value="{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else user.academic_position }}"
+                                <input type="text" name="academic_position"
+                                    value="{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else user.academic_position }}"
                                     readonly
                                     style="border: none; background: transparent; color: #000; font-weight: normal; font-size: 1rem; padding: 0; margin-left: 8px; width: auto; flex-grow: 1; outline: none; font-family: inherit;">
                             </div>
@@ -318,25 +320,8 @@
                         style="flex: 1; text-align: left; padding: 12px 20px; border: 1px solid #e2e8f0; background: #fff; color: #2c3e50; transition: all 0.2s;">
                         {{ t.label }}
                     </button>
-                    {% if t.is_custom %}
-                    <button onclick="deleteWorkType('{{ t.id }}')"
-                        style="background: #fff; border: 1px solid #fed7d7; color: #e53e3e; padding: 0 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
-                        title="ลบประเภทนี้ออกจากระบบ" onmouseover="this.style.background='#fff5f5'"
-                        onmouseout="this.style.background='#fff'">
-                    </button>
-                    {% endif %}
                 </div>
                 {% endfor %}
-            </div>
-
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #edf2f7;">
-                <h4
-                    style="margin-bottom: 12px; font-size: 0.95rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
-                    ไม่พบประเภทผลงานที่ต้องการ?</h4>
-                <button onclick="promptAddNewType()" class="btn-primary"
-                    style="width: 100%; background: #27ae60; border: none; padding: 12px; font-weight: bold;">
-                    <i class="fas fa-plus-circle"></i> เพิ่มประเภทผลงานใหม่
-                </button>
             </div>
         </div>
     </div>
@@ -356,85 +341,6 @@
             document.getElementById('workTypeModal').style.display = 'block';
         }
 
-        async function deleteWorkType(typeId) {
-            if (!confirm("ต้องการลบประเภทผลงานนี้ออกจากระบบใช่หรือไม่?")) return;
-
-            try {
-                const response = await fetch("{{ url_for('api.api_delete_work_type') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ id: typeId })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    const el = document.getElementById(`type-item-${typeId}`);
-                    if (el) el.remove();
-                    delete WORK_TYPE_LABELS[typeId];
-                } else {
-                    alert(result.message);
-                }
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
-            }
-        }
-
-        async function promptAddNewType() {
-            const label = prompt("กรุณาระบุชื่อประเภทผลงานใหม่:");
-            if (!label || label.trim() === "") return;
-
-            try {
-                const response = await fetch("{{ url_for('api.api_add_work_type') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ label: label.trim() })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    const newType = result.type;
-                    const container = document.getElementById('workTypeButtons');
-                    if (container) {
-                        const wrapper = document.createElement('div');
-                        wrapper.id = `type-item-${newType.id}`;
-                        wrapper.style.display = 'flex';
-                        wrapper.style.alignItems = 'stretch';
-                        wrapper.style.gap = '5px';
-
-                        const btn = document.createElement('button');
-                        btn.className = 'btn-secondary';
-                        btn.style.flex = '1';
-                        btn.style.textAlign = 'left';
-                        btn.style.padding = '12px 20px';
-                        btn.style.border = '1px solid #e2e8f0';
-                        btn.style.background = '#fff';
-                        btn.style.color = '#2c3e50';
-                        btn.style.transition = 'all 0.2s';
-                        btn.onclick = () => addWork(newType.id, newType.label);
-                        btn.innerHTML = `<i class="fas fa-chevron-right" style="margin-right: 10px; color: #3498db; font-size: 0.8rem;"></i> ${newType.label}`;
-
-                        const delBtn = document.createElement('button');
-                        delBtn.style.background = '#fff';
-                        delBtn.style.border = '1px solid #fed7d7';
-                        delBtn.style.color = '#e53e3e';
-                        delBtn.style.padding = '0 15px';
-                        delBtn.style.borderRadius = '6px';
-                        delBtn.style.cursor = 'pointer';
-                        delBtn.title = "ลบประเภทนี้ออกจากระบบ";
-                        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                        delBtn.onclick = () => deleteWorkType(newType.id);
-
-                        wrapper.appendChild(btn);
-                        wrapper.appendChild(delBtn);
-                        container.appendChild(wrapper);
-                    }
-                    WORK_TYPE_LABELS[newType.id] = newType.label;
-                    alert("เพิ่มประเภทผลงานใหม่เข้าสู่ระบบเรียบร้อยแล้ว");
-                } else {
-                    alert(result.message || "ไม่สามารถเพิ่มประเภทผลงานได้");
-                }
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-            }
-        }
 
         function addWork(type, label = '') {
             const id = Date.now();
@@ -922,47 +828,83 @@
                 const displayLabel = label || type;
                 template = `
                     <h4>${displayLabel}</h4>
-                    <div class="form-group"><label>ชื่อผลงาน (Title)</label><textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%" placeholder="ระบุชื่อผลงาน..."></textarea></div>
+                    <div class="form-group">
+                        <label>1. ชื่อผลงาน (Title)</label>
+                        <textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%" placeholder="ระบุชื่อผลงาน..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>2. รายละเอียดอื่นๆ (Details)</label>
+                        <textarea onchange="updateWork(${id}, 'details_other', this.value)" rows="2" style="width:100%" placeholder="เช่น สรุปสาระสำคัญ, สถานที่เผยแพร่, หรือข้อมูลเพิ่มเติม..."></textarea>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
+                        <div class="form-group">
+                            <label>3. วันที่เผยแพร่ / วันที่ได้รับอนุมัติ (Publication Date)</label>
+                            <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)" style="width:100%">
+                        </div>
+                    </div>
                     
                     <div class="sub-section">
-                        <h5>1. ข้อมูลการเผยแพร่</h5>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div class="form-group">
-                                <label>วันที่เผยแพร่/วันที่ได้รับอนุมัติ :</label>
-                                <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)" style="width:100%">
-                            </div>
-                            <div class="form-group">
-                                <label>ฐานข้อมูล/แหล่งเผยแพร่ :</label>
-                                <input type="text" onchange="updateWork(${id}, 'database', this.value)" style="width:100%" placeholder="ระบุแหล่งเผยแพร่...">
+                        <h5>4. รูปแบบการเลือกเกณฑ์คะแนน (Calculation Mode)</h5>
+                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                            <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                                <input type="radio" name="calc_mode_${id}" value="impact" checked onchange="toggleCustomCalcMode(${id}, 'impact')" style="margin-top: 5px;"> 
+                                <div><strong>ทางเลือกที่ 1: ประเมินตามระดับผลกระทบ (Impact-based)</strong><br><small style="color: #64748b;">เหมาะสำหรับผลงานสื่อสาธารณะ, คลิปวิดีโอ, กิจกรรมสังคม ที่เน้นความกว้างขวางของผลกระทบ (A+, A, B)</small></div>
+                            </label>
+                            <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                                <input type="radio" name="calc_mode_${id}" value="academic" onchange="toggleCustomCalcMode(${id}, 'academic')" style="margin-top: 5px;"> 
+                                <div><strong>ทางเลือกที่ 2: ประเมินตามเกณฑ์วิชาการ (Academic-based)</strong><br><small style="color: #64748b;">เหมาะสำหรับบทความวิชาการประเภทอื่นๆ ที่มีการตรวจสอบคุณภาพ (Peer Review) และต้องการน้ำหนักตาม "ความมีส่วนร่วม"</small></div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div id="impact-section-${id}">
+                        <div class="sub-section" style="border-left: 4px solid #27ae60;">
+                            <h5 style="color: #27ae60;">ระดับผลกระทบ (Impact Scale)</h5>
+                            <div class="checkbox-group">
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
+                                    <span><strong>ระดับ A+ (คะแนน 1.25)</strong> - ยอมรับระดับนานาชาติ / รางวัลระดับสากล / ผลกระทบระดับประเทศวงกว้าง</span>
+                                 </label>
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
+                                    <span><strong>ระดับ A (คะแนน 1.00)</strong> - ก่อการเปลี่ยนแปลงเชิงนโยบาย / ยอมรับระดับชาติ / ผลกระทบวงกว้างในระดับภาค</span>
+                                 </label>
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
+                                    <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
+                                    <span><strong>ระดับ B (คะแนน 0.75)</strong> - พัฒนาชุมชน/ท้องถิ่น / ใช้ประโยชน์ในมหาวิทยาลัย / แก้ปัญหาเฉพาะกลุ่มชัดเจน</span>
+                                 </label>
                             </div>
                         </div>
                     </div>
 
-                    <div class="sub-section">
-                        <h5>2. ระดับผลงาน (Self-Assessment / Suggested Scale)</h5>
-                        <div class="checkbox-group">
-                             <div>
-                                <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
-                                <strong>ระดับ A+ (คะแนน 1.25)</strong>
-                             </div>
-                             <div>
-                                <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
-                                <strong>ระดับ A (คะแนน 1.00)</strong>
-                             </div>
-                             <div>
-                                <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
-                                <strong>ระดับ B (คะแนน 0.75)</strong>
-                             </div>
+                    <div id="academic-section-${id}" style="display: none;">
+                        <div class="sub-section" style="border-left: 4px solid #3498db;">
+                            <h5 style="color: #3498db;">ระดับการเผยแพร่ (Academic Level)</h5>
+                            <div class="checkbox-group">
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
+                                    <input type="radio" name="pub_lvl_${id}" value="inter" onchange="updateWork(${id}, 'pub_level', this.value)"> 
+                                    <span><strong>ระดับนานาชาติ</strong> (เช่น งานแปลระดับสากล, งานวิชาการเวทีต่างประเทศ)</span>
+                                 </label>
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
+                                    <input type="radio" name="pub_lvl_${id}" value="national" onchange="updateWork(${id}, 'pub_level', this.value)"> 
+                                    <span><strong>ระดับชาติ</strong> (เช่น งานวิชาการเสนอในประเทศ หรือแหล่งอ้างอิงระดับชาติ)</span>
+                                 </label>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="sub-section">
-                        <h5>3. การมีส่วนร่วมในผลงาน</h5>
-                        <div class="checkbox-group">
-                             <div><input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์อันดับแรก (first author)</div>
-                             <div><input type="radio" name="contrib_${id}" value="corresponding" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ประพันธ์บรรณกิจ (corresponding author)</div>
-                             <div><input type="radio" name="contrib_${id}" value="main" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ดำเนินการหลัก (main author)</div>
-                             <div><input type="radio" name="contrib_${id}" value="co" onchange="updateWork(${id}, 'contribution', this.value)"> ผู้ดำเนินการร่วม (co-author)</div>
+                        <div class="sub-section" style="border-left: 4px solid #3498db;">
+                            <h5 style="color: #3498db;">บทบาทความมีส่วนร่วม (Contribution)</h5>
+                            <div class="checkbox-group">
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
+                                    <input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> 
+                                    <span><strong>ผู้ดำเนินงานหลัก / ลำดับแรก</strong> (น้ำหนัก 1.0)</span>
+                                 </label>
+                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
+                                    <input type="radio" name="contrib_${id}" value="co" onchange="updateWork(${id}, 'contribution', this.value)"> 
+                                    <span><strong>ผู้ร่วมดำเนินงาน / มีส่วนร่วม</strong> (น้ำหนัก 0.5)</span>
+                                 </label>
+                            </div>
                         </div>
                     </div>
                 `;
@@ -974,9 +916,22 @@
                 `;
             }
 
-            // Note: Common Contribution section removed from here as it is now custom per type above
-
             template += remarksHtml;
+
+            // Individual Work Score Display (Self-Assessment)
+            template += `
+                <div id="individual-score-box-${id}" class="work-score-card" style="margin-top: 20px; padding: 15px; background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-weight: bold; color: #166534; font-size: 0.95rem;">
+                            <i class="fas fa-calculator"></i> คะแนนประเมินเบื้องต้น (Estimated Score):
+                        </span>
+                        <span id="score-val-${id}" style="font-size: 1.3rem; font-weight: bold; color: #15803d;">0.000</span>
+                    </div>
+                    <div id="score-formula-${id}" style="font-size: 0.8rem; color: #166534; margin-top: 5px; opacity: 0.8;">
+                        (ฐานคะแนน <span id="base-val-${id}">0.00</span> &times; น้ำหนักความมีส่วนร่วม <span id="weight-val-${id}">0.00</span>)
+                    </div>
+                </div>
+            `;
 
             template += `
                 <div class="form-group" style="margin-top: 15px; padding-top: 15px; border-top: 1px dashed #ddd;">
@@ -1051,6 +1006,30 @@
             }
         }
 
+        function toggleCustomCalcMode(id, mode) {
+            const impactSec = document.getElementById(`impact-section-${id}`);
+            const academicSec = document.getElementById(`academic-section-${id}`);
+            if (mode === 'impact') {
+                impactSec.style.display = 'block';
+                academicSec.style.display = 'none';
+            } else {
+                impactSec.style.display = 'none';
+                academicSec.style.display = 'block';
+            }
+            updateWork(id, 'calc_mode', mode);
+
+            // Reset scores on mode switch to prevent confusion
+            updateWork(id, 'level', '');
+            updateWork(id, 'pub_level', '');
+            updateWork(id, 'contribution', '');
+
+            // Uncheck sub-radios
+            const radios = academicSec.parentElement.querySelectorAll(`input[type="radio"]`);
+            radios.forEach(r => {
+                if (r.name !== `calc_mode_${id}`) r.checked = false;
+            });
+        }
+
 
         function calculateEstimates() {
             const body = document.getElementById('estimation-body');
@@ -1098,7 +1077,20 @@
                     else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
                     else if (pt.includes('national')) { s = cs.national || 0.75; }
                     else { s = cs.international || 1.25; }
-                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || (w.type.startsWith('custom_') && w.data.level)) {
+                } else if (w.type.startsWith('custom_')) {
+                    const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
+                    if (w.data.calc_mode === 'academic') {
+                        // Choice 2: Traditional contribution logic
+                        if (w.data.pub_level === 'inter') s = 1.0;
+                        else if (w.data.pub_level === 'national') s = 0.75;
+                    } else {
+                        // Choice 1: Self-impact scale (Default)
+                        const lvl = w.data.level;
+                        if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
+                        else if (lvl === 'level_a') { s = mScores.a || 1.00; }
+                        else if (lvl === 'level_b') { s = mScores.b || 0.75; }
+                    }
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type)) {
                     const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
                     const lvl = w.data.level;
                     if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
@@ -1114,11 +1106,34 @@
                 } else if (['intellectual', 'co'].includes(role)) {
                     weight = rw.co || 0.5;
                 } else {
-                    weight = 0;
+                    // Default to 1.0 for "Impact-based" if not using academics, 
+                    // or if it's Choice 1 in Custom.
+                    if (w.type.startsWith('custom_') && w.data.calc_mode !== 'academic' && s > 0) {
+                        weight = 1.0;
+                    } else {
+                        weight = 0;
+                    }
                 }
 
                 const net = s * weight;
                 totalScore += net;
+
+                // Update individual score display
+                const scoreBox = document.getElementById(`individual-score-box-${w.id}`);
+                const scoreVal = document.getElementById(`score-val-${w.id}`);
+                const baseVal = document.getElementById(`base-val-${w.id}`);
+                const weightVal = document.getElementById(`weight-val-${w.id}`);
+
+                if (scoreBox && scoreVal && baseVal && weightVal) {
+                    if (s > 0 || weight > 0) {
+                        scoreBox.style.display = 'block';
+                        scoreVal.innerText = net.toFixed(3);
+                        baseVal.innerText = s.toFixed(2);
+                        weightVal.innerText = weight.toFixed(2);
+                    } else {
+                        scoreBox.style.display = 'none';
+                    }
+                }
 
                 html += `
                     <tr>
