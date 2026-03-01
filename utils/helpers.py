@@ -251,16 +251,6 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         if w_type == 'research':
             db_map = {'scopus_q1_q2': 'tier1', 'scopus_other': 'non_q', 'national': 'national'}
             s = qs.get('research', {}).get(db_map.get(details.get('database'), 'national'), 0.75)
-        elif w_type.startswith('custom_'):
-            calc_mode = details.get('calc_mode', 'impact')
-            if calc_mode == 'academic':
-                # Academic-based (Choice 2)
-                pub_lvl = details.get('pub_level', 'national')
-                s = 1.0 if pub_lvl == 'inter' else 0.75
-            else:
-                # Impact-based (Choice 1)
-                lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
-                s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
         elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation']:
             lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
             s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
@@ -271,12 +261,37 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
             pt = details.get('publish_type', '')
             found_key = next((k for k in cre_map if k in pt), 'international')
             s = qs.get('creative', {}).get(cre_map[found_key], 1.25)
-        
-        # 2. Weight (W)
-        if w_type.startswith('custom_') and details.get('calc_mode', 'impact') == 'impact':
-            weight = 1.0
         else:
-            weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
+            # Dynamic / Custom Work Type
+            wt_row = query_db('SELECT form_config_json FROM WorkType WHERE id = ?', (w_type,), one=True)
+            if wt_row and wt_row['form_config_json']:
+                config = json.loads(wt_row['form_config_json'])
+                for field in config:
+                    if field.get('type') == 'radio':
+                        if field.get('is_score_field') and field['id'] in details:
+                            selected = details[field['id']]
+                            for opt in field.get('options', []):
+                                if opt.get('label') == selected:
+                                    s = float(opt.get('score', 0))
+                                    break
+                        if field.get('is_weight_field') and field['id'] in details:
+                            selected = details[field['id']]
+                            for opt in field.get('options', []):
+                                if opt.get('label') == selected:
+                                    weight = float(opt.get('score', 0))
+                                    break
+            
+            # Fallback if not found in config
+            if s == 0 and details.get('level'): # Legacy custom check
+                lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
+                s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
+
+        # 2. Weight (W)
+        if weight == 0: # If not set by dynamic config above
+            if w_type.startswith('custom_') and details.get('calc_mode', 'impact') == 'impact':
+                weight = 1.0
+            else:
+                weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
         
         net = s * weight
         w.update({'base_score': s, 'weight': weight, 'score_calc': net, 'payment_calc': 0})

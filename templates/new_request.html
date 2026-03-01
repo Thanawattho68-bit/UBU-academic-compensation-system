@@ -341,6 +341,11 @@
         '{{ t.id }}': '{{ t.calculation_mode or "self_assessment" }}',
             {% endfor %}
         };
+        const WORK_TYPE_CONFIGS = {
+            {% for t in work_types %}
+        '{{ t.id }}': {{ (t.form_config_json or 'null') | safe }},
+            {% endfor %}
+        };
 
         function addWorkModal() {
             document.getElementById('workTypeModal').style.display = 'block';
@@ -829,86 +834,6 @@
                     </div>
                 `;
             } else {
-                // Generic Template for Custom Types
-                const displayLabel = label || type;
-                template = `
-                    <h4>${displayLabel}</h4>
-                    <div class="form-group">
-                        <label>1. ชื่อผลงาน (Title)</label>
-                        <textarea required onchange="updateWork(${id}, 'title', this.value)" rows="2" style="width:100%" placeholder="ระบุชื่อผลงาน..."></textarea>
-                    </div>
-
-                    <div class="form-group">
-                        <label>2. รายละเอียดอื่นๆ (Details)</label>
-                        <textarea onchange="updateWork(${id}, 'details_other', this.value)" rows="2" style="width:100%" placeholder="เช่น สรุปสาระสำคัญ, สถานที่เผยแพร่, หรือข้อมูลเพิ่มเติม..."></textarea>
-                    </div>
-
-                    <div style="display: grid; grid-template-columns: 1fr; gap: 15px; margin-bottom: 20px;">
-                        <div class="form-group">
-                            <label>3. วันที่เผยแพร่ / วันที่ได้รับอนุมัติ (Publication Date)</label>
-                            <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)" style="width:100%">
-                        </div>
-                    </div>
-                    
-                    <div class="sub-section" style="display: none;">
-                        <h5>4. รูปแบบการเลือกเกณฑ์คะแนน (Calculation Mode)</h5>
-                        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
-                            <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
-                                <input type="radio" name="calc_mode_${id}" value="impact" checked onchange="toggleCustomCalcMode(${id}, 'impact')" style="margin-top: 5px;"> 
-                                <div><strong>ทางเลือกที่ 1: ประเมินตามระดับผลกระทบ (Impact-based)</strong><br><small style="color: #64748b;">เหมาะสำหรับผลงานสื่อสาธารณะ, คลิปวิดีโอ, กิจกรรมสังคม ที่เน้นความกว้างขวางของผลกระทบ (A+, A, B)</small></div>
-                            </label>
-                            <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
-                                <input type="radio" name="calc_mode_${id}" value="academic" onchange="toggleCustomCalcMode(${id}, 'academic')" style="margin-top: 5px;"> 
-                                <div><strong>ทางเลือกที่ 2: ประเมินตามเกณฑ์วิชาการ (Academic-based)</strong><br><small style="color: #64748b;">เหมาะสำหรับบทความวิชาการประเภทอื่นๆ ที่มีการตรวจสอบคุณภาพ (Peer Review) และต้องการน้ำหนักตาม "ความมีส่วนร่วม"</small></div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div id="impact-section-${id}">
-                        <div class="sub-section" style="border-left: 4px solid #27ae60;">
-                            <h5 style="color: #27ae60;">ระดับผลกระทบ (Impact Scale)</h5>
-                            <div class="checkbox-group">
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
-                                    <input type="radio" name="level_${id}" value="level_a_plus" onchange="updateWork(${id}, 'level', this.value)"> 
-                                    <span><strong>ระดับ A+ (คะแนน 1.25)</strong> - ยอมรับระดับนานาชาติ / รางวัลระดับสากล / ผลกระทบระดับประเทศวงกว้าง</span>
-                                 </label>
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
-                                    <input type="radio" name="level_${id}" value="level_a" onchange="updateWork(${id}, 'level', this.value)"> 
-                                    <span><strong>ระดับ A (คะแนน 1.00)</strong> - ก่อการเปลี่ยนแปลงเชิงนโยบาย / ยอมรับระดับชาติ / ผลกระทบวงกว้างในระดับภาค</span>
-                                 </label>
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 6px; cursor: pointer;">
-                                    <input type="radio" name="level_${id}" value="level_b" onchange="updateWork(${id}, 'level', this.value)"> 
-                                    <span><strong>ระดับ B (คะแนน 0.75)</strong> - พัฒนาชุมชน/ท้องถิ่น / ใช้ประโยชน์ในมหาวิทยาลัย / แก้ปัญหาเฉพาะกลุ่มชัดเจน</span>
-                                 </label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="academic-section-${id}" style="display: none;">
-                        <div class="sub-section" style="border-left: 4px solid #3498db;">
-                            <h5 style="color: #3498db;">ระดับการเผยแพร่ (Academic Level)</h5>
-                            <div class="checkbox-group">
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
-                                    <input type="radio" name="pub_lvl_${id}" value="inter" onchange="updateWork(${id}, 'pub_level', this.value)"> 
-                                    <span><strong>ระดับนานาชาติ</strong> (เช่น งานแปลระดับสากล, งานวิชาการเวทีต่างประเทศ)</span>
-                                 </label>
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
-                                    <input type="radio" name="pub_lvl_${id}" value="national" onchange="updateWork(${id}, 'pub_level', this.value)"> 
-                                    <span><strong>ระดับชาติ</strong> (เช่น งานวิชาการเสนอในประเทศ หรือแหล่งอ้างอิงระดับชาติ)</span>
-                                 </label>
-                            </div>
-                        </div>
-                        <div class="sub-section" style="border-left: 4px solid #3498db;">
-                            <h5 style="color: #3498db;">บทบาทความมีส่วนร่วม (Contribution)</h5>
-                            <div class="checkbox-group">
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
-                                    <input type="radio" name="contrib_${id}" value="first" onchange="updateWork(${id}, 'contribution', this.value)"> 
-                                    <span><strong>ผู้ดำเนินงานหลัก / ลำดับแรก</strong> (น้ำหนัก 1.0)</span>
-                                 </label>
-                                 <label style="display: flex; align-items: center; gap: 10px; padding: 8px;">
-                                    <input type="radio" name="contrib_${id}" value="co" onchange="updateWork(${id}, 'contribution', this.value)"> 
-                                    <span><strong>ผู้ร่วมดำเนินงาน / มีส่วนร่วม</strong> (น้ำหนัก 0.5)</span>
-                                 </label>
                             </div>
                         </div>
                     </div>
@@ -1097,17 +1022,31 @@
                     else if (pt.includes('national')) { s = cs.national || 0.75; }
                     else { s = cs.international || 1.25; }
                 } else if (w.type.startsWith('custom_')) {
-                    const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
-                    if (w.data.calc_mode === 'academic') {
-                        // Choice 2: Traditional contribution logic
-                        if (w.data.pub_level === 'inter') s = 1.0;
-                        else if (w.data.pub_level === 'national') s = 0.75;
-                    } else {
-                        // Choice 1: Self-impact scale (Default)
-                        const lvl = w.data.level;
-                        if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
-                        else if (lvl === 'level_a') { s = mScores.a || 1.00; }
-                        else if (lvl === 'level_b') { s = mScores.b || 0.75; }
+                    const config = WORK_TYPE_CONFIGS[w.type];
+                    if (config && config.length > 0) {
+                        config.forEach(field => {
+                            if (field.is_score_field && w.data[field.id]) {
+                                const opt = field.options.find(o => o.label === w.data[field.id]);
+                                if (opt) s = parseFloat(opt.score || 0);
+                            }
+                            if (field.is_weight_field && w.data[field.id]) {
+                                const opt = field.options.find(o => o.label === w.data[field.id]);
+                                if (opt) weight = parseFloat(opt.score || 0);
+                            }
+                        });
+                    }
+                    
+                    if (s === 0) {
+                        const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
+                        if (w.data.calc_mode === 'academic') {
+                            if (w.data.pub_level === 'inter') s = 1.0;
+                            else if (w.data.pub_level === 'national') s = 0.75;
+                        } else {
+                            const lvl = w.data.level;
+                            if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
+                            else if (lvl === 'level_a') { s = mScores.a || 1.00; }
+                            else if (lvl === 'level_b') { s = mScores.b || 0.75; }
+                        }
                     }
                 } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type)) {
                     const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
@@ -1266,6 +1205,14 @@
     {% endif %}
 
     <script>
+        function handleCustomFile(id, key, input) {
+            if (input.files && input.files[0]) {
+                updateWork(id, key, input.files[0].name);
+                // Note: Actual file upload handling would need to be integrated 
+                // into the form submission logic if multiple files are required.
+            }
+        }
+
         // Initialize Data if Editing
         window.onload = function () {
             const metaScript = document.getElementById('req-data-meta');

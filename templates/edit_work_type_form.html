@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>สร้างแบบฟอร์มประเภทผลงาน - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .builder-container {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 25px;
+            align-items: start;
+        }
+
+        .component-palette {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            position: sticky;
+            top: 20px;
+        }
+
+        .form-preview {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            min-height: 600px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .palette-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .palette-item:hover {
+            border-color: var(--primary-color);
+            background: #f0f7ff;
+            transform: translateX(5px);
+        }
+
+        .palette-item i {
+            color: #64748b;
+            font-size: 1.1rem;
+        }
+
+        .field-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+            transition: border-color 0.2s;
+        }
+
+        .field-card:hover {
+            border-color: #cbd5e0;
+        }
+
+        .field-card.active {
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .field-actions {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid #e2e8f0;
+            background: white;
+        }
+
+        .action-btn:hover {
+            background: #f1f5f9;
+        }
+
+        .action-btn.delete:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            border-color: #fecaca;
+        }
+
+        .field-type-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            background: #f1f5f9;
+            color: #64748b;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            font-weight: bold;
+        }
+
+        .option-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+
+        .score-input {
+            width: 80px;
+        }
+
+        .empty-state {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            color: #94a3b8;
+            border: 2px dashed #e2e8f0;
+            border-radius: 12px;
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+        }
+
+        .save-bar {
+            background: white;
+            padding: 15px 40px;
+            border-top: 1px solid #e2e8f0;
+            position: sticky;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+            margin: 0 -40px -40px -40px;
+            border-radius: 0 0 12px 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #2c3e50; font-weight: 500;">
+                    <i class="fas fa-magic"></i> เครื่องมือสร้างแบบฟอร์ม: {{ work_type.label }}
+                </div>
+                <a href="{{ url_for('admin.manage_work_types') }}" style="color: #64748b; text-decoration: none;">
+                    <i class="fas fa-times"></i> ปิด
+                </a>
+            </header>
+
+            <section class="content-area">
+                <div class="builder-container">
+                    <!-- Palette -->
+                    <aside class="component-palette">
+                        <h4 style="margin-top:0; margin-bottom:15px; color: #475569; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">ส่วนประกอบบล็อก</h4>
+                        
+                        <div class="palette-item" onclick="addField('text')">
+                            <i class="fas fa-font"></i>
+                            <span>ข้อความบรรทัดเดียว</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('textarea')">
+                            <i class="fas fa-align-left"></i>
+                            <span>ข้อความหลายบรรทัด</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('number')">
+                            <i class="fas fa-hashtag"></i>
+                            <span>ตัวเลข</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('date')">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>วันที่</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('file')">
+                            <i class="fas fa-file-upload"></i>
+                            <span>แนบไฟล์เอกสาร</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('radio')">
+                            <i class="fas fa-dot-circle"></i>
+                            <span>ตัวเลือก (Radio)</span>
+                        </div>
+                        <div class="palette-item" onclick="addField('header')">
+                            <i class="fas fa-heading"></i>
+                            <span>หัวข้อส่วน (Section)</span>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 20px 0;">
+                        <p style="font-size: 0.8rem; color: #94a3b8; line-height: 1.4;">
+                            <i class="fas fa-lightbulb"></i> คลิกเพื่อเพิ่มช่องข้อมูลลงในแบบฟอร์ม คุณสามารถกำหนดค่าคะแนนในช่องแบบ "ตัวเลือก" ได้
+                        </p>
+                    </aside>
+
+                    <!-- Main Preview Area -->
+                    <div class="form-preview">
+                        <div
+                            style="border-bottom: 2px solid #f1f5f9; padding-bottom: 20px; margin-bottom: 30px;">
+                            <h2 style="margin: 0; color: #1e293b;">แบบฟอร์ม: {{ work_type.label }}</h2>
+                            <p style="color: #64748b; margin-top: 5px;">ปรับแต่งช่องข้อมูลสำหรับบันทึกผลงานประเภทนี้</p>
+                        </div>
+
+                        <div id="fields-list">
+                            <!-- Fields will be dynamic -->
+                            <div class="empty-state">
+                                <i class="fas fa-i-cursor"></i>
+                                <p>ยังไม่มีช่องข้อมูล เลือกส่วนประกอบด้านซ้ายเพื่อเริ่มต้น</p>
+                            </div>
+                        </div>
+
+                        <div class="save-bar">
+                            <div style="color: #64748b; font-size: 0.9rem;">
+                                <i class="fas fa-sync-alt"></i> บันทึกล่าสุด: <span id="last-saved">ยังไม่ได้บันทึก</span>
+                            </div>
+                            <button id="save-btn" class="btn-primary" onclick="saveForm()" style="padding: 10px 30px;">
+                                <i class="fas fa-save"></i> บันทึกโครงสร้างแบบฟอร์ม
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let fields = {{ (work_type.form_config_json or '[]') | safe }};
+        const typeId = "{{ work_type.id }}";
+
+        function renderFields() {
+            const list = document.getElementById('fields-list');
+            if (fields.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-i-cursor"></i>
+                        <p>ยังไม่มีช่องข้อมูล เลือกส่วนประกอบด้านซ้ายเพื่อเริ่มต้น</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = '';
+            fields.forEach((field, index) => {
+                const card = document.createElement('div');
+                card.className = 'field-card';
+                
+                let content = `
+                    <div class="field-actions">
+                        <div class="action-btn" onclick="moveUp(${index})" title="เลื่อนขึ้น"><i class="fas fa-chevron-up"></i></div>
+                        <div class="action-btn" onclick="moveDown(${index})" title="เลื่อนลง"><i class="fas fa-chevron-down"></i></div>
+                        <div class="action-btn delete" onclick="removeField(${index})" title="ลบ"><i class="fas fa-trash"></i></div>
+                    </div>
+                    <span class="field-type-badge">${field.type}</span>
+                    <div class="form-group">
+                        <label>หัวข้อ/ป้ายกำกับ (Label)</label>
+                        <input type="text" value="${field.label}" onchange="updateField(${index}, 'label', this.value)" style="width: 100%;" placeholder="เช่น ชื่อผลงาน, ระดับวารสาร...">
+                    </div>
+                `;
+
+                if (field.type === 'radio') {
+                    content += `
+                        <div style="margin-top: 15px; padding: 15px; background: #f8fafc; border-radius: 8px;">
+                            <label style="font-weight: bold; display: block; margin-bottom: 10px;">ตัวเลือกและการคิดคะแนน</label>
+                            <div id="options-${index}">
+                                ${field.options.map((opt, optIdx) => `
+                                    <div class="option-row">
+                                        <input type="text" value="${opt.label}" placeholder="ชื่อตัวเลือก" onchange="updateOption(${index}, ${optIdx}, 'label', this.value)" style="flex: 1;">
+                                        <input type="number" step="0.01" value="${opt.score || 0}" placeholder="คะแนน" onchange="updateOption(${index}, ${optIdx}, 'score', this.value)" class="score-input">
+                                        <div class="action-btn delete" onclick="removeOption(${index}, ${optIdx})"><i class="fas fa-minus"></i></div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <button class="btn-secondary" onclick="addOption(${index})" style="font-size: 0.8rem; margin-top: 5px;">
+                                <i class="fas fa-plus"></i> เพิ่มตัวเลือก
+                            </button>
+                            
+                            <div style="margin-top: 15px; border-top: 1px solid #e2e8f0; pt-10; display: flex; gap: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" ${field.is_score_field ? 'checked' : ''} onchange="updateField(${index}, 'is_score_field', this.checked)">
+                                    ใช้เป็น "ฐานคะแนน" (S)
+                                </label>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                                    <input type="checkbox" ${field.is_weight_field ? 'checked' : ''} onchange="updateField(${index}, 'is_weight_field', this.checked)">
+                                    ใช้เป็น "ค่าน้ำหนัก" (W)
+                                </label>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                card.innerHTML = content;
+                list.appendChild(card);
+            });
+        }
+
+        function addField(type) {
+            const newField = {
+                id: 'field_' + Date.now(),
+                type: type,
+                label: type === 'header' ? 'หัวข้อส่วนใหม่' : 'ระบุคำถาม/หัวข้อใหม่',
+                required: false
+            };
+            if (type === 'radio') {
+                newField.options = [
+                    { label: 'ตัวเลือกที่ 1', score: 1.0 },
+                    { label: 'ตัวเลือกที่ 2', score: 0.5 }
+                ];
+                newField.is_score_field = false;
+                newField.is_weight_field = false;
+            }
+            fields.push(newField);
+            renderFields();
+        }
+
+        function updateField(index, key, value) {
+            fields[index][key] = value;
+        }
+
+        function removeField(index) {
+            if (confirm('คุณต้องการลบช่องข้อมูลนี้ใช่หรือไม่?')) {
+                fields.splice(index, 1);
+                renderFields();
+            }
+        }
+
+        function addOption(fieldIndex) {
+            fields[fieldIndex].options.push({ label: 'ตัวเลือกใหม่', score: 0 });
+            renderFields();
+        }
+
+        function updateOption(fieldIndex, optIndex, key, value) {
+            if (key === 'score') value = parseFloat(value) || 0;
+            fields[fieldIndex].options[optIndex][key] = value;
+        }
+
+        function removeOption(fieldIndex, optIndex) {
+            fields[fieldIndex].options.splice(optIndex, 1);
+            renderFields();
+        }
+
+        function moveUp(index) {
+            if (index > 0) {
+                [fields[index], fields[index-1]] = [fields[index-1], fields[index]];
+                renderFields();
+            }
+        }
+
+        function moveDown(index) {
+            if (index < fields.length - 1) {
+                [fields[index], fields[index+1]] = [fields[index+1], fields[index]];
+                renderFields();
+            }
+        }
+
+        async function saveForm() {
+            const btn = document.getElementById('save-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+            try {
+                const response = await fetch(`/admin/save_form/${typeId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ form_config: fields })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('last-saved').innerText = new Date().toLocaleTimeString();
+                    alert('บันทึกโครงสร้างแบบฟอร์มเรียบร้อยแล้ว');
+                } else {
+                    alert('เกิดข้อผิดพลาด: ' + result.error);
+                }
+            } catch (e) {
+                alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-save"></i> บันทึกโครงสร้างแบบฟอร์ม';
+            }
+        }
+
+        renderFields();
+    </script>
+</body>
+
+</html>

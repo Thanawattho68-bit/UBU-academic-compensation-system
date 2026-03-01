@@ -94,6 +94,7 @@ def init_db():
             id TEXT PRIMARY KEY,
             label TEXT NOT NULL,
             is_custom INTEGER DEFAULT 0,
+            form_config_json TEXT,
             calculation_mode TEXT DEFAULT 'self_assessment'
         )
     ''')

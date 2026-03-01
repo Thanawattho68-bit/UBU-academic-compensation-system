@@ -41,36 +41,44 @@
                     {% endif %}
                     {% endwith %}
 
-                    <!-- Add New Work Type Form -->
-                    <div
-                        style="background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; margin-bottom: 30px;">
-                        <h4 style="margin-top: 0; margin-bottom: 15px; color: #334155;"><i
-                                class="fas fa-plus-circle"></i> เพิ่มประเภทผลงานใหม่</h4>
-                        <form method="POST" style="display: flex; gap: 10px; align-items: flex-end;">
-                            <input type="hidden" name="action" value="add">
-                            <div style="flex: 1;">
-                                <label
-                                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #64748b;">ชื่อประเภทผลงาน</label>
-                                <input type="text" name="label" required placeholder="ระบุชื่อประเภทผลงาน..."
-                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
-                            </div>
-                            <div style="flex: 1;">
-                                <label
-                                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #64748b;">รูปแบบการคิดคะแนน
-                                    (Calculation Mode)</label>
-                                <select name="calculation_mode"
-                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
-                                    <option value="self_assessment">ทางเลือกที่ 1: ประเมินตามระดับผลกระทบ (Impact-based)
-                                    </option>
-                                    <option value="academic_level">ทางเลือกที่ 2: ประเมินตามเกณฑ์วิชาการ
-                                        (Academic-based)</option>
-                                </select>
-                            </div>
-                            <button type="submit" class="btn-primary" style="padding: 10px 25px; height: 42px;">
-                                <i class="fas fa-save"></i> บันทึกข้อมูล
-                            </button>
-                        </form>
+                    <!-- Add New Work Type Button -->
+                    <div style="display: flex; justify-content: flex-end; margin-bottom: 20px;">
+                        <button type="button" class="btn-primary" onclick="openAddModal()" style="padding: 10px 25px; height: 42px;">
+                            <i class="fas fa-plus-circle"></i> เพิ่มประเภทผลงานใหม่
+                        </button>
                     </div>
+
+                    <!-- Modal for Add Work Type -->
+                    <div id="addWorkTypeModal" class="modal" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5);">
+                        <div class="modal-content" style="background-color: #fefefe; margin: 10% auto; padding: 30px; border-radius: 12px; width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+                            <h3 style="margin-top: 0; color: #1e293b;"><i class="fas fa-folder-plus"></i> เพิ่มประเภทผลงาน</h3>
+                            <form method="POST">
+                                <input type="hidden" name="action" value="add">
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label>ชื่อเรียกประเภทผลงาน</label>
+                                    <input type="text" name="label" required placeholder="เช่น งานบริการวิชาการ, นวัตกรรมระดับชาติ..." style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 20px;">
+                                    <label>ID (ภาษาอังกฤษ)</label>
+                                    <input type="text" name="id" required placeholder="เช่น innovation_v2 (ไม่ต้องพิมพ์ custom_)" style="width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 6px;">
+                                    <small style="color: #64748b;">(ระบบจะเติม custom_ นำหน้าให้โดยอัตโนมัติ)</small>
+                                </div>
+                                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 25px;">
+                                    <button type="button" class="btn-secondary" onclick="closeAddModal()" style="border: none; background: #f1f5f9; color: #475569;">ยกเลิก</button>
+                                    <button type="submit" class="btn-primary">สร้างและไปที่หน้าออกแบบ</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+
+                    <script>
+                        function openAddModal() {
+                            document.getElementById('addWorkTypeModal').style.display = 'block';
+                        }
+                        function closeAddModal() {
+                            document.getElementById('addWorkTypeModal').style.display = 'none';
+                        }
+                    </script>
 
                     <table class="styled-table">
                         <thead>
@@ -98,9 +106,9 @@
                                     {% endif %}
                                     {% else %}
                                     {% if wt.id in ['research', 'textbook', 'creative'] %}
-                                    <i class="fas fa-microscope" style="color: #64748b;"></i> เกณฑ์เฉพาะ (ระบบหลัก)
+                                    <i class="fas fa-microscope" style="color: #64748b;"></i> เกณฑ์วิชาการ
                                     {% else %}
-                                    <i class="fas fa-chart-line" style="color: #64748b;"></i> แบบที่ 1 (ระบบหลัก)
+                                    <i class="fas fa-chart-line" style="color: #64748b;"></i> ผลกระทบ
                                     {% endif %}
                                     {% endif %}
                                 </td>
@@ -114,31 +122,28 @@
                                     {% endif %}
                                 </td>
                                 <td style="text-align: center;">
-                                    {% if wt.is_custom %}
-                                    <form method="POST" onsubmit="return confirm('ยืนยันการลบประเภทผลงานนี้?')"
-                                        style="display: inline;">
-                                        <input type="hidden" name="action" value="delete">
-                                        <input type="hidden" name="id" value="{{ wt.id }}">
-                                        <button type="submit" class="btn-secondary"
-                                            style="background: #fee2e2; color: #b91c1c; border-color: #fecaca; padding: 6px 12px; font-size: 0.8rem;">
-                                            <i class="fas fa-trash-alt"></i> ลบ
-                                        </button>
-                                    </form>
-                                    {% else %}
-                                    <span
-                                        style="color: #cbd5e0; font-size: 0.85rem; font-style: italic;">ไม่สามารถลบได้</span>
-                                    {% endif %}
+                                    <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                                        <a href="{{ url_for('admin.edit_form', type_id=wt.id) }}" class="btn-secondary"
+                                            style="background: #eff6ff; color: #1e40af; border-color: #bfdbfe; padding: 6px 12px; font-size: 0.8rem; text-decoration: none; display: inline-flex; align-items: center; gap: 5px;">
+                                            <i class="fas fa-magic"></i> ออกแบบ
+                                        </a>
+                                        {% if wt.is_custom %}
+                                        <form method="POST" onsubmit="return confirm('ยืนยันการลบประเภทผลงานนี้?')"
+                                            style="display: inline;">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="id" value="{{ wt.id }}">
+                                            <button type="submit" class="btn-secondary"
+                                                style="background: #fee2e2; color: #b91c1c; border-color: #fecaca; padding: 6px 12px; font-size: 0.8rem;">
+                                                <i class="fas fa-trash-alt"></i> ลบ
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
                                 </td>
                             </tr>
                             {% endfor %}
                         </tbody>
                     </table>
-                </div>
-
-                <div style="margin-top: 20px; color: #64748b; font-size: 0.9rem; padding: 0 10px;">
-                    <i class="fas fa-info-circle"></i>
-                    ประเภทผลงานที่เพิ่มใหม่จะปรากฏให้ผู้ยื่นคำขอเลือกในหน้าแบบฟอร์ม
-                    โดยระบบจะใช้เกณฑ์คะแนนและน้ำหนักแบบพื้นฐาน (A+, A, B) ในการคำนวณเบื้องต้น
                 </div>
             </section>
         </main>

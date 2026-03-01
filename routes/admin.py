@@ -155,21 +155,26 @@ def manage_work_types():
         action = request.form.get('action')
         if action == 'add':
             label = request.form.get('label', '').strip()
-            calc_mode = request.form.get('calculation_mode', 'self_assessment')
-            if not label:
-                flash("กรุณาระบุชื่อประเภทผลงาน")
+            raw_id = request.form.get('id', '').strip()
+            
+            if not label or not raw_id:
+                flash("กรุณาระบุชื่อและ ID ของประเภทผลงาน")
             else:
-                existing = query_db('SELECT * FROM WorkType WHERE label = ?', (label,), one=True)
+                # Ensure it starts with custom_
+                clean_id = raw_id if raw_id.startswith('custom_') else f"custom_{raw_id}"
+                
+                existing = query_db('SELECT * FROM WorkType WHERE id = ? OR label = ?', (clean_id, label), one=True)
                 if existing:
-                    flash("ประเภทผลงานนี้มีอยู่แล้วในระบบ")
+                    flash("ID หรือชื่อประเภทผลงานนี้มีอยู่แล้วในระบบ")
                 else:
                     # Lazy migration check to be safe
                     from database import init_db
                     init_db()
                     
-                    new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                    execute_db('INSERT INTO WorkType (id, label, is_custom, calculation_mode) VALUES (?, ?, ?, ?)', (new_id, label, 1, calc_mode))
+                    execute_db('INSERT INTO WorkType (id, label, is_custom, calculation_mode) VALUES (?, ?, ?, ?)', 
+                               (clean_id, label, 1, 'impact'))
                     flash(f"เพิ่มประเภทผลงาน '{label}' เรียบร้อยแล้ว")
+                    return redirect(url_for('admin.edit_form', type_id=clean_id))
         
         elif action == 'delete':
             type_id = request.form.get('id')
@@ -191,6 +196,33 @@ def manage_work_types():
     
     work_types = query_db('SELECT * FROM WorkType')
     return render_template('manage_work_types.html', work_types=work_types, name=session['name'], role=session['role'])
+
+
+@admin_bp.route('/edit_form/<type_id>')
+def edit_form(type_id):
+    if 'username' not in session or session['role'] != 'admin':
+        return redirect(url_for('auth.login'))
+    
+    work_type = query_db('SELECT * FROM WorkType WHERE id = ?', (type_id,), one=True)
+    if not work_type:
+        flash("ไม่พบประเภทผลงาน")
+        return redirect(url_for('admin.manage_work_types'))
+    
+    return render_template('edit_work_type_form.html', work_type=dict(work_type), name=session['name'], role=session['role'])
+
+
+@admin_bp.route('/save_form/<type_id>', methods=['POST'])
+def save_form(type_id):
+    if 'username' not in session or session['role'] != 'admin':
+        return {"success": False, "error": "Unauthorized"}, 403
+    
+    data = request.json
+    form_config = data.get('form_config', [])
+    
+    execute_db('UPDATE WorkType SET form_config_json = ? WHERE id = ?', 
+               (json.dumps(form_config, ensure_ascii=False), type_id))
+    
+    return {"success": True}
 
 
 @admin_bp.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
