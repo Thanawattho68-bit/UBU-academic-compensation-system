@@ -155,6 +155,7 @@ def manage_work_types():
         action = request.form.get('action')
         if action == 'add':
             label = request.form.get('label', '').strip()
+            calc_mode = request.form.get('calculation_mode', 'self_assessment')
             if not label:
                 flash("กรุณาระบุชื่อประเภทผลงาน")
             else:
@@ -162,8 +163,12 @@ def manage_work_types():
                 if existing:
                     flash("ประเภทผลงานนี้มีอยู่แล้วในระบบ")
                 else:
+                    # Lazy migration check to be safe
+                    from database import init_db
+                    init_db()
+                    
                     new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-                    execute_db('INSERT INTO WorkType (id, label, is_custom) VALUES (?, ?, ?)', (new_id, label, 1))
+                    execute_db('INSERT INTO WorkType (id, label, is_custom, calculation_mode) VALUES (?, ?, ?, ?)', (new_id, label, 1, calc_mode))
                     flash(f"เพิ่มประเภทผลงาน '{label}' เรียบร้อยแล้ว")
         
         elif action == 'delete':
@@ -180,6 +185,10 @@ def manage_work_types():
         
         return redirect(url_for('admin.manage_work_types'))
 
+    # Make sure DB is up to date before query
+    from database import init_db
+    init_db()
+    
     work_types = query_db('SELECT * FROM WorkType')
     return render_template('manage_work_types.html', work_types=work_types, name=session['name'], role=session['role'])
 

@@ -251,7 +251,17 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         if w_type == 'research':
             db_map = {'scopus_q1_q2': 'tier1', 'scopus_other': 'non_q', 'national': 'national'}
             s = qs.get('research', {}).get(db_map.get(details.get('database'), 'national'), 0.75)
-        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation'] or w_type.startswith('custom_'):
+        elif w_type.startswith('custom_'):
+            calc_mode = details.get('calc_mode', 'impact')
+            if calc_mode == 'academic':
+                # Academic-based (Choice 2)
+                pub_lvl = details.get('pub_level', 'national')
+                s = 1.0 if pub_lvl == 'inter' else 0.75
+            else:
+                # Impact-based (Choice 1)
+                lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
+                s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
+        elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation']:
             lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
             s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
         elif w_type == 'textbook':
@@ -263,7 +273,11 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
             s = qs.get('creative', {}).get(cre_map[found_key], 1.25)
         
         # 2. Weight (W)
-        weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
+        if w_type.startswith('custom_') and details.get('calc_mode', 'impact') == 'impact':
+            weight = 1.0
+        else:
+            weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
+        
         net = s * weight
         w.update({'base_score': s, 'weight': weight, 'score_calc': net, 'payment_calc': 0})
         w['score_breakdown'] = f"ฐาน {s} x น้ำหนัก {weight}"

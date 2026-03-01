@@ -50,10 +50,21 @@
                             <input type="hidden" name="action" value="add">
                             <div style="flex: 1;">
                                 <label
-                                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #64748b;">ชื่อประเภทผลงาน
-                                    (เช่น ผลงานแปล, ผลงานวิจัยสถาบัน)</label>
+                                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #64748b;">ชื่อประเภทผลงาน</label>
                                 <input type="text" name="label" required placeholder="ระบุชื่อประเภทผลงาน..."
                                     style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
+                            </div>
+                            <div style="flex: 1;">
+                                <label
+                                    style="display: block; margin-bottom: 5px; font-size: 0.9rem; color: #64748b;">รูปแบบการคิดคะแนน
+                                    (Calculation Mode)</label>
+                                <select name="calculation_mode"
+                                    style="width: 100%; padding: 10px; border: 1px solid #cbd5e0; border-radius: 6px;">
+                                    <option value="self_assessment">ทางเลือกที่ 1: ประเมินตามระดับผลกระทบ (Impact-based)
+                                    </option>
+                                    <option value="academic_level">ทางเลือกที่ 2: ประเมินตามเกณฑ์วิชาการ
+                                        (Academic-based)</option>
+                                </select>
                             </div>
                             <button type="submit" class="btn-primary" style="padding: 10px 25px; height: 42px;">
                                 <i class="fas fa-save"></i> บันทึกข้อมูล
@@ -66,8 +77,9 @@
                             <tr>
                                 <th style="width: 100px;">ID</th>
                                 <th>ชื่อประเภทผลงาน</th>
-                                <th style="width: 150px; text-align: center;">ประเภท</th>
-                                <th style="width: 150px; text-align: center;">จัดการ</th>
+                                <th style="width: 200px;">รูปแบบการคิดคะแนน</th>
+                                <th style="width: 120px; text-align: center;">ประเภท</th>
+                                <th style="width: 120px; text-align: center;">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -75,6 +87,23 @@
                             <tr>
                                 <td style="color: #64748b; font-size: 0.85rem;">{{ wt.id }}</td>
                                 <td style="font-weight: 500;">{{ wt.label }}</td>
+                                <td style="font-size: 0.9rem;">
+                                    {% if wt.is_custom %}
+                                    {% if wt.calculation_mode == 'self_assessment' %}
+                                    <i class="fas fa-chart-line" style="color: #2563eb;"></i> แบบที่ 1: ผลกระทบ
+                                    {% elif wt.calculation_mode == 'academic_level' %}
+                                    <i class="fas fa-graduation-cap" style="color: #059669;"></i> แบบที่ 2: เกณฑ์วิชาการ
+                                    {% else %}
+                                    <i class="fas fa-cog" style="color: #94a3b8;"></i> ค่าเริ่มต้น
+                                    {% endif %}
+                                    {% else %}
+                                    {% if wt.id in ['research', 'textbook', 'creative'] %}
+                                    <i class="fas fa-microscope" style="color: #64748b;"></i> เกณฑ์เฉพาะ (ระบบหลัก)
+                                    {% else %}
+                                    <i class="fas fa-chart-line" style="color: #64748b;"></i> แบบที่ 1 (ระบบหลัก)
+                                    {% endif %}
+                                    {% endif %}
+                                </td>
                                 <td style="text-align: center;">
                                     {% if wt.is_custom %}
                                     <span class="badge-warning"

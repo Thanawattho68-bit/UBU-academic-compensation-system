@@ -336,6 +336,11 @@
         '{{ t.id }}': '{{ t.label }}',
             {% endfor %}
         };
+        const WORK_TYPE_MODES = {
+            {% for t in work_types %}
+        '{{ t.id }}': '{{ t.calculation_mode or "self_assessment" }}',
+            {% endfor %}
+        };
 
         function addWorkModal() {
             document.getElementById('workTypeModal').style.display = 'block';
@@ -845,7 +850,7 @@
                         </div>
                     </div>
                     
-                    <div class="sub-section">
+                    <div class="sub-section" style="display: none;">
                         <h5>4. รูปแบบการเลือกเกณฑ์คะแนน (Calculation Mode)</h5>
                         <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 10px; background: #fff; padding: 15px; border: 1px solid #e2e8f0; border-radius: 8px;">
                             <label style="cursor: pointer; display: flex; align-items: flex-start; gap: 12px; padding: 10px; border-radius: 6px; border: 1px solid #f1f5f9;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
@@ -974,7 +979,13 @@
                 </div>
             `;
 
-            works.push({ id: id, type: type, data: { id: id, evidence_type: 'link' } });
+            let calcModeKey = WORK_TYPE_MODES[type] || 'self_assessment';
+            let initialData = { id: id, evidence_type: 'link' };
+            if (type.startsWith('custom_')) {
+                initialData.calc_mode = (calcModeKey === 'academic_level') ? 'academic' : 'impact';
+            }
+
+            works.push({ id: id, type: type, data: initialData });
 
             const div = document.createElement('div');
             div.className = 'work-card';
@@ -983,6 +994,14 @@
             document.getElementById('works-container').appendChild(div);
 
             document.getElementById('workTypeModal').style.display = 'none';
+
+            // Auto-toggle for custom types
+            if (type.startsWith('custom_')) {
+                setTimeout(() => {
+                    toggleCustomCalcMode(id, initialData.calc_mode);
+                }, 10);
+            }
+
             updateWorkCount();
         }
 
@@ -1297,6 +1316,11 @@
 
                             // Populate data
                             currentWork.data = JSON.parse(JSON.stringify(w.details || {}));
+                            // Override calc_mode with current Admin setting for custom types
+                            if (w.type.startsWith('custom_')) {
+                                let currentModeKey = WORK_TYPE_MODES[w.type] || 'self_assessment';
+                                currentWork.data.calc_mode = (currentModeKey === 'academic_level') ? 'academic' : 'impact';
+                            }
                             // IMPORTANT: Keep status/comment to identify historical state, but backend calculation will use them.
                             currentWork.status = w.status;
                             currentWork.comment = w.comment;

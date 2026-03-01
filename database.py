@@ -93,9 +93,19 @@ def init_db():
         CREATE TABLE IF NOT EXISTS WorkType (
             id TEXT PRIMARY KEY,
             label TEXT NOT NULL,
-            is_custom INTEGER DEFAULT 0
+            is_custom INTEGER DEFAULT 0,
+            calculation_mode TEXT DEFAULT 'self_assessment'
         )
     ''')
+    
+    # Ensure calculation_mode column exists (migration for existing DB)
+    cursor.execute("PRAGMA table_info(WorkType)")
+    columns = [row[1] for row in cursor.fetchall()]
+    if 'calculation_mode' not in columns:
+        print("[DB MIGRATION] Adding 'calculation_mode' column to WorkType table...")
+        cursor.execute("ALTER TABLE WorkType ADD COLUMN calculation_mode TEXT DEFAULT 'self_assessment'")
+    else:
+        print("[DB MIGRATION] 'calculation_mode' column already exists.")
     
     conn.commit()
     conn.close()
