@@ -384,20 +384,25 @@ input[type="number"] {
 /* Danger/Fail Group */
 .status-tag.status-ไม่อนุมัติ,
 .status-tag.status-ผลงานซ้ำซ้อน,
+.status-tag.status-ซ้ำซ้อนบางส่วน,
 .status-tag.fail,
 .status-banner.status-ไม่อนุมัติ,
 .status-banner.status-ผลงานซ้ำซ้อน,
+.status-banner.status-ซ้ำซ้อนบางส่วน,
 .status-banner.fail {
   background-color: #f8d7da;
   color: #721c24;
   border: 1px solid #f5c6cb;
 }
 .status-banner.status-ไม่อนุมัติ,
-.status-banner.status-ผลงานซ้ำซ้อน {
+.status-banner.status-ผลงานซ้ำซ้อน,
+.status-banner.status-ซ้ำซ้อนบางส่วน {
   background-color: var(--danger-color);
   color: white;
 }
-.status-tag.status-ไม่อนุมัติ::before {
+.status-tag.status-ไม่อนุมัติ::before,
+.status-tag.status-ผลงานซ้ำซ้อน::before,
+.status-tag.status-ซ้ำซ้อนบางส่วน::before {
   content: "\f00d";
   font-family: "Font Awesome 5 Free";
 }

@@ -303,26 +303,27 @@ def view_request(req_id):
                            ('รอตรวจประวัติการยื่นขอ', session['username'], req_id))
                 log_history(req_id, "ส่งตรวจสอบประวัติ (งานวิจัย)")
                 create_notification(f"คำขอ {req_id} รอตรวจประวัติ", recipient_role='research', req_id=req_id)
-            elif action == 'mark_ready': 
-                # FILTER: Remove works that were marked as duplicate by research
-                filtered_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']
+            elif action == 'mark_ready':
+                # Preserve all works for history/display but committee will still see them filtered in UI
+                # Check if there are any non-duplicate works to send.
+                has_valid_works = any(w.get('status') != 'ผลงานซ้ำซ้อน' for w in req_data['works'])
                 
-                if not filtered_works:
+                if not has_valid_works:
                     flash("ไม่สามารถส่งคำขอให้คณะกรรมการได้เนื่องจากผลงานทั้งหมดถูกพบว่าซ้ำซ้อน")
                     return redirect(url_for('requests.view_request', req_id=req_id))
 
-                # Re-calculate compensation for the filtered set
-                s, c = calculate_compensation(filtered_works, req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                # Calculate compensation (skips duplicates internally)
+                s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 
-                # Update DB with filtered works and set status to 'รอการพิจารณา'
+                # Update DB with ALL works and set status to 'รอการพิจารณา'
                 execute_db('''
                     UPDATE RequestRecord 
                     SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL, admin_viewer = ?
                     WHERE id = ?
-                ''', ('รอการพิจารณา', json.dumps(filtered_works, ensure_ascii=False), s, c, session['username'], req_id))
+                ''', ('รอการพิจารณา', json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
                 log_history(req_id, "ส่งให้คณะกรรมการพิจารณา")
                 create_notification(f"คำขอ {req_id} รอการพิจารณา (ส่งรายบุคคล)", recipient_role='committee', req_id=req_id)
-                flash(f"ส่งคำขอ {req_id} ให้คณะกรรมการพิจารณาเรียบร้อยแล้ว (ยกเว้นรายการซ้ำซ้อน)")
+                flash(f"ส่งคำขอ {req_id} ให้คณะกรรมการพิจารณาเรียบร้อยแล้ว (รายการซ้ำซ้อนจะถูกซ่อนจากกรรมการแต่ยังอยู่ในระบบ)")
                 redirect_url = url_for('main.dashboard')
             elif action == 'reject':
                 execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ?, admin_viewer = ? WHERE id = ?', 

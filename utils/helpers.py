@@ -240,10 +240,6 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
     pos_key = 'asst_prof' if 'ผู้ช่วยศาสตราจารย์' in pos else ('assoc_prof' if 'รองศาสตราจารย์' in pos else ('prof' if 'ศาสตราจารย์' in pos else ''))
     
     for w in works_list:
-        if w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']:
-            w.update({'score_calc': 0, 'payment_calc': 0, 'score_breakdown': "ไม่อนุมัติการพิจารณา / ผลงานซ้ำซ้อน"})
-            continue
-
         w_type, details = w.get('type'), w.get('details', {})
         s, weight = 0.0, 0.0
         
@@ -265,9 +261,16 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         # 2. Weight (W)
         weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
         net = s * weight
-        w.update({'base_score': s, 'weight': weight, 'score_calc': net, 'payment_calc': 0})
-        w['score_breakdown'] = f"ฐาน {s} x น้ำหนัก {weight}"
-        score_sum += net
+        
+        # Always update breakdown with the formula
+        w.update({'base_score': s, 'weight': weight, 'score_breakdown': f"ฐาน {s} x น้ำหนัก {weight}"})
+        
+        # 3. Apply status logic for actual score
+        if w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']:
+            w.update({'score_calc': 0, 'payment_calc': 0})
+        else:
+            w.update({'score_calc': net, 'payment_calc': 0})
+            score_sum += net
 
     # 3. Calculate compensation based on Tiers
     comp = 0
