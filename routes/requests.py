@@ -250,12 +250,21 @@ def view_request(req_id):
         if session['role'] == 'applicant':
             if action == 'cancel':
                 if req_data.get('status') in ['แบบร่าง', 'ส่งแล้ว', 'แก้ไข', 'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา', 'รอการพิจารณา']:
-                    req_data.update({'status': 'ยกเลิก', 'cancel_date': format_thai_date(datetime.now(), True)})
-                    execute_db('UPDATE RequestRecord SET status = ? WHERE id = ?', ('ยกเลิก', req_id))
-                    log_history(req_id, "ยกเลิกคำขอ")
-                    create_notification(f"คำขอ {req_id} ถูกยกเลิกโดยผู้ยื่น", recipient_role='administration', req_id=req_id)
-                    flash("ยกเลิกคำขอเรียบร้อยแล้ว")
-                else: flash("ไม่สามารถยกเลิกคำขอได้ในสถานะนี้")
+                    # ลบข้อมูลออกจากฐานข้อมูลตามคำขอของผู้ใช้
+                    execute_db('DELETE FROM RequestRecord WHERE id = ?', (req_id,))
+                    
+                    # แจ้งเตือนแอดมินเกี่ยวกับการลบคำขอ
+                    create_notification(f"คำขอ {req_id} ถูกลบออกจากระบบโดยผู้ยื่น", recipient_role='administration', req_id=req_id)
+                    
+                    # ลบไฟล์แนบที่อัปโหลดไว้ (ถ้ามี) เพื่อประหยัดพื้นที่
+                    import shutil
+                    upload_path = os.path.join(current_app.config['UPLOAD_FOLDER'], req_id)
+                    if os.path.exists(upload_path):
+                        shutil.rmtree(upload_path)
+                        
+                    flash("ลบคำขอออกจากระบบเรียบร้อยแล้ว")
+                else:
+                    flash("ไม่สามารถลบคำขอได้ในสถานะนี้")
                 
             elif action == 'submit_appeal':
                 reason, evidence = request.form.get('appeal_reason', '').strip(), request.form.get('appeal_evidence', '').strip()
