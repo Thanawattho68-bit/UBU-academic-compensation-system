@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>สรุปยอด - ระบบค่าตอบแทน</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            border: 1px solid #f0f0f0;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+            cursor: pointer;
+        }
+
+        .stat-card.active {
+            border-color: #3498db;
+            background-color: #f0f7ff;
+            box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.2);
+        }
+
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-info .stat-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            line-height: 1;
+            margin-bottom: 5px;
+        }
+
+        .stat-info .stat-label {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            font-weight: 400;
+        }
+
+        .bg-blue {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+        }
+
+        .bg-green {
+            background: linear-gradient(135deg, #2ecc71, #27ae60);
+        }
+
+        .bg-orange {
+            background: linear-gradient(135deg, #f39c12, #e67e22);
+        }
+
+        .bg-purple {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+        }
+
+        .summary-header {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .summary-header h2 {
+            font-size: 1.5rem;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar">
+                <div class="user-profile">
+                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="summary-header">
+                    <h2><i class="fas fa-chart-pie"></i> สรุปยอดรวมของระบบ</h2>
+                    <div class="year-filter">
+                        <form action="{{ url_for('main.summary_page') }}" method="GET" id="yearFilterForm"
+                            style="display: flex; align-items: center; gap: 10px;">
+                            <input type="hidden" name="filter" value="{{ current_filter }}">
+                            <label for="yearSelect" style="font-weight: bold; color: #555;">ปีงบประมาณ:</label>
+                            <select name="year" id="yearSelect" class="form-select" onchange="this.form.submit()"
+                                style="padding: 10px 15px; border-radius: 10px; border: 1px solid #ddd; background: white; font-family: 'Sarabun', sans-serif; cursor: pointer; transition: border-color 0.3s;">
+                                {% for year in available_years %}
+                                <option value="{{ year }}" {% if year==selected_year %}selected{% endif %}>{{ year }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="stats-grid">
+                    <a href="{{ url_for('main.summary_page', filter='all', year=selected_year) }}"
+                        class="stat-card {% if current_filter == 'all' %}active{% endif %}"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="stat-icon bg-blue">
+                            <i class="fas fa-file-invoice"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ total_requests }}</div>
+                            <div class="stat-label">คำขอทั้งหมด</div>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('main.summary_page', filter='approved', year=selected_year) }}"
+                        class="stat-card {% if current_filter == 'approved' %}active{% endif %}"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="stat-icon bg-green">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ approved_requests }}</div>
+                            <div class="stat-label">อนุมัติแล้ว</div>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('main.summary_page', filter='pending', year=selected_year) }}"
+                        class="stat-card {% if current_filter == 'pending' %}active{% endif %}"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="stat-icon bg-orange">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ pending_requests }}</div>
+                            <div class="stat-label">รอการพิจารณา</div>
+                        </div>
+                    </a>
+                    <a href="{{ url_for('main.summary_page', filter='approved', year=selected_year) }}"
+                        class="stat-card {% if current_filter == 'approved' %}active{% endif %}"
+                        style="text-decoration: none; color: inherit;">
+                        <div class="stat-icon bg-purple">
+                            <i class="fas fa-coins"></i>
+                        </div>
+                        <div class="stat-info">
+                            <div class="stat-value">{{ "{:,.0f}".format(total_amount) }} ฿</div>
+                            <div class="stat-label">ยอดงบประมาณเบิกจ่าย</div>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="table-container">
+                    <h3 style="margin-bottom: 20px;">
+                        <i class="fas fa-list-ul"></i>
+                        รายการคำขอ{% if current_filter == 'approved' %}ที่อนุมัติแล้ว{% elif current_filter == 'pending'
+                        %}ที่รอการพิจารณา{% else %}ทั้งหมด{% endif %}
+                    </h3>
+                    <div class="table-responsive-wrapper">
+                        <table class="styled-table">
+                            <thead>
+                                <tr>
+                                    <th>รหัสคำขอ</th>
+                                    <th>ผู้ยื่นคำขอ</th>
+                                    <th>วันที่ยื่น</th>
+                                    <th>สถานะ</th>
+                                    <th>คะแนน</th>
+                                    <th style="text-align: right;">จำนวนเงิน</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for req in requests %}
+                                <tr>
+                                    <td><strong>{{ req.id }}</strong></td>
+                                    <td>{{ req.applicant_name }}</td>
+                                    <td>{{ req.date_submitted }}</td>
+                                    <td>
+                                        <span class="status-tag status-{{ req.status }}">
+                                            {{ req.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ "%.3f"|format(req.total_score|float if req.total_score else 0) }}</td>
+                                    <td style="text-align: right; font-weight: bold; color: var(--success-color);">
+                                        {{ "{:,.2f}".format(req.approved_amount|float) if req.approved_amount else
+                                        "0.00" }} ฿
+                                    </td>
+                                </tr>
+                                {% else %}
+                                <tr>
+                                    <td colspan="6" style="text-align: center; padding: 40px; color: #95a5a6;">
+                                        <i class="fas fa-folder-open"
+                                            style="font-size: 2rem; display: block; margin-bottom: 10px; opacity: 0.3;"></i>
+                                        ไม่พบข้อมูลคำขอ
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

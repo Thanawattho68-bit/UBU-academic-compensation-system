@@ -5,12 +5,13 @@ Route หน้าหลัก: index, dashboard, notifications, appeals
   - นางสาวฐิติรัตน์ แสงห้าว (หน้าแรก / ค้นหาคำขอ)
   - นายฤทธิชัย โสนะกาล (แจ้งเตือน)
   - นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
+  - นายกฤษดา ตะเคียนเกลี้ยง (สรุปยอดรวมของระบบ / ผู้ตรวจสอบ)
 """
 
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from database import query_db, execute_db
-from utils import load_data, format_thai_date
+from utils import load_data, format_thai_date, get_current_fiscal_year
 
 main_bp = Blueprint('main', __name__)
 
@@ -133,3 +134,81 @@ def appeals_page():
         appeal_reqs.append(r)
     
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
+
+
+@main_bp.route('/summary') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (สรุปยอดรวมของระบบ)
+def summary_page():
+    if 'username' not in session: return redirect(url_for('auth.login'))
+    
+    # Get available fiscal years for the filter
+    all_fy_rows = query_db('SELECT DISTINCT fiscal_year FROM RequestRecord ORDER BY fiscal_year DESC')
+    available_years = [r['fiscal_year'] for r in all_fy_rows if r['fiscal_year']]
+    
+    # Get selected fiscal year from query string, default to current fiscal year
+    selected_year = request.args.get('year')
+    current_fy = str(get_current_fiscal_year())
+    
+    if not selected_year:
+        selected_year = current_fy
+    
+    # Ensure current_fy is in available_years for the filter UI
+    if current_fy not in available_years:
+        available_years.insert(0, current_fy)
+        available_years = sorted(list(set(available_years)), reverse=True)
+
+    # Get stats for the selected year
+    total_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE fiscal_year = ?', (selected_year,), one=True)['count']
+    approved_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status = ? AND fiscal_year = ?', ('อนุมัติ', selected_year), one=True)['count']
+    pending_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status NOT IN (?, ?, ?) AND fiscal_year = ?', ('อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', selected_year), one=True)['count']
+    total_amount = query_db('SELECT SUM(approved_amount) as total FROM RequestRecord WHERE status = ? AND fiscal_year = ?', ('อนุมัติ', selected_year), one=True)['total'] or 0
+    
+    # Get filter from query string
+    filter_type = request.args.get('filter', 'all')
+    
+    # Get requests for summary table based on filter and selected year
+    query_parts = ['SELECT id, applicant_name, status, total_score, approved_amount, date_submitted FROM RequestRecord WHERE fiscal_year = ?']
+    params = [selected_year]
+
+    if filter_type == 'approved':
+        query_parts.append('AND status = ?')
+        params.append('อนุมัติ')
+    elif filter_type == 'pending':
+        query_parts.append('AND status NOT IN (?, ?, ?)')
+        params.extend(['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก'])
+    
+    query = ' '.join(query_parts) + ' ORDER BY date_submitted DESC'
+    requests_rows = query_db(query, tuple(params))
+        
+    requests = [dict(r) for r in requests_rows]
+    
+    return render_template('summary.html', 
+                           name=session['name'], 
+                           role=session['role'], 
+                           position=session.get('position',''),
+                           total_requests=total_requests,
+                           approved_requests=approved_requests,
+                           pending_requests=pending_requests,
+                           total_amount=total_amount,
+                           requests=requests,
+                           current_filter=filter_type,
+                           available_years=available_years,
+                           selected_year=selected_year)
+
+
+@main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (ผู้ตรวจสอบ)
+def reviewers_page():
+    if 'username' not in session: return redirect(url_for('auth.login'))
+    
+    # Get users with specific roles
+    reviewers = {
+        'administration': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('administration',))],
+        'research': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('research',))],
+        'committee': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('committee',))],
+        'admin': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('admin',))]
+    }
+    
+    return render_template('reviewers.html', 
+                           name=session['name'], 
+                           role=session['role'], 
+                           position=session.get('position',''),
+                           reviewers=reviewers)
