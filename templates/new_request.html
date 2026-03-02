@@ -473,7 +473,7 @@
                         </div>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                             <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="date" onchange="updateWork(${id}, 'date_accept', this.value)"></div>
-                            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="date" onchange="updateWork(${id}, 'date_publish', this.value)"></div>
+                            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="date" onchange="checkPublishDate(${id}, this.value)"></div>
                         </div>
 
                         <div class="form-group" style="margin-top:15px;">
@@ -544,7 +544,7 @@
                                 <strong>สำนักพิมพ์ในประเทศและต่างประเทศ</strong>
                             </div>
                             <div id="sub-lvl-inter-${id}" class="sub-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
-                                วันที่เผยแพร่ : <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)">
+                                วันที่เผยแพร่ : <input type="date" onchange="checkPublishDate(${id}, this.value)">
                             </div>
 
                             <div>
@@ -552,7 +552,7 @@
                                 <strong>โรงพิมพ์ทั่วไปในประเทศ</strong>
                             </div>
                             <div id="sub-lvl-local-${id}" class="sub-lvl-${id}" style="display:none; margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
-                                วันที่เผยแพร่ : <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)">
+                                วันที่เผยแพร่ : <input type="date" onchange="checkPublishDate(${id}, this.value)">
                             </div>
                         </div>
                     </div>
@@ -929,7 +929,7 @@
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
                             <div class="form-group">
                                 <label>วันที่เผยแพร่/วันที่ได้รับอนุมัติ :</label>
-                                <input type="date" onchange="updateWork(${id}, 'date_publish', this.value)" style="width:100%">
+                                <input type="date" onchange="checkPublishDate(${id}, this.value)" style="width:100%">
                             </div>
                             <div class="form-group">
                                 <label>ฐานข้อมูล/แหล่งเผยแพร่ :</label>
@@ -1041,6 +1041,18 @@
             document.getElementById(`work-${id}`).remove();
             updateWorkCount();
             calculateEstimates();
+        }
+
+        function checkPublishDate(id, dateValue) {
+            if (dateValue) {
+                const selected = new Date(dateValue);
+                const now = new Date();
+                const diffDays = Math.floor((now - selected) / (1000 * 60 * 60 * 24));
+                if (diffDays > 730) { // 730 วัน = 2 ปี
+                    alert('⚠️ ผลงานที่เผยแพร่เกิน 2 ปีแล้ว (ผลงานชิ้นนี้เผยแพร่มาแล้ว ' + diffDays + ' วัน) ไม่สามารถนำมาขอรับค่าตอบแทนได้');
+                }
+            }
+            updateWork(id, 'date_publish', dateValue);
         }
 
         function updateWork(id, key, value) {
