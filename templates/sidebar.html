@@ -25,6 +25,7 @@
     <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">
       <i class="fas fa-home"></i> หน้าหลัก
     </a>
+    {% if role != 'applicant' %}
     <a href="{{ url_for('main.summary_page') }}"
       class="{% if request.endpoint == 'main.summary_page' %}active{% endif %}">
       <i class="fas fa-chart-bar"></i> สรุปยอด
@@ -33,6 +34,7 @@
       class="{% if request.endpoint == 'main.reviewers_page' %}active{% endif %}">
       <i class="fas fa-users-cog"></i> รายชื่อผู้พิจารณา
     </a>
+    {% endif %}
 
     {% if role == 'applicant' %}
     <a href="{{ url_for('requests.new_request') if can_submit and not has_submitted_this_year else 'javascript:void(0)' }}"
@@ -92,10 +94,10 @@
 
   function showTimelineAlert(event) {
     if (event) event.preventDefault();
-    var msg = {{ timeline_message | tojson | safe }};
+    let msg = {{ timeline_message | tojson | safe }};
     if (!msg) {
-      const startDate = "{{ timeline.start_date if timeline else '01/10' }}";
-      msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+      const startDate = {{ (timeline.start_date if timeline else '01/10') | tojson | safe }};
+      msg = `ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ ${startDate} ของรอบปีงบประมาณถัดไป`;
     }
     alert(msg);
   }

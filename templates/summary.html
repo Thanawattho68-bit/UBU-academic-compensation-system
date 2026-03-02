@@ -161,9 +161,7 @@
                             <div class="stat-label">รอการพิจารณา</div>
                         </div>
                     </a>
-                    <a href="{{ url_for('main.summary_page', filter='approved', year=selected_year) }}"
-                        class="stat-card {% if current_filter == 'approved' %}active{% endif %}"
-                        style="text-decoration: none; color: inherit;">
+                    <div class="stat-card" style="cursor: default;">
                         <div class="stat-icon bg-purple">
                             <i class="fas fa-coins"></i>
                         </div>
@@ -171,7 +169,7 @@
                             <div class="stat-value">{{ "{:,.0f}".format(total_amount) }} ฿</div>
                             <div class="stat-label">ยอดงบประมาณเบิกจ่าย</div>
                         </div>
-                    </a>
+                    </div>
                 </div>
 
                 <div class="table-container">
