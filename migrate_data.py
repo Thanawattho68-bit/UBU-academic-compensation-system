@@ -14,26 +14,39 @@ def migrate():
             print("⚠️ Could not remove database file (it might be in use). Skipping removal.")
     
     init_db()
-    print("✅ Database tables recreated.")
+    print("✅ Database tables initialized.")
+
+    # Explicitly clear tables in case file removal failed
+    tables = ['Account', 'Notification', 'RequestRecord', 'TimelineConfig', 'Criteria', 'WorkType']
+    for table in tables:
+        try:
+            execute_db(f"DELETE FROM {table}")
+            print(f"🧹 Cleared existing data from {table}.")
+        except Exception as e:
+            print(f"⚠️ Failed to clear table {table}: {e}")
 
     # 1. Migrate Users to Account table
-    if os.path.exists('users.json'):
-        with open('users.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/users.json'):
+        with open('backup/users.json', 'r', encoding='utf-8') as f:
             users = json.load(f)
             for u in users:
+                pos = u.get('academic_position')
+                if isinstance(pos, list):
+                    pos = json.dumps(pos, ensure_ascii=False)
+                
                 execute_db('''
                     INSERT INTO Account (username, password, role, name, title_name, academic_position, department, faculty, position_date, position_number)
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     u['username'], u['password'], u['role'], u.get('name'),
-                    u.get('title_name'), u.get('academic_position'), u.get('department'),
+                    u.get('title_name'), pos, u.get('department'),
                     u.get('faculty'), u.get('position_date'), u.get('position_number')
                 ))
         print(f"✅ Migrated {len(users)} users to Account table.")
 
     # 2. Migrate Notifications
-    if os.path.exists('notifications.json'):
-        with open('notifications.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/notifications.json'):
+        with open('backup/notifications.json', 'r', encoding='utf-8') as f:
             notifs = json.load(f)
             for n in notifs:
                 execute_db('''
@@ -46,8 +59,8 @@ def migrate():
         print(f"✅ Migrated {len(notifs)} notifications.")
 
     # 3. Migrate Requests
-    if os.path.exists('requests.json'):
-        with open('requests.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/requests.json'):
+        with open('backup/requests.json', 'r', encoding='utf-8') as f:
             reqs = json.load(f)
             for r in reqs:
                 execute_db('''
@@ -65,8 +78,8 @@ def migrate():
         print(f"✅ Migrated {len(reqs)} requests (including works).")
 
     # 4. Migrate Criteria
-    if os.path.exists('criteria.json'):
-        with open('criteria.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/criteria.json'):
+        with open('backup/criteria.json', 'r', encoding='utf-8') as f:
             criteria_list = json.load(f)
             for c in criteria_list:
                 execute_db('''
@@ -81,8 +94,8 @@ def migrate():
         print(f"✅ Migrated {len(criteria_list)} criteria configs.")
 
     # 5. Migrate Timeline (To new Merged Table)
-    if os.path.exists('timeline.json'):
-        with open('timeline.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/timeline.json'):
+        with open('backup/timeline.json', 'r', encoding='utf-8') as f:
             timelines = json.load(f)
             # Ensure timelines is a list
             if not isinstance(timelines, list): timelines = [timelines]
@@ -100,8 +113,8 @@ def migrate():
         print(f"✅ Migrated {len(timelines)} timeline configs to TimelineConfig table.")
 
     # 6. Migrate Work Types
-    if os.path.exists('work_types.json'):
-        with open('work_types.json', 'r', encoding='utf-8') as f:
+    if os.path.exists('backup/work_types.json'):
+        with open('backup/work_types.json', 'r', encoding='utf-8') as f:
             work_types = json.load(f)
             for wt in work_types:
                 execute_db('''

@@ -7,7 +7,7 @@ app.py
 - ลงทะเบียน context processors และ template filters
 """
 
-from flask import Flask, session
+from flask import Flask, session, redirect, url_for
 from database import init_db, query_db
 import os
 import json
@@ -52,10 +52,9 @@ from utils import is_within_timeline, get_current_fiscal_year, parse_thai_date, 
 
 @app.context_processor
 def inject_timeline():
-    can_submit = is_within_timeline()
+    is_open, active_reason, next_open = is_within_timeline()
     current_fy = str(get_current_fiscal_year())
     
-    # Fetch config from DB (Try current, fallback to latest)
     config_row = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (current_fy,), one=True)
     if not config_row:
         config_row = query_db('SELECT * FROM TimelineConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
@@ -65,22 +64,26 @@ def inject_timeline():
         config['rounds'] = json.loads(config['rounds_json'])
     
     timeline_msg = ""
-    now = datetime.now()
-    
-    # Simple message if system is closed based on global range
-    if not can_submit:
-        start_date = config['start_date'] if config else '01/10'
-        timeline_msg = f"ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ {start_date} ของรอบปีงบประมาณถัดไป"
+    if not is_open:
+        if active_reason and active_reason not in ["ไม่อยู่ในช่วงเวลาการเปิดรับคำขอ", "ยังไมาเปิดรับคำขอใหม่"]:
+            timeline_msg = f"ขณะนี้อยู่ในช่วง {active_reason} (จึงปิดการรับคำขอใหม่)"
+        else:
+            timeline_msg = f"ขณะนี้หมดเวลาเปิดรับคำขอใหม่ (ท่านยังสามารถยื่นคำขอที่ถูกส่งกลับมาแก้ไขได้)"
+        
+        if next_open:
+            timeline_msg += f"\nจะเปิดให้ยื่นได้อีกครั้งในวันที่ {next_open}"
         
     has_submitted = False
     if 'username' in session and session['role'] == 'applicant':
-        # Check from DB instead of JSON
         user_req = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? AND fiscal_year = ? AND status != ?', 
                            (session['username'], current_fy, 'แบบร่าง'), one=True)
         if user_req:
             has_submitted = True
             
-    return dict(can_submit=can_submit, timeline=config, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
+    if has_submitted:
+        timeline_msg = "คุณได้ยื่นคำขอสำหรับปีงบประมาณนี้เรียบร้อยแล้ว"
+
+    return dict(can_submit=is_open, timeline=config, timeline_message=timeline_msg, has_submitted_this_year=has_submitted)
 
 # ──────────────────────────────────────────────
 # Template Filters

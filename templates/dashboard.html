@@ -14,9 +14,9 @@
         {% include 'sidebar.html' %}
 
         <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
-                <div class="user-profile">
-                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-home"></i> หน้าหลัก
                 </div>
             </header>
 
@@ -74,7 +74,7 @@
                                 <tr class="group-{{ role_key }}" style="display: none;">
                                     <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
                                     <td>{{ user.username }}</td>
-                                    <td>{{ user.academic_position or '-' }}</td>
+                                    <td>{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else (user.academic_position or '-') }}</td>
                                     <td>{{ user.faculty or '-' }}</td>
                                     <td style="text-align: center;">
                                         <span class="status-tag"
@@ -236,9 +236,8 @@
                                 {% if role in ['applicant', 'administration'] %}
                                 <td>
                                     {% if req.works %}
-                                    {% set scoreColor = 'var(--danger-color)' if req.status in
-                                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
-                                    <ul class="table-item-list score-list" style="color: {{ scoreColor }};">
+                                    {% set scoreColor = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
+                                    <ul class="table-item-list score-list" style="color: {{ scoreColor if scoreColor else 'inherit' }};">
                                         {% for w in req.works %}
                                         <li>{{
                                             "%.3f"|format(w.score_calc|float if w.score_calc else 0) }}</li>
@@ -251,11 +250,10 @@
                                 {% endif %}
                                 {% if role != 'research' %}
                                 <td>
-                                    {% if req.approved_amount or req.suggested_compensation %}
-                                    {% set amt = (req.approved_amount or req.suggested_compensation)|float %}
-                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์']
-                                    else 'var(--success-color)' %}
-                                    <span style="color: {{ color }}; font-weight: bold;">
+                                    {% if req.approved_amount %}
+                                    {% set amt = (req.approved_amount)|float %}
+                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
+                                    <span style="color: {{ color if color else 'inherit' }}; font-weight: bold;">
                                         {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
                                         ฿</span>
                                     {% else %}
@@ -271,31 +269,32 @@
                                     </span>
                                 </td>
                                 <td style="text-align: center;">
+                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
+                                        {% if req.status == 'แบบร่าง' %}
+                                        <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-view"
+                                            title="แก้ไข (ร่าง)">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        {% else %}
+                                        <a href="{{ url_for('requests.view_request', req_id=req.id) }}" class="btn-view"
+                                            title="ดูรายละเอียด">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        {% endif %}
 
-                                    {% if req.status == 'แบบร่าง' %}
-                                    <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-view"
-                                        title="แก้ไข (ร่าง)">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    {% else %}
-                                    <a href="{{ url_for('requests.view_request', req_id=req.id) }}" class="btn-view"
-                                        title="ดูรายละเอียด">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    {% endif %}
-
-                                    {% if role == 'applicant' and req.status in ['ส่งแล้ว', 'แก้ไข',
-                                    'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
-                                    <form method="POST" action="{{ url_for('requests.view_request', req_id=req.id) }}"
-                                        style="display: inline;" onclick="event.stopPropagation();">
-                                        <input type="hidden" name="action" value="cancel">
-                                        <button type="submit" class="btn-view" title="ยกเลิกคำขอ"
-                                            style="color: #dc3545; border-color: #fecaca; background: #fff5f5;"
-                                            onclick="return confirm('ยืนยันการยกเลิกคำขอนี้? (คุณสามารถยกเลิกได้ก่อนคำขอจะถูกส่งเข้าชุดพิจารณา)')">
-                                            <i class="fas fa-trash-alt"></i>
-                                        </button>
-                                    </form>
-                                    {% endif %}
+                                        {% if role == 'applicant' and req.status in ['ส่งแล้ว', 'แก้ไข',
+                                        'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
+                                        <form method="POST" action="{{ url_for('requests.view_request', req_id=req.id) }}"
+                                            style="display: inline; margin: 0;" onclick="event.stopPropagation();">
+                                            <input type="hidden" name="action" value="cancel">
+                                            <button type="submit" class="btn-view" title="ยกเลิกคำขอ"
+                                                style="color: #dc3545; border-color: #fecaca; background: #fff5f5;"
+                                                onclick="return confirm('ยืนยันการยกเลิกคำขอนี้? (คุณสามารถยกเลิกได้ก่อนคำขอจะถูกส่งเข้าชุดพิจารณา)')">
+                                                <i class="fas fa-trash-alt"></i>
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                    </div>
                                 </td>
                             </tr>
                             {% else %}

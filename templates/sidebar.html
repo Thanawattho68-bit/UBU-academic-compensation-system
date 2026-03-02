@@ -11,7 +11,13 @@
         {{ name }}
       </div>
       <div style="font-size: 0.8rem; color: #bdc3c7; font-weight: 300">
-        {% if position %} {{ position }} {% endif %}
+        {% if position %}
+          {% if position is string %}
+            {{ position }}
+          {% else %}
+            {{ position | join(' / ') }}
+          {% endif %}
+        {% endif %}
       </div>
     </div>
   </div>
@@ -86,13 +92,12 @@
 
   function showTimelineAlert(event) {
     if (event) event.preventDefault();
-    var msg = {{ timeline_message | tojson
-  }};
-  if (!msg) {
-    const startDate = "{{ timeline.start_date if timeline else '01/10' }}";
-    msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
-  }
-  alert(msg);
+    var msg = {{ timeline_message | tojson | safe }};
+    if (!msg) {
+      const startDate = "{{ timeline.start_date if timeline else '01/10' }}";
+      msg = "ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ " + startDate + " ของรอบปีงบประมาณถัดไป";
+    }
+    alert(msg);
   }
 
 

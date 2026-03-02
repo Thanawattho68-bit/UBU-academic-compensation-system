@@ -14,25 +14,25 @@
         {% include 'sidebar.html' %}
 
         <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
-                <div class="user-profile">
-                    <i class="fas fa-user-shield"></i> ผู้ดูแลระบบ
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-edit"></i> {{ 'เพิ่ม' if year == 'new' else 'แก้ไข' }}ช่วงเวลายื่นคำขอ
                 </div>
             </header>
 
             <section class="content-area">
-                <div class="form-container" style="max-width: 700px; margin: 0 auto;">
+                <div class="form-container" style="max-width: 1500px; margin: 0 auto;">
                     <div
                         style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; border-bottom: 2px solid #eee; padding-bottom: 15px;">
                         <h2 style="color: var(--primary-color); margin: 0;">
                             <i class="fas fa-edit"></i> {{ 'เพิ่ม' if year == 'new' else 'แก้ไข' }}ช่วงเวลายื่นคำขอ
                         </h2>
-                        <a href="{{ url_for('manage_timeline') }}" style="color: #666; text-decoration: none;">
+                        <a href="{{ url_for('admin.manage_timeline') }}" style="color: #666; text-decoration: none;">
                             <i class="fas fa-times"></i> ปรับปรุงรายการ
                         </a>
                     </div>
 
-                    <form action="{{ url_for('edit_timeline', year=year) }}" method="POST">
+                    <form action="{{ url_for('admin.edit_timeline', year=year) }}" method="POST">
                         <div class="form-group">
                             <label>ปีงบประมาณ</label>
                             <input type="text" name="fiscal_year" value="{{ timeline.fiscal_year if timeline else '' }}"
@@ -51,7 +51,7 @@
                                     <i class="fas fa-magic"></i> ค่าเริ่มต้น (1/10 - 30/9)
                                 </button>
                             </h4>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
                                     <label><i class="fas fa-play" style="color: var(--success-color);"></i> วันเริ่มต้น
                                         (วว/ดด/ปป)</label>
@@ -73,7 +73,7 @@
                         <div class="form-group">
                             <label><i class="fas fa-list-ol"></i> รอบย่อย / รอบเพิ่มเติม (Sub Rounds)</label>
                             <div
-                                style="background: #f8f9fa; padding: 20px; border-radius: 10px; border: 1px solid #e9ecef;">
+                                style="background: #f8f9fa; padding-left: 10px; padding-right: 10px; border-radius: 10px; border: 1px solid #e9ecef;">
                                 <table id="roundsTable"
                                     style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
                                     <thead>
@@ -90,7 +90,7 @@
                                     </tbody>
                                 </table>
                                 <button type="button" class="btn-secondary" onclick="addRound()"
-                                    style="margin-top: 10px; font-size: 0.9rem;">
+                                    style="font-size: 0.9rem; margin-bottom: 10px;">
                                     <i class="fas fa-plus"></i> เพิ่มรอบย่อย
                                 </button>
                             </div>
@@ -98,7 +98,7 @@
                         </div>
 
                         <script>
-                            let rounds = {{ timeline.rounds | tojson if timeline and timeline.rounds else '[]' }};
+                            var rounds = {{ timeline.rounds | tojson | safe if timeline and timeline.rounds else '[]' }};
 
                             // Remove auto-migration legacy logic, since we have separate fields now.
 
@@ -167,7 +167,7 @@
                                 {% endif %}
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <a href="{{ url_for('manage_timeline') }}" class="btn-secondary"
+                                <a href="{{ url_for('admin.manage_timeline') }}" class="btn-secondary"
                                     style="text-decoration: none;">ยกเลิก</a>
                                 <button type="submit" class="btn-primary">
                                     <i class="fas fa-save"></i> บันทึกข้อมูล

@@ -111,9 +111,9 @@
         {% include 'sidebar.html' %}
 
         <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center;">
-                <div class="user-profile">
-                    <i class="fas fa-user-circle"></i> ยินดีต้อนรับคุณ <strong>{{ name }}</strong>
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-file-signature"></i> ยื่นคำขอใหม่
                 </div>
             </header>
 
@@ -123,11 +123,11 @@
                     {% if not can_submit %}
                     <div class="alert alert-warning"
                         style="border-left: 5px solid #ffa502; background-color: #fff9e6; color: #b37400;">
-                        <h4><i class="fas fa-exclamation-circle"></i> ขณะนี้ไม่อยู่ในช่วงเวลาการยื่นคำขอ</h4>
-                        <p>ท่านสามารถยื่นคำขอได้ในช่วงวันที่ <strong>{{ timeline.start_date }}</strong> ถึง <strong>{{
-                                timeline.end_date }}</strong> เท่านั้น</p>
+                        <h4><i class="fas fa-exclamation-circle"></i> ขณะนี้หมดระยะเวลาการยื่นคำขอใหม่รอบปกติแล้ว</h4>
+                        <p>ท่านยังสามารถ<strong>ยื่นคำขอที่ถูกส่งกลับมาแก้ไข</strong>ได้ตามปกติ</p>
                         <p style="margin-top: 5px; font-size: 0.9em; color: #666;">
-                            (ในขณะนี้ท่านสามารถบันทึกข้อมูลเป็นแบบร่างเก็บไว้ได้)</p>
+                            (สำหรับคำขอร่างเดิม
+                            ท่านยังสามารถแก้ไขข้อมูลและบันทึกแบบร่างเก็บไว้ได้เพื่อรอรอบการยื่นถัดไป)</p>
                     </div>
                     {% endif %}
                 </div>
@@ -154,7 +154,7 @@
 
                             <div style="display: flex; align-items: center;">
                                 <span style="font-weight: normal; color: #555;">ตำแหน่ง :</span>
-                                <input type="text" name="academic_position" value="{{ user.academic_position }}"
+                                <input type="text" name="academic_position" value="{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else user.academic_position }}"
                                     readonly
                                     style="border: none; background: transparent; color: #000; font-weight: normal; font-size: 1rem; padding: 0; margin-left: 8px; width: auto; flex-grow: 1; outline: none; font-family: inherit;">
                             </div>
@@ -287,8 +287,9 @@
                             style="min-width: 150px;">
                             <i class="fas fa-save"></i> บันทึกแบบร่าง
                         </button>
+                        {% set is_resubmission = (edit_req and edit_req.status == 'แก้ไข') %}
                         <button type="submit" name="action" value="submit" class="btn-primary" style="min-width: 150px;"
-                            {{ 'disabled' if not can_submit else '' }}>
+                            {{ 'disabled' if (not can_submit and not is_resubmission) else '' }}>
                             <i class="fas fa-paper-plane"></i> ยืนยันการส่งคำขอ
                         </button>
                     </div>
@@ -1131,7 +1132,8 @@
             });
 
             // 3. Total Compensation based on totalScore
-            const pos = ACADEMIC_POSITION || "";
+            const posData = ACADEMIC_POSITION || "";
+            const pos = Array.isArray(posData) ? posData.join(' ') : posData;
             let posKey = "";
             if (pos.includes('ผู้ช่วยศาสตราจารย์')) posKey = "asst_prof";
             else if (pos.includes('รองศาสตราจารย์')) posKey = "assoc_prof";
