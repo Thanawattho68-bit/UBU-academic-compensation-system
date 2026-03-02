@@ -140,6 +140,11 @@ def appeals_page():
 def summary_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
+    # จำกัดสิทธิ์เฉพาะเจ้าหน้าที่และกรรมการเท่านั้น
+    if session['role'] == 'applicant':
+        flash("คุณไม่มีสิทธิ์เข้าถึงหน้าสรุปยอดรวม")
+        return redirect(url_for('main.dashboard'))
+    
     # Get available fiscal years for the filter
     all_fy_rows = query_db('SELECT DISTINCT fiscal_year FROM RequestRecord ORDER BY fiscal_year DESC')
     available_years = [r['fiscal_year'] for r in all_fy_rows if r['fiscal_year']]
@@ -157,24 +162,24 @@ def summary_page():
         available_years = sorted(list(set(available_years)), reverse=True)
 
     # Get stats for the selected year
-    total_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE fiscal_year = ?', (selected_year,), one=True)['count']
+    total_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE fiscal_year = ? AND status != ?', (selected_year, 'แบบร่าง'), one=True)['count']
     approved_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status = ? AND fiscal_year = ?', ('อนุมัติ', selected_year), one=True)['count']
-    pending_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status NOT IN (?, ?, ?) AND fiscal_year = ?', ('อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', selected_year), one=True)['count']
+    pending_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status NOT IN (?, ?, ?, ?) AND fiscal_year = ?', ('อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', 'แบบร่าง', selected_year), one=True)['count']
     total_amount = query_db('SELECT SUM(approved_amount) as total FROM RequestRecord WHERE status = ? AND fiscal_year = ?', ('อนุมัติ', selected_year), one=True)['total'] or 0
     
     # Get filter from query string
     filter_type = request.args.get('filter', 'all')
     
-    # Get requests for summary table based on filter and selected year
-    query_parts = ['SELECT id, applicant_name, status, total_score, approved_amount, date_submitted FROM RequestRecord WHERE fiscal_year = ?']
-    params = [selected_year]
+    # Get requests for summary table based on filter and selected year (Exclude 'แบบร่าง' from summary)
+    query_parts = ['SELECT id, applicant_name, status, total_score, approved_amount, date_submitted FROM RequestRecord WHERE fiscal_year = ? AND status != ?']
+    params = [selected_year, 'แบบร่าง']
 
     if filter_type == 'approved':
         query_parts.append('AND status = ?')
         params.append('อนุมัติ')
     elif filter_type == 'pending':
-        query_parts.append('AND status NOT IN (?, ?, ?)')
-        params.extend(['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก'])
+        query_parts.append('AND status NOT IN (?, ?, ?, ?)')
+        params.extend(['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', 'แบบร่าง'])
     
     query = ' '.join(query_parts) + ' ORDER BY date_submitted DESC'
     requests_rows = query_db(query, tuple(params))
@@ -198,6 +203,11 @@ def summary_page():
 @main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (ผู้ตรวจสอบ)
 def reviewers_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
+    
+    # จำกัดสิทธิ์เฉพาะเจ้าหน้าที่และกรรมการเท่านั้น
+    if session['role'] == 'applicant':
+        flash("คุณไม่มีสิทธิ์เข้าถึงหน้ารายชื่อผู้พิจารณา")
+        return redirect(url_for('main.dashboard'))
     
     # Get users with specific roles
     reviewers = {
