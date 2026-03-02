@@ -29,6 +29,9 @@ def dashboard():
     role = session['role']
     username = session['username']
     
+    # ลบข้อมูลที่สถานะเป็น 'ยกเลิก' ออกจากฐานข้อมูลอัตโนมัติตามความต้องการของระบบ
+    execute_db("DELETE FROM RequestRecord WHERE status = 'ยกเลิก'")
+    
     # ดึงข้อมูลคำขอจาก database โดยกรองตามสิทธิ์การใช้งาน
     if role == 'applicant':
         rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ?', (username,))
