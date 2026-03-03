@@ -1,516 +1,742 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="th">
-
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>ระบบค่าตอบแทน - {{ name }}</title>
-    <link rel="stylesheet" href="static/style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-</head>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body>
+  <body>
     <div class="dashboard-wrapper">
-        {% include 'sidebar.html' %}
+      {% include 'sidebar.html' %}
 
-        <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
-                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
-                    <i class="fas fa-home"></i> หน้าหลัก
+      <main class="main-content">
+        <header
+          class="top-bar"
+          style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 40px;
+          "
+        >
+          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+            <i class="fas fa-home"></i> หน้าหลัก
+          </div>
+        </header>
+
+        <section class="content-area">
+          {# Removed Committee Batch Section #} {% if role == 'admin' %}
+          <div class="table-container">
+            <h2 style="margin-bottom: 20px">
+              <i class="fas fa-users-cog"></i> รายชื่อผู้ใช้ทั้งหมดในระบบ
+            </h2>
+            <div style="margin-bottom: 15px; display: flex; gap: 10px">
+              <button
+                onclick="toggleAllGroups(true)"
+                class="btn-secondary"
+                style="
+                  padding: 5px 12px;
+                  font-size: 0.85rem;
+                  background: #fff;
+                  border: 1px solid #cbd5e1;
+                  color: #64748b;
+                "
+              >
+                <i class="fas fa-expand-alt"></i> เปิดทั้งหมด
+              </button>
+              <button
+                onclick="toggleAllGroups(false)"
+                class="btn-secondary"
+                style="
+                  padding: 5px 12px;
+                  font-size: 0.85rem;
+                  background: #fff;
+                  border: 1px solid #cbd5e1;
+                  color: #64748b;
+                "
+              >
+                <i class="fas fa-compress-alt"></i> ปิดทั้งหมด
+              </button>
+            </div>
+            <div class="table-responsive-wrapper">
+              <table class="styled-table">
+                <thead>
+                  <tr>
+                    <th>ชื่อ-นามสกุล</th>
+                    <th>ชื่อผู้ใช้ (Username)</th>
+                    <th>ตำแหน่ง</th>
+                    <th>คณะ/หน่วยงาน</th>
+                    <th style="text-align: center">สิทธิ์การใช้งาน (Role)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set groups = users | groupby('role') %} {# Define order for
+                  roles #} {% set role_order = ['admin', 'administration',
+                  'research', 'committee', 'applicant'] %} {% for role_key in
+                  role_order %} {% set role_users = [] %} {% for user in users
+                  if user.role == role_key %} {% if role_users.append(user) %}{%
+                  endif %} {% endfor %} {% if role_users %}
+                  <tr
+                    onclick="toggleUserGroup('group-{{ role_key }}')"
+                    style="
+                      background: #f1f5f9;
+                      cursor: pointer;
+                      user-select: none;
+                    "
+                    title="คลิกเพื่อ ย่อ/ขยาย"
+                  >
+                    <td
+                      colspan="5"
+                      style="
+                        padding: 12px 15px;
+                        font-weight: bold;
+                        color: #475569;
+                      "
+                    >
+                      <i
+                        id="icon-group-{{ role_key }}"
+                        class="fas fa-chevron-down"
+                        style="
+                          margin-right: 10px;
+                          transition: transform 0.2s;
+                          transform: rotate(-90deg);
+                        "
+                      ></i>
+                      สิทธิ์การใช้งาน: {{ role_key | upper }} ({{
+                      role_users|length }} รายชื่อ)
+                    </td>
+                  </tr>
+                  {% for user in role_users %}
+                  <tr class="group-{{ role_key }}" style="display: none">
+                    <td>
+                      <strong>{{ user.title_name }}{{ user.name }}</strong>
+                    </td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                      {{ user.academic_position | join(' / ') if
+                      user.academic_position is iterable and
+                      user.academic_position is not string else
+                      (user.academic_position or '-') }}
+                    </td>
+                    <td>{{ user.faculty or '-' }}</td>
+                    <td style="text-align: center">
+                      <span
+                        class="status-tag"
+                        style="
+                          background: #e2e8f0;
+                          color: #475569;
+                          border: none;
+                        "
+                      >
+                        {{ user.role }}
+                      </span>
+                    </td>
+                  </tr>
+                  {% endfor %} {% endif %} {% endfor %} {% if not users %}
+                  <tr>
+                    <td
+                      colspan="5"
+                      style="text-align: center; padding: 30px; color: #999"
+                    >
+                      ไม่พบข้อมูลผู้ใช้
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %} {% if role != 'admin' %}
+          <div class="table-container">
+            <h2 style="margin-bottom: 20px">
+              <i class="fas fa-file-alt"></i> คำขอ
+            </h2>
+            <div
+              class="filter-bar-container"
+              style="
+                margin-bottom: 20px;
+                display: flex;
+                gap: 15px;
+                flex-wrap: wrap;
+                align-items: flex-end;
+              "
+            >
+              <div class="filter-group">
+                <label
+                  style="
+                    display: block;
+                    font-size: 0.85rem;
+                    color: #64748b;
+                    margin-bottom: 5px;
+                  "
+                  >ค้นหา</label
+                >
+                <div class="input-with-icon" style="position: relative">
+                  <i
+                    class="fas fa-search"
+                    style="
+                      position: absolute;
+                      left: 10px;
+                      top: 50%;
+                      transform: translateY(-50%);
+                      color: #94a3b8;
+                    "
+                  ></i>
+                  <input
+                    type="text"
+                    id="searchInput"
+                    onkeyup="filterTable()"
+                    placeholder="ชื่อผู้ส่ง, คณะ..."
+                    style="
+                      padding: 8px 10px 8px 35px;
+                      border: 1px solid #e2e8f0;
+                      border-radius: 6px;
+                      width: 200px;
+                      font-size: 0.9rem;
+                    "
+                  />
                 </div>
-            </header>
+              </div>
 
-            <section class="content-area">
+              <div class="filter-group">
+                <label
+                  style="
+                    display: block;
+                    font-size: 0.85rem;
+                    color: #64748b;
+                    margin-bottom: 5px;
+                  "
+                  >สถานะ</label
+                >
+                <select
+                  id="statusFilter"
+                  onchange="filterTable()"
+                  style="
+                    padding: 8px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    min-width: 150px;
+                    font-size: 0.9rem;
+                  "
+                >
+                  <option value="">ทั้งหมด</option>
+                  {% if role == 'administration' %}
+                  <option value="ส่งแล้ว">รอตรวจสอบ</option>
+                  <option value="รอตรวจประวัติการยื่นขอ">
+                    ส่งให้งานวิจัยแล้ว
+                  </option>
+                  <option value="ผลงานผ่าน">รอคำนวนค่าตอบแทน</option>
+                  <option value="แก้ไข">ส่งคืนแก้ไขแล้ว</option>
+                  <option value="รอการพิจารณา">รอการพิจารณา</option>
+                  <option value="อนุมัติ">อนุมัติ</option>
+                  <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                  <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
+                  <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
 
+                  {% elif role == 'applicant' %}
+                  <option value="ส่งแล้ว">ส่งแล้ว</option>
+                  <option value="รอตรวจประวัติการยื่นขอ">
+                    กำลังตรวจสอบคำขอ
+                  </option>
+                  <option value="ผลงานผ่าน">
+                    ผ่าน (รอเจ้าหน้าที่งานบุคคลส่งพิจารณา)
+                  </option>
+                  <option value="แก้ไข">แก้ไข</option>
+                  <option value="รอการพิจารณา">รอการพิจารณา</option>
+                  <option value="อนุมัติ">อนุมัติ</option>
+                  <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                  <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
+                  <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
 
-                {# Removed Committee Batch Section #}
+                  {% elif role == 'research' %}
+                  <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ</option>
+                  <option value="ผลงานผ่าน">ไม่เคยใช้</option>
+                  <option value="ผลงานซ้ำซ้อน">เคยใช้แล้ว</option>
+                  <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
 
-                {% if role == 'admin' %}
-                <div class="table-container">
-                    <h2 style="margin-bottom: 20px;"><i class="fas fa-users-cog"></i> รายชื่อผู้ใช้ทั้งหมดในระบบ</h2>
-                    <div style="margin-bottom: 15px; display: flex; gap: 10px;">
-                        <button onclick="toggleAllGroups(true)" class="btn-secondary"
-                            style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;">
-                            <i class="fas fa-expand-alt"></i> เปิดทั้งหมด
+                  {% else %}
+                  <option value="ส่งแล้ว">ส่งแล้ว</option>
+                  <option value="รอตรวจประวัติการยื่นขอ">
+                    รอตรวจประวัติการยื่นขอ
+                  </option>
+                  <option value="ผลงานผ่าน">ผลงานผ่าน</option>
+                  <option value="แก้ไข">แก้ไข</option>
+                  <option value="รอการพิจารณา">รอการพิจารณา</option>
+                  <option value="อนุมัติ">อนุมัติ</option>
+                  <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                  <option value="ผลงานซ้ำซ้อน">ผลงานซ้ำซ้อน</option>
+                  <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+
+                  {% endif %}
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label
+                  style="
+                    display: block;
+                    font-size: 0.85rem;
+                    color: #64748b;
+                    margin-bottom: 5px;
+                  "
+                  >ประเภทผลงาน</label
+                >
+                <select
+                  id="typeFilter"
+                  onchange="filterTable()"
+                  style="
+                    padding: 8px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    min-width: 160px;
+                    font-size: 0.9rem;
+                  "
+                >
+                  <option value="">ทั้งหมด</option>
+                  <option value="research">บทความงานวิจัย</option>
+                  <option value="textbook">ตำราหรือหนังสือ</option>
+                  <option value="creative">งานสร้างสรรค์</option>
+                  <option value="social">รับใช้ท้องถิ่นและสังคม</option>
+                  <option value="industry">เพื่ออุตสาหกรรม</option>
+                  <option value="teaching">การสอน</option>
+                  <option value="policy">นโยบายสาธารณะ</option>
+                  <option value="innovation">นวัตกรรม</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label
+                  style="
+                    display: block;
+                    font-size: 0.85rem;
+                    color: #64748b;
+                    margin-bottom: 5px;
+                  "
+                  >ปีงบประมาณ</label
+                >
+                <input
+                  type="text"
+                  id="fiscalFilter"
+                  onkeyup="filterTable()"
+                  placeholder="เช่น 2568"
+                  style="
+                    padding: 8px 10px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    width: 120px;
+                    font-size: 0.9rem;
+                  "
+                />
+              </div>
+            </div>
+
+            {# Removed Create Round Button #}
+
+            <table class="styled-table" id="requestsTable">
+              <thead>
+                <tr>
+                  {% if role != 'applicant' %}
+                  <th>คณะ/สาขา</th>
+                  {% endif %} {% if role != 'applicant' %}
+                  <th>ผู้ยื่นคำขอ</th>
+                  {% endif %}
+                  <th>ประเภทผลงาน</th>
+                  {% if role in ['applicant', 'administration'] %}
+                  <th>คะแนน</th>
+                  {% endif %} {% if role != 'research' %}
+                  <th>ค่าตอบแทน</th>
+                  {% endif %}
+                  <th onclick="sortTableByFiscal()" style="cursor: pointer">
+                    ปีงบประมาณ <i class="fas fa-sort"></i>
+                  </th>
+                  <th>วันที่ยื่น</th>
+                  <th>สถานะ</th>
+                  <th style="text-align: center; width: 80px">จัดการ</th>
+                </tr>
+              </thead>
+              <tbody id="tableBody">
+                {% for req in requests %}
+                <tr
+                  class="item-row"
+                  data-fy="{{ req.fiscal_year }}"
+                  data-status="{{ req.status }}"
+                  data-types="{{ req.works | map(attribute='type') | join(',') }}"
+                >
+                  {% if role != 'applicant' %}
+                  <td>
+                    {{ req.applicant_info.faculty }} / {{
+                    req.applicant_info.department }}
+                  </td>
+                  {% endif %} {% if role != 'applicant' %}
+                  <td>{{ req.applicant_name }}</td>
+                  {% endif %}
+                  <td>
+                    <ul class="table-item-list">
+                      {% for w in req.works %}
+                      <li>{{ w.type | translate_work_type }}</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                  {% if role in ['applicant', 'administration'] %}
+                  <td>
+                    {% if req.works %} {% set scoreColor = 'var(--danger-color)'
+                    if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else
+                    'inherit' %}
+                    <ul
+                      class="table-item-list score-list"
+                      style="color: {{ scoreColor if scoreColor else 'inherit' }};"
+                    >
+                      {% for w in req.works %}
+                      <li>
+                        {{ "%.3f"|format(w.score_calc|float if w.score_calc else
+                        0) }}
+                      </li>
+                      {% endfor %}
+                    </ul>
+                    {% else %} - {% endif %}
+                  </td>
+                  {% endif %} {% if role != 'research' %}
+                  <td>
+                    {% if req.approved_amount %} {% set amt =
+                    (req.approved_amount)|float %} {% set color =
+                    'var(--danger-color)' if req.status in
+                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
+                    <span
+                      style="color: {{ color if color else 'inherit' }}; font-weight: bold;"
+                    >
+                      {{ "{:,.0f}".format(amt) if amt % 1 == 0 else
+                      "{:,.2f}".format(amt) }} ฿</span
+                    >
+                    {% else %} - {% endif %}
+                  </td>
+                  {% endif %}
+                  <td>{{ req.fiscal_year }}</td>
+                  <td>{{ req.date }}</td>
+                  <td>
+                    <span class="status-tag status-{{ req.status }}">
+                      {{ req | rich_status_label(role) }}
+                    </span>
+                  </td>
+                  <td style="text-align: center">
+                    <div
+                      style="
+                        display: flex;
+                        gap: 8px;
+                        justify-content: center;
+                        align-items: center;
+                      "
+                    >
+                      {% if req.status == 'แบบร่าง' %}
+                      <a
+                        href="{{ url_for('requests.new_request', edit_id=req.id) }}"
+                        class="btn-view"
+                        title="แก้ไข (ร่าง)"
+                      >
+                        <i class="fas fa-edit"></i>
+                      </a>
+                      {% else %}
+                      <a
+                        href="{{ url_for('requests.view_request', req_id=req.id) }}"
+                        class="btn-view"
+                        title="ดูรายละเอียด"
+                      >
+                        <i class="fas fa-eye"></i>
+                      </a>
+                      {% endif %} {% if role == 'applicant' and req.status in
+                      ['ส่งแล้ว', 'แก้ไข', 'รอตรวจประวัติการยื่นขอ',
+                      'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
+                      <form
+                        method="POST"
+                        action="{{ url_for('requests.view_request', req_id=req.id) }}"
+                        style="display: inline; margin: 0"
+                        onclick="event.stopPropagation()"
+                      >
+                        <input type="hidden" name="action" value="cancel" />
+                        <button
+                          type="submit"
+                          class="btn-view"
+                          title="ยกเลิกคำขอ"
+                          style="
+                            color: #dc3545;
+                            border-color: #fecaca;
+                            background: #fff5f5;
+                          "
+                          onclick="
+                            return confirm(
+                              'ยืนยันการยกเลิกคำขอนี้? (คุณสามารถยกเลิกได้ก่อนคำขอจะถูกส่งเข้าชุดพิจารณา)',
+                            );
+                          "
+                        >
+                          <i class="fas fa-trash-alt"></i>
                         </button>
-                        <button onclick="toggleAllGroups(false)" class="btn-secondary"
-                            style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;">
-                            <i class="fas fa-compress-alt"></i> ปิดทั้งหมด
-                        </button>
+                      </form>
+                      {% endif %}
                     </div>
-                    <div class="table-responsive-wrapper">
-                        <table class="styled-table">
-                            <thead>
-                                <tr>
-                                    <th>ชื่อ-นามสกุล</th>
-                                    <th>ชื่อผู้ใช้ (Username)</th>
-                                    <th>ตำแหน่ง</th>
-                                    <th>คณะ/หน่วยงาน</th>
-                                    <th style="text-align: center;">สิทธิ์การใช้งาน (Role)</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {% set groups = users | groupby('role') %}
-                                {# Define order for roles #}
-                                {% set role_order = ['admin', 'administration', 'research', 'committee', 'applicant'] %}
+                  </td>
+                </tr>
+                {% else %}
+                <tr id="noDataRow">
+                  <td
+                    colspan="{{ 7 if role == 'applicant' else (9 if role == 'administration' else 8) }}"
+                    style="text-align: center; padding: 30px"
+                  >
+                    <i
+                      class="fas fa-folder-open"
+                      style="
+                        font-size: 2rem;
+                        color: #ddd;
+                        display: block;
+                        margin-bottom: 10px;
+                      "
+                    ></i>
+                    ไม่พบข้อมูลที่แสดงผลได้ในขณะนี้
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <div
+              style="
+                margin-top: 20px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+              "
+            >
+              <div id="paginationControls">
+                <!-- Buttons injected by JS -->
+              </div>
+              <div style="display: flex; align-items: center; gap: 10px">
+                <label style="font-size: 0.85rem; color: #64748b"
+                  >แสดงผล:</label
+                >
+                <select
+                  id="rowsPerPage"
+                  onchange="
+                    currentPage = 1;
+                    applyPagination();
+                  "
+                  style="
+                    padding: 6px 12px;
+                    border: 1px solid #e2e8f0;
+                    border-radius: 6px;
+                    width: 130px;
+                    font-size: 0.9rem;
+                    background: white;
+                    cursor: pointer;
+                  "
+                >
+                  <option value="10">10 รายการ</option>
+                  <option value="20">20 รายการ</option>
+                  <option value="30">30 รายการ</option>
+                  <option value="40">40 รายการ</option>
+                  <option value="50">50 รายการ</option>
+                  <option value="1000">ทั้งหมด</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          {% endif %}
 
-                                {% for role_key in role_order %}
-                                {% set role_users = [] %}
-                                {% for user in users if user.role == role_key %}
-                                {% if role_users.append(user) %}{% endif %}
-                                {% endfor %}
+          <script>
+            function toggleUserGroup(groupClass) {
+              const rows = document.querySelectorAll("." + groupClass);
+              const icon = document.getElementById("icon-" + groupClass);
+              rows.forEach((row) => {
+                if (row.style.display === "none") {
+                  row.style.display = "";
+                  if (icon) icon.style.transform = "rotate(0deg)";
+                } else {
+                  row.style.display = "none";
+                  if (icon) icon.style.transform = "rotate(-90deg)";
+                }
+              });
+            }
 
-                                {% if role_users %}
-                                <tr onclick="toggleUserGroup('group-{{ role_key }}')"
-                                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
-                                    title="คลิกเพื่อ ย่อ/ขยาย">
-                                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
-                                        <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down"
-                                            style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
-                                        สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
-                                    </td>
-                                </tr>
-                                {% for user in role_users %}
-                                <tr class="group-{{ role_key }}" style="display: none;">
-                                    <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
-                                    <td>{{ user.username }}</td>
-                                    <td>{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else (user.academic_position or '-') }}</td>
-                                    <td>{{ user.faculty or '-' }}</td>
-                                    <td style="text-align: center;">
-                                        <span class="status-tag"
-                                            style="background: #e2e8f0; color: #475569; border:none;">
-                                            {{ user.role }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                                {% endif %}
-                                {% endfor %}
+            function toggleAllGroups(show) {
+              const allRows = document.querySelectorAll('tr[class^="group-"]');
+              const allIcons = document.querySelectorAll(
+                'i[id^="icon-group-"]',
+              );
+              allRows.forEach((row) => {
+                row.style.display = show ? "" : "none";
+              });
+              allIcons.forEach((icon) => {
+                icon.style.transform = show ? "rotate(0deg)" : "rotate(-90deg)";
+              });
+            }
 
-                                {% if not users %}
-                                <tr>
-                                    <td colspan="5" style="text-align: center; padding: 30px; color: #999;">
-                                        ไม่พบข้อมูลผู้ใช้</td>
-                                </tr>
-                                {% endif %}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-                {% endif %}
+            let currentPage = 1;
 
-                {% if role != 'admin' %}
-                <div class="table-container">
-                    <h2 style="margin-bottom: 20px;"><i class="fas fa-file-alt"></i> คำขอ</h2>
-                    <div class="filter-bar-container"
-                        style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ค้นหา</label>
-                            <div class="input-with-icon" style="position: relative;">
-                                <i class="fas fa-search"
-                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                                <input type="text" id="searchInput" onkeyup="filterTable()"
-                                    placeholder="ชื่อผู้ส่ง, คณะ..."
-                                    style="padding: 8px 10px 8px 35px; border: 1px solid #e2e8f0; border-radius: 6px; width: 200px; font-size: 0.9rem;">
-                            </div>
-                        </div>
+            function filterTable() {
+              var searchInput = document
+                .getElementById("searchInput")
+                .value.toLowerCase();
+              var statusFilter = document.getElementById("statusFilter").value;
+              var typeFilter = document.getElementById("typeFilter").value;
+              var fiscalFilter = document.getElementById("fiscalFilter").value;
 
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">สถานะ</label>
-                            <select id="statusFilter" onchange="filterTable()"
-                                style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 150px; font-size: 0.9rem;">
-                                <option value="">ทั้งหมด</option>
-                                {% if role == 'administration' %}
-                                <option value="ส่งแล้ว">รอตรวจสอบ</option>
-                                <option value="รอตรวจประวัติการยื่นขอ">ส่งให้งานวิจัยแล้ว</option>
-                                <option value="ผลงานผ่าน">รอคำนวนค่าตอบแทน</option>
-                                <option value="แก้ไข">ส่งคืนแก้ไขแล้ว</option>
-                                <option value="รอการพิจารณา">รอการพิจารณา</option>
-                                <option value="อนุมัติ">อนุมัติ</option>
-                                <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
-                                <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
-                                <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+              var rows = document.querySelectorAll(".item-row");
 
-                                {% elif role == 'applicant' %}
-                                <option value="ส่งแล้ว">ส่งแล้ว</option>
-                                <option value="รอตรวจประวัติการยื่นขอ">กำลังตรวจสอบคำขอ</option>
-                                <option value="ผลงานผ่าน">ผ่าน (รอเจ้าหน้าที่งานบุคคลส่งพิจารณา)</option>
-                                <option value="แก้ไข">แก้ไข</option>
-                                <option value="รอการพิจารณา">รอการพิจารณา</option>
-                                <option value="อนุมัติ">อนุมัติ</option>
-                                <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
-                                <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
-                                <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+              rows.forEach((row) => {
+                var showRow = true;
 
-                                {% elif role == 'research' %}
-                                <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ</option>
-                                <option value="ผลงานผ่าน">ไม่เคยใช้</option>
-                                <option value="ผลงานซ้ำซ้อน">เคยใช้แล้ว</option>
-                                <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+                // 1. Fiscal Year Filter
+                if (fiscalFilter) {
+                  var rowFy = row.getAttribute("data-fy");
+                  if (rowFy.indexOf(fiscalFilter) === -1) {
+                    showRow = false;
+                  }
+                }
 
-                                {% else %}
-                                <option value="ส่งแล้ว">ส่งแล้ว</option>
-                                <option value="รอตรวจประวัติการยื่นขอ">รอตรวจประวัติการยื่นขอ</option>
-                                <option value="ผลงานผ่าน">ผลงานผ่าน</option>
-                                <option value="แก้ไข">แก้ไข</option>
-                                <option value="รอการพิจารณา">รอการพิจารณา</option>
-                                <option value="อนุมัติ">อนุมัติ</option>
-                                <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
-                                <option value="ผลงานซ้ำซ้อน">ผลงานซ้ำซ้อน</option>
-                                <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+                if (showRow && statusFilter) {
+                  var rowStatus = row.getAttribute("data-status");
+                  if (rowStatus !== statusFilter) showRow = false;
+                }
 
-                                {% endif %}
-                            </select>
-                        </div>
+                // 2. Type Filter (Check data-types)
+                if (showRow && typeFilter) {
+                  var rowTypes = row.getAttribute("data-types");
+                  if (!rowTypes || !rowTypes.includes(typeFilter)) {
+                    showRow = false;
+                  }
+                }
 
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ประเภทผลงาน</label>
-                            <select id="typeFilter" onchange="filterTable()"
-                                style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 160px; font-size: 0.9rem;">
-                                <option value="">ทั้งหมด</option>
-                                <option value="research">บทความงานวิจัย</option>
-                                <option value="textbook">ตำราหรือหนังสือ</option>
-                                <option value="creative">งานสร้างสรรค์</option>
-                                <option value="social">รับใช้ท้องถิ่นและสังคม</option>
-                                <option value="industry">เพื่ออุตสาหกรรม</option>
-                                <option value="teaching">การสอน</option>
-                                <option value="policy">นโยบายสาธารณะ</option>
-                                <option value="innovation">นวัตกรรม</option>
-                            </select>
-                        </div>
+                // 3. Search Text (Sender, Faculty ...)
+                if (showRow && searchInput) {
+                  var rowText = row.innerText.toLowerCase();
+                  if (rowText.indexOf(searchInput) === -1) {
+                    showRow = false;
+                  }
+                }
 
-                        <div class="filter-group">
-                            <label
-                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ปีงบประมาณ</label>
-                            <input type="text" id="fiscalFilter" onkeyup="filterTable()" placeholder="เช่น 2568"
-                                style="padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; width: 120px; font-size: 0.9rem;">
-                        </div>
+                if (showRow) {
+                  row.classList.remove("filtered-hidden");
+                } else {
+                  row.classList.add("filtered-hidden");
+                }
+              });
 
+              applyPagination();
+            }
 
-                    </div>
+            let currentSortOrder = "desc";
+            function sortTableByFiscal() {
+              const table = document.getElementById("requestsTable");
+              const tbody = table.querySelector("tbody");
+              const rows = Array.from(tbody.querySelectorAll(".item-row"));
 
-                    {# Removed Create Round Button #}
+              // Toggle sort order
+              currentSortOrder = currentSortOrder === "desc" ? "asc" : "desc";
 
-                    <table class="styled-table" id="requestsTable">
-                        <thead>
-                            <tr>
-                                {% if role != 'applicant' %}
-                                <th>คณะ/สาขา</th>
-                                {% endif %}
-                                {% if role != 'applicant' %}
-                                <th>ผู้ยื่นคำขอ</th>
-                                {% endif %}
-                                <th>ประเภทผลงาน</th>
-                                {% if role in ['applicant', 'administration'] %}
-                                <th>คะแนน</th>
-                                {% endif %}
-                                {% if role != 'research' %}
-                                <th>ค่าตอบแทน</th>
-                                {% endif %}
-                                <th onclick="sortTableByFiscal()" style="cursor: pointer;">ปีงบประมาณ <i
-                                        class="fas fa-sort"></i></th>
-                                <th>วันที่ยื่น</th>
-                                <th>สถานะ</th>
-                                <th style="text-align: center; width: 80px;">จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tableBody">
-                            {% for req in requests %}
-                            <tr class="item-row" data-fy="{{ req.fiscal_year }}" data-status="{{ req.status }}"
-                                data-types="{{ req.works | map(attribute='type') | join(',') }}">
-                                {% if role != 'applicant' %}
-                                <td>{{ req.applicant_info.faculty }} / {{ req.applicant_info.department }}</td>
-                                {% endif %}
-                                {% if role != 'applicant' %}
-                                <td>{{ req.applicant_name }}</td>
-                                {% endif %}
-                                <td>
-                                    <ul class="table-item-list">
-                                        {% for w in req.works %}
-                                        <li>{{ w.type | translate_work_type }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                </td>
-                                {% if role in ['applicant', 'administration'] %}
-                                <td>
-                                    {% if req.works %}
-                                    {% set scoreColor = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'inherit' %}
-                                    <ul class="table-item-list score-list" style="color: {{ scoreColor if scoreColor else 'inherit' }};">
-                                        {% for w in req.works %}
-                                        <li>{{
-                                            "%.3f"|format(w.score_calc|float if w.score_calc else 0) }}</li>
-                                        {% endfor %}
-                                    </ul>
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                                {% endif %}
-                                {% if role != 'research' %}
-                                <td>
-                                    {% if req.approved_amount %}
-                                    {% set amt = (req.approved_amount)|float %}
-                                    {% set color = 'var(--danger-color)' if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
-                                    <span style="color: {{ color if color else 'inherit' }}; font-weight: bold;">
-                                        {{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
-                                        ฿</span>
-                                    {% else %}
-                                    -
-                                    {% endif %}
-                                </td>
-                                {% endif %}
-                                <td>{{ req.fiscal_year }}</td>
-                                <td>{{ req.date }}</td>
-                                <td>
-                                    <span class="status-tag status-{{ req.status }}">
-                                        {{ req | rich_status_label(role) }}
-                                    </span>
-                                </td>
-                                <td style="text-align: center;">
-                                    <div style="display: flex; gap: 8px; justify-content: center; align-items: center;">
-                                        {% if req.status == 'แบบร่าง' %}
-                                        <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-view"
-                                            title="แก้ไข (ร่าง)">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
-                                        {% else %}
-                                        <a href="{{ url_for('requests.view_request', req_id=req.id) }}" class="btn-view"
-                                            title="ดูรายละเอียด">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                        {% endif %}
+              rows.sort((a, b) => {
+                const fyA = parseInt(a.getAttribute("data-fy")) || 0;
+                const fyB = parseInt(b.getAttribute("data-fy")) || 0;
 
-                                        {% if role == 'applicant' and req.status in ['ส่งแล้ว', 'แก้ไข',
-                                        'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
-                                        <form method="POST" action="{{ url_for('requests.view_request', req_id=req.id) }}"
-                                            style="display: inline; margin: 0;" onclick="event.stopPropagation();">
-                                            <input type="hidden" name="action" value="cancel">
-                                            <button type="submit" class="btn-view" title="ยกเลิกคำขอ"
-                                                style="color: #dc3545; border-color: #fecaca; background: #fff5f5;"
-                                                onclick="return confirm('ยืนยันการยกเลิกคำขอนี้? (คุณสามารถยกเลิกได้ก่อนคำขอจะถูกส่งเข้าชุดพิจารณา)')">
-                                                <i class="fas fa-trash-alt"></i>
-                                            </button>
-                                        </form>
-                                        {% endif %}
-                                    </div>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr id="noDataRow">
-                                <td colspan="{{ 7 if role == 'applicant' else (9 if role == 'administration' else 8) }}"
-                                    style="text-align: center; padding: 30px;">
-                                    <i class="fas fa-folder-open"
-                                        style="font-size: 2rem; color: #ddd; display: block; margin-bottom: 10px;"></i>
-                                    ไม่พบข้อมูลที่แสดงผลได้ในขณะนี้
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <div id="paginationControls">
-                            <!-- Buttons injected by JS -->
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <label style="font-size: 0.85rem; color: #64748b;">แสดงผล:</label>
-                            <select id="rowsPerPage" onchange="currentPage=1; applyPagination()"
-                                style="padding: 6px 12px; border: 1px solid #e2e8f0; border-radius: 6px; width: 130px; font-size: 0.9rem; background: white; cursor: pointer;">
-                                <option value="10">10 รายการ</option>
-                                <option value="20">20 รายการ</option>
-                                <option value="30">30 รายการ</option>
-                                <option value="40">40 รายการ</option>
-                                <option value="50">50 รายการ</option>
-                                <option value="1000">ทั้งหมด</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-                {% endif %}
+                if (currentSortOrder === "asc") return fyA - fyB;
+                else return fyB - fyA;
+              });
 
-                <script>
-                    function toggleUserGroup(groupClass) {
-                        const rows = document.querySelectorAll('.' + groupClass);
-                        const icon = document.getElementById('icon-' + groupClass);
-                        rows.forEach(row => {
-                            if (row.style.display === 'none') {
-                                row.style.display = '';
-                                if (icon) icon.style.transform = 'rotate(0deg)';
-                            } else {
-                                row.style.display = 'none';
-                                if (icon) icon.style.transform = 'rotate(-90deg)';
-                            }
-                        });
-                    }
+              // Append in new order
+              rows.forEach((row) => tbody.appendChild(row));
 
-                    function toggleAllGroups(show) {
-                        const allRows = document.querySelectorAll('tr[class^="group-"]');
-                        const allIcons = document.querySelectorAll('i[id^="icon-group-"]');
-                        allRows.forEach(row => {
-                            row.style.display = show ? '' : 'none';
-                        });
-                        allIcons.forEach(icon => {
-                            icon.style.transform = show ? 'rotate(0deg)' : 'rotate(-90deg)';
-                        });
-                    }
+              // Also reset pagination to page 1 just in case
+              currentPage = 1;
+              applyPagination();
+            }
 
-                    let currentPage = 1;
+            function applyPagination() {
+              // Ensure rowsPerPage element exists, if not default to 20 or remove reference
+              const rppEl = document.getElementById("rowsPerPage");
+              const rowsPerPage = rppEl ? parseInt(rppEl.value) : 1000;
 
-                    function filterTable() {
-                        var searchInput = document.getElementById("searchInput").value.toLowerCase();
-                        var statusFilter = document.getElementById("statusFilter").value;
-                        var typeFilter = document.getElementById("typeFilter").value;
-                        var fiscalFilter = document.getElementById("fiscalFilter").value;
+              const allRows = document.querySelectorAll(".item-row");
+              // Only consider rows that are NOT filtered hidden
+              const visibleRows = Array.from(allRows).filter(
+                (r) => !r.classList.contains("filtered-hidden"),
+              );
 
-                        var rows = document.querySelectorAll(".item-row");
+              const paginationControls =
+                document.getElementById("paginationControls");
 
-                        rows.forEach(row => {
-                            var showRow = true;
+              if (rowsPerPage >= 1000) {
+                visibleRows.forEach((r) => (r.style.display = ""));
+                if (paginationControls) paginationControls.innerHTML = "";
+                // Hide hidden rows
+                allRows.forEach((r) => {
+                  if (r.classList.contains("filtered-hidden"))
+                    r.style.display = "none";
+                });
+                return;
+              }
 
-                            // 1. Fiscal Year Filter
-                            if (fiscalFilter) {
-                                var rowFy = row.getAttribute('data-fy');
-                                if (rowFy.indexOf(fiscalFilter) === -1) {
-                                    showRow = false;
-                                }
-                            }
+              const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
+              if (currentPage > totalPages) currentPage = 1;
+              if (currentPage < 1) currentPage = 1;
 
-                            if (showRow && statusFilter) {
-                                var rowStatus = row.getAttribute('data-status');
-                                if (rowStatus !== statusFilter) showRow = false;
-                            }
+              const start = (currentPage - 1) * rowsPerPage;
+              const end = start + rowsPerPage;
 
-                            // 2. Type Filter (Check data-types)
-                            if (showRow && typeFilter) {
-                                var rowTypes = row.getAttribute('data-types');
-                                if (!rowTypes || !rowTypes.includes(typeFilter)) {
-                                    showRow = false;
-                                }
-                            }
+              // First hide all item rows
+              allRows.forEach((r) => (r.style.display = "none"));
 
-                            // 3. Search Text (Sender, Faculty ...)
-                            if (showRow && searchInput) {
-                                var rowText = row.innerText.toLowerCase();
-                                if (rowText.indexOf(searchInput) === -1) {
-                                    showRow = false;
-                                }
-                            }
+              // Show visible slice
+              visibleRows
+                .slice(start, end)
+                .forEach((r) => (r.style.display = ""));
 
-                            if (showRow) {
-                                row.classList.remove("filtered-hidden");
-                            } else {
-                                row.classList.add("filtered-hidden");
-                            }
-                        });
+              // Show "No Data" if 0 visible
+              const noDataRow = document.getElementById("noDataRow");
+              if (visibleRows.length === 0) {
+                if (noDataRow) noDataRow.style.display = "";
+              } else {
+                if (noDataRow) noDataRow.style.display = "none";
+              }
 
-                        applyPagination();
-                    }
+              // Update Controls
+              if (paginationControls) {
+                let controlsHtml = "";
+                if (totalPages > 1) {
+                  controlsHtml += `<button onclick="changePage(-1)" class="btn-view" ${currentPage === 1 ? "disabled" : ""}><i class="fas fa-chevron-left"></i> ก่อนหน้า</button> `;
+                  controlsHtml += ` <span style="margin: 0 10px; font-weight:bold; color:#475569;">หน้า ${currentPage} / ${totalPages}</span> `;
+                  controlsHtml += `<button onclick="changePage(1)" class="btn-view" ${currentPage === totalPages ? "disabled" : ""} >ถัดไป <i class="fas fa-chevron-right"></i></button>`;
+                }
+                paginationControls.innerHTML = controlsHtml;
+              }
+            }
 
-                    let currentSortOrder = 'desc';
-                    function sortTableByFiscal() {
-                        const table = document.getElementById("requestsTable");
-                        const tbody = table.querySelector("tbody");
-                        const rows = Array.from(tbody.querySelectorAll(".item-row"));
+            function changePage(delta) {
+              currentPage += delta;
+              applyPagination();
+            }
 
-                        // Toggle sort order
-                        currentSortOrder = (currentSortOrder === 'desc') ? 'asc' : 'desc';
-
-                        rows.sort((a, b) => {
-                            const fyA = parseInt(a.getAttribute("data-fy")) || 0;
-                            const fyB = parseInt(b.getAttribute("data-fy")) || 0;
-
-                            if (currentSortOrder === 'asc') return fyA - fyB;
-                            else return fyB - fyA;
-                        });
-
-                        // Append in new order
-                        rows.forEach(row => tbody.appendChild(row));
-
-                        // Also reset pagination to page 1 just in case
-                        currentPage = 1;
-                        applyPagination();
-                    }
-
-                    function applyPagination() {
-                        // Ensure rowsPerPage element exists, if not default to 20 or remove reference
-                        const rppEl = document.getElementById("rowsPerPage");
-                        const rowsPerPage = rppEl ? parseInt(rppEl.value) : 1000;
-
-                        const allRows = document.querySelectorAll(".item-row");
-                        // Only consider rows that are NOT filtered hidden
-                        const visibleRows = Array.from(allRows).filter(r => !r.classList.contains("filtered-hidden"));
-
-                        const paginationControls = document.getElementById("paginationControls");
-
-                        if (rowsPerPage >= 1000) {
-                            visibleRows.forEach(r => r.style.display = "");
-                            if (paginationControls) paginationControls.innerHTML = "";
-                            // Hide hidden rows
-                            allRows.forEach(r => {
-                                if (r.classList.contains("filtered-hidden")) r.style.display = "none";
-                            });
-                            return;
-                        }
-
-                        const totalPages = Math.ceil(visibleRows.length / rowsPerPage);
-                        if (currentPage > totalPages) currentPage = 1;
-                        if (currentPage < 1) currentPage = 1;
-
-                        const start = (currentPage - 1) * rowsPerPage;
-                        const end = start + rowsPerPage;
-
-                        // First hide all item rows
-                        allRows.forEach(r => r.style.display = "none");
-
-                        // Show visible slice
-                        visibleRows.slice(start, end).forEach(r => r.style.display = "");
-
-                        // Show "No Data" if 0 visible
-                        const noDataRow = document.getElementById("noDataRow");
-                        if (visibleRows.length === 0) {
-                            if (noDataRow) noDataRow.style.display = "";
-                        } else {
-                            if (noDataRow) noDataRow.style.display = "none";
-                        }
-
-                        // Update Controls
-                        if (paginationControls) {
-                            let controlsHtml = "";
-                            if (totalPages > 1) {
-                                controlsHtml += `<button onclick="changePage(-1)" class="btn-view" ${currentPage === 1 ? 'disabled' : ''}><i class="fas fa-chevron-left"></i> ก่อนหน้า</button> `;
-                                controlsHtml += ` <span style="margin: 0 10px; font-weight:bold; color:#475569;">หน้า ${currentPage} / ${totalPages}</span> `;
-                                controlsHtml += `<button onclick="changePage(1)" class="btn-view" ${currentPage === totalPages ? 'disabled' : ''} >ถัดไป <i class="fas fa-chevron-right"></i></button>`;
-                            }
-                            paginationControls.innerHTML = controlsHtml;
-                        }
-                    }
-
-                    function changePage(delta) {
-                        currentPage += delta;
-                        applyPagination();
-                    }
-
-                    // Init
-                    window.onload = function () {
-                        // Trigger sort initial
-                        sortTableByFiscal();
-                        applyBatchPagination();
-                    };
-
-                </script>
-                <style>
-                    .filtered-hidden {
-                        display: none !important;
-                    }
-                </style>
-
-
-            </section>
-        </main>
+            // Init
+            window.onload = function () {
+              // Trigger sort initial
+              sortTableByFiscal();
+              // applyBatchPagination(); (Removed undefined call)
+            };
+          </script>
+          <style>
+            .filtered-hidden {
+              display: none !important;
+            }
+          </style>
+        </section>
+      </main>
     </div>
     <script src="{{ url_for('static', filename='notifications.js') }}"></script>
-</body>
-
+  </body>
 </html>

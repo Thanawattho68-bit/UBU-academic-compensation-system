@@ -2,8 +2,8 @@
 routes/api.py
 จัดการ API routes และการให้บริการไฟล์ที่อัปโหลด
 ผู้รับผิดชอบ:
-  - นายศุภวัฒน์ ไกรศา (ตรวจสอบความซ้ำซ้อน)
-  - นายธนวรรธ ทองตื้อ (เพิ่ม/ลบประเภทผลงาน, อัปโหลดไฟล์)
+  - นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบความซ้ำซ้อน)
+  - นายธนวรรธ ทองตื้อ 68114540258 (เพิ่ม/ลบประเภทผลงาน, อัปโหลดไฟล์)
 """
 
 import os
@@ -16,7 +16,7 @@ from utils import load_data, save_data, parse_thai_date
 api_bp = Blueprint('api', __name__)
 
 
-@api_bp.route('/api/check_work_duplicate', methods=['POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบความซ้ำซ้อน)
+@api_bp.route('/api/check_work_duplicate', methods=['POST']) # ผู้รับผิดชอบ: นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบความซ้ำซ้อน)
 def api_check_work_duplicate():
     if 'username' not in session:
         return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
@@ -92,7 +92,7 @@ def api_check_work_duplicate():
     })
 
 
-@api_bp.route('/api/add_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (เพิ่มประเภทผลงาน)
+@api_bp.route('/api/add_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (เพิ่มประเภทผลงาน)
 def api_add_work_type():
     if 'username' not in session:
         return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
@@ -114,7 +114,7 @@ def api_add_work_type():
     return jsonify({"success": True, "type": {"id": new_id, "label": label, "is_custom": True}})
 
 
-@api_bp.route('/api/delete_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (ลบประเภทผลงาน)
+@api_bp.route('/api/delete_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (ลบประเภทผลงาน)
 def api_delete_work_type():
     if 'username' not in session:
         return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
@@ -135,7 +135,7 @@ def api_delete_work_type():
     return jsonify({"success": True})
 
 
-@api_bp.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นาย ธนวรรธ ทองตื้อ (อัปโหลดไฟล์)
+@api_bp.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (อัปโหลดไฟล์)
 def uploaded_file(req_id, work_id, filename):
     if 'username' not in session:
         return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401

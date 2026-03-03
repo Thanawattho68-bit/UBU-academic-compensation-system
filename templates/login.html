@@ -18,7 +18,7 @@
   <div class="login-wrapper">
     <div class="login-card">
       <div class="login-header">
-        <img id="logo" src="static/image/Ubon_Ratchathani_Univ_Emblem.png" alt="รูปม.อุบล">
+        <img id="logo" src="{{ url_for('static', filename='image/Ubon_Ratchathani_Univ_Emblem.png') }}" alt="รูปม.อุบล">
         <h1>ระบบค่าตอบแทนผู้มีตำแหน่งทางวิชาการ</h1>
         <p>สำหรับพนักงานมหาวิทยาลัยที่มีตำแหน่งทางวิชาการ</p>
       </div>
@@ -52,6 +52,20 @@
       </div>
       {% endif %}
       {% endwith %}
+    </div>
+    
+    <div class="dev-credits-login" style="margin-top: 20px; text-align: center; font-size: 0.75rem; color: #64748b; background: rgba(255, 255, 255, 0.8); padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); width: 100%; max-width: 420px; transition: transform 0.3s ease;">
+      <p style="font-weight: bold; margin-bottom: 8px; color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px;">ทีมผู้พัฒนาระบบ (Student Developers)</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px 15px; text-align: left;">
+        <span style="font-size: 0.7rem;">• ธนวรรธ ทองตื้อ 68114540258</span>
+        <span style="font-size: 0.7rem;">• ศุกลวัฒณ์ ไกรษี 68114540629</span>
+        <span style="font-size: 0.7rem;">• ฤทธิชัย โลมะกาล 68114540533</span>
+        <span style="font-size: 0.7rem;">• ภัทรพงษ์ จรรยากรณ์ 68114540434</span>
+        <span style="font-size: 0.7rem;">• ฐิติวัฒน์ ลุณบุตร 68114540814</span>
+        <span style="font-size: 0.7rem;">• ฐิติรัตน์ แสงห้าว 68114540166</span>
+        <span style="font-size: 0.7rem;">• เบญจมาศ จ่านันท์ 68114540344</span>
+        <span style="font-size: 0.7rem;">• กฤษดา ตะเคียนเกลี้ยง 68114540065</span>
+      </div>
     </div>
   </div>
 </body>
