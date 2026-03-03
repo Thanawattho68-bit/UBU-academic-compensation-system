@@ -2,9 +2,9 @@
 routes/requests.py
 จัดการ route เกี่ยวกับการยื่นคำขอ ดูคำขอ และอุทธรณ์
 ผู้รับผิดชอบ:
-  - นายธนวรรธ ทองตื้อ (ผู้ยื่น/แบบฟอร์ม)
-  - นายศุภวัฒน์ ไกรศา (ตรวจสอบคำขอ)
-  - นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
+  - นายธนวรรธ ทองตื้อ 68114540258 (ผู้ยื่น/แบบฟอร์ม)
+  - นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบคำขอ)
+  - นางสาวเบญจมาศ จ่านันท์ 68114540344 (ยื่นอุทธรณ์)
 """
 
 import json
@@ -41,7 +41,7 @@ def log_history(req_id, action, comment=""):
                (json.dumps(history, ensure_ascii=False), req_id))
 
 
-@requests_bp.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
+@requests_bp.route('/view_work/<req_id>/<int:work_index>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบคำขอ)
 def view_work(req_id, work_index):
     if 'username' not in session:
         return redirect(url_for('auth.login'))
@@ -101,7 +101,7 @@ def view_work(req_id, work_index):
                           work_index=work_index)
 
 
-@requests_bp.route('/new_request', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ (ผู้ยื่น/แบบฟอร์ม)
+@requests_bp.route('/new_request', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (ผู้ยื่น/แบบฟอร์ม)
 def new_request():
     if 'username' not in session or session['role'] != 'applicant': return redirect(url_for('auth.login'))
 
@@ -213,7 +213,7 @@ def new_request():
     return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria_list, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year, can_submit=can_submit, work_types=work_types)
 
 
-@requests_bp.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุภวัฒน์ โกรธา (ตรวจสอบคำขอ)
+@requests_bp.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบคำขอ)
 def view_request(req_id):
     if 'username' not in session: return redirect(url_for('auth.login'))
     row = query_db('SELECT * FROM RequestRecord WHERE id = ?', (req_id,), one=True)
@@ -423,7 +423,7 @@ def view_request(req_id):
     return render_template('view_request.html', name=session['name'], role=session['role'], position=session.get('position',''), req=req_data, history=applicant_history, edit_remaining=edit_remaining, appeal_remaining=appeal_remaining, criteria=criteria)
 
 
-@requests_bp.route('/appeal/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
+@requests_bp.route('/appeal/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ 68114540344 (ยื่นอุทธรณ์)
 def appeal_request(req_id):
     if 'username' not in session or session['role'] != 'applicant': return redirect(url_for('auth.login'))
     row = query_db('SELECT * FROM RequestRecord WHERE id = ?', (req_id,), one=True)

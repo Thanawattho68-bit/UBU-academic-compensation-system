@@ -1,7 +1,7 @@
 """
 routes/auth.py
 จัดการ route เข้าสู่ระบบและออกจากระบบ
-ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (เข้าสู่ระบบ / ออกจากระบบ)
+ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว 68114540166 (เข้าสู่ระบบ / ออกจากระบบ)
 """
 
 import json
@@ -11,7 +11,7 @@ from database import query_db
 auth_bp = Blueprint('auth', __name__)
 
 
-@auth_bp.route('/login', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (เข้าสู่ระบบ)
+@auth_bp.route('/login', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว 68114540166 (เข้าสู่ระบบ)
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
@@ -51,7 +51,7 @@ def login():
     return render_template('login.html')
 
 
-@auth_bp.route('/logout') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (ออกจากระบบ)
+@auth_bp.route('/logout') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว 68114540166 (ออกจากระบบ)
 def logout():
     session.clear()
     return redirect(url_for('auth.login'))

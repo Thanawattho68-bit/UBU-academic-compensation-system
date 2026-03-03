@@ -2,10 +2,10 @@
 routes/main.py
 Route หน้าหลัก: index, dashboard, notifications, appeals
 ผู้รับผิดชอบ:
-  - นางสาวฐิติรัตน์ แสงห้าว (หน้าแรก / ค้นหาคำขอ)
-  - นายฤทธิชัย โสนะกาล (แจ้งเตือน)
-  - นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
-  - นายกฤษดา ตะเคียนเกลี้ยง (สรุปยอดรวมของระบบ / ผู้ตรวจสอบ)
+  - นางสาวฐิติรัตน์ แสงห้าว 68114540166 (หน้าแรก / ค้นหาคำขอ)
+  - นายฤทธิชัย โลมะกาล 68114540533 (แจ้งเตือน)
+  - นางสาวเบญจมาศ จ่านันท์ 68114540344 (ยื่นอุทธรณ์)
+  - นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สรุปยอดรวมของระบบ / ผู้ตรวจสอบ)
 """
 
 import json
@@ -16,13 +16,13 @@ from utils import load_data, format_thai_date, get_current_fiscal_year
 main_bp = Blueprint('main', __name__)
 
 
-@main_bp.route('/') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (หน้าแรก)
+@main_bp.route('/') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว 68114540166 (หน้าแรก)
 def index():
     if 'username' in session: return redirect(url_for('main.dashboard'))
     return redirect(url_for('auth.login'))
 
 
-@main_bp.route('/dashboard') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว (ค้นหาคำขอ)
+@main_bp.route('/dashboard') # ผู้รับผิดชอบ: นางสาวฐิติรัตน์ แสงห้าว 68114540166 (ค้นหาคำขอ)
 def dashboard():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
@@ -72,7 +72,7 @@ def dashboard():
                            users=all_users)
 
 
-@main_bp.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
+@main_bp.route('/api/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โลมะกาล 68114540533 (แจ้งเตือน)
 def get_notifications():
     if 'username' not in session: return jsonify([])
     
@@ -95,14 +95,14 @@ def get_notifications():
     return jsonify(result)
 
 
-@main_bp.route('/api/notifications/read/<notif_id>', methods=['POST']) # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
+@main_bp.route('/api/notifications/read/<notif_id>', methods=['POST']) # ผู้รับผิดชอบ: นายฤทธิชัย โลมะกาล 68114540533 (แจ้งเตือน)
 def read_notification(notif_id):
     if 'username' not in session: return jsonify({"success": False})
     execute_db('UPDATE Notification SET is_read = 1 WHERE id = ?', (notif_id,))
     return jsonify({"success": True})
 
 
-@main_bp.route('/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โสนะกาล (แจ้งเตือน)
+@main_bp.route('/notifications') # ผู้รับผิดชอบ: นายฤทธิชัย โลมะกาล 68114540533 (แจ้งเตือน)
 def notifications_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
@@ -118,7 +118,7 @@ def notifications_page():
     return render_template('notifications.html', name=session['name'], role=session['role'], position=session.get('position',''), notifications=user_notifs)
 
 
-@main_bp.route('/appeals') # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ (ยื่นอุทธรณ์)
+@main_bp.route('/appeals') # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ 68114540344 (ยื่นอุทธรณ์)
 def appeals_page():
     if 'username' not in session or session['role'] not in ['committee', 'applicant']:
         return redirect(url_for('auth.login'))
@@ -139,7 +139,7 @@ def appeals_page():
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
 
 
-@main_bp.route('/summary') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (สรุปยอดรวมของระบบ)
+@main_bp.route('/summary') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สรุปยอดรวมของระบบ)
 def summary_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
@@ -203,7 +203,7 @@ def summary_page():
                            selected_year=selected_year)
 
 
-@main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (ผู้ตรวจสอบ)
+@main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ผู้ตรวจสอบ)
 def reviewers_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
     

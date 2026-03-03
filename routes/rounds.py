@@ -1,7 +1,7 @@
 """
 routes/rounds.py
 จัดการ route เกี่ยวกับรอบการพิจารณา
-ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
+ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สร้างรอบพิจารณา)
 """
 
 from datetime import datetime
@@ -11,7 +11,7 @@ from utils import load_data, save_data, format_thai_date, calculate_compensation
 rounds_bp = Blueprint('rounds', __name__)
 
 
-@rounds_bp.route('/manage/rounds', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
+@rounds_bp.route('/manage/rounds', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สร้างรอบพิจารณา)
 def manage_rounds():
     if 'username' not in session or session['role'] not in ['administration', 'committee', 'admin']: # Committee might want to see history
          return redirect(url_for('auth.login'))
@@ -61,7 +61,7 @@ def manage_rounds():
     return render_template('create_round.html', name=session['name'], role=session['role'], position=session.get('position',''), pending_reqs=pending_reqs)
 
 
-@rounds_bp.route('/round_history') # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
+@rounds_bp.route('/round_history') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สร้างรอบพิจารณา)
 def round_history():
     if 'username' not in session or session['role'] not in ['administration', 'committee', 'admin']: 
          return redirect(url_for('auth.login'))
@@ -70,7 +70,7 @@ def round_history():
     return render_template('round_history.html', name=session['name'], role=session['role'], position=session.get('position',''), batches=batches)
 
 
-@rounds_bp.route('/view_round/<round_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษฎา ตะเคียนเกลี้ยง (สร้างรอบพิจารณา)
+@rounds_bp.route('/view_round/<round_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (สร้างรอบพิจารณา)
 def view_round(round_id):
     if 'username' not in session: return redirect(url_for('auth.login'))
     

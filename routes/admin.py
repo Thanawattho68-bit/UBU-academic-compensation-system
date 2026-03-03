@@ -2,8 +2,8 @@
 routes/admin.py
 จัดการ route สำหรับผู้ดูแลระบบ: เกณฑ์คะแนน, กำหนดการ
 ผู้รับผิดชอบ:
-  - นายภัทรพงษ์ จรรยากรณ์ (Admin/เกณฑ์)
-  - นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+  - นายภัทรพงษ์ จรรยากรณ์ 68114540434 (Admin/เกณฑ์)
+  - นายฐิติวัฒน์ ลุณบุตร 68114540814 (กำหนดการ)
 """
 
 import json
@@ -14,7 +14,7 @@ from utils import load_config, save_data
 admin_bp = Blueprint('admin', __name__)
 
 
-@admin_bp.route('/manage_criteria') # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ (Admin/เกณฑ์)
+@admin_bp.route('/manage_criteria') # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ 68114540434 (Admin/เกณฑ์)
 def manage_criteria():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('auth.login'))
@@ -32,7 +32,7 @@ def manage_criteria():
     return render_template('manage_criteria.html', criteria=criteria, name=session['name'], role=session['role'])
 
 
-@admin_bp.route('/edit_criteria', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ (เกณฑ์คะแนน)
+@admin_bp.route('/edit_criteria', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ 68114540434 (เกณฑ์คะแนน)
 def edit_criteria():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('auth.login'))
@@ -129,7 +129,7 @@ def edit_criteria():
     return render_template('edit_criteria.html', data=criteria_data, name=session['name'], role=session['role'])
 
 
-@admin_bp.route('/manage_timeline') # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+@admin_bp.route('/manage_timeline') # ผู้รับผิดชอบ: นายฐิติวัฒน์ ลุณบุตร 68114540814 (กำหนดการ)
 def manage_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('auth.login'))
@@ -145,7 +145,7 @@ def manage_timeline():
     return render_template('manage_timeline.html', timelines=timelines, name=session['name'], role=session['role'])
 
 
-@admin_bp.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ กุลบุตร (กำหนดการ)
+@admin_bp.route('/edit_timeline', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายฐิติวัฒน์ ลุณบุตร 68114540814 (กำหนดการ)
 def edit_timeline():
     if 'username' not in session or session['role'] != 'admin':
         return redirect(url_for('auth.login'))

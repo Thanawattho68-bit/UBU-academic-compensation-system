@@ -6,8 +6,6 @@
 
 - **Language:** Python 3.x
 - **Framework:** Flask (Web Framework) - ใช้ระบบ Blueprints ในการจัดการ Module
-- **Language:** Python 3.x
-- **Framework:** Flask (Web Framework) - ใช้ระบบ Blueprints ในการจัดการ Module
 - **Database:** SQLite (sqlite3) - จัดเก็บข้อมูลถาวร (รวมถึง JSON เดิมที่ย้ายเข้า DB ทั้งหมดแล้ว)
 - **Frontend:** HTML5, Vanilla CSS (Modern Design), JavaScript
 - **Templates:** Jinja2
@@ -81,47 +79,47 @@ python app.py
 
 ## รายละเอียดผู้รับผิดชอบและระบบงาน (Update 2026)
 
-### 1. นางสาวฐิติรัตน์ แสงห้าว (Blueprint: `main`, `auth`)
+### 1. นางสาวฐิติรัตน์ แสงห้าว 68114540166 (Blueprint: `main`, `auth`)
 
 - `@main_bp.route('/')` - หน้าแรก (Gateway เช็คสิทธิ์การเข้าใช้งาน)
 - `@main_bp.route('/dashboard')` - หน้าหลักผู้ใช้งานและระบบค้นหาข้อมูลคำขอ
 - `@auth_bp.route('/login')` - ระบบเข้าสู่ระบบ
 - `@auth_bp.route('/logout')` - ระบบออกจากระบบ
 
-### 2. นาย ธนวรรธ ทองตื้อ (Blueprint: `requests`, `api`)
+### 2. นายธนวรรธ ทองตื้อ 68114540258 (Blueprint: `requests`, `api`)
 
 - `@requests_bp.route('/new_request')` - แบบฟอร์มยื่นคำขอใหม่ (Form Logic)
 - `@api_bp.route('/api/add_work_type')` - ระบบเพิ่มประเภทผลงานทางวิชาการ
 - `@api_bp.route('/uploads/...')` - ระบบจัดการไฟล์หลักฐานที่อัปโหลด
 
-### 3. นายศุภวัฒน์ ไกรศา (Blueprint: `requests`, `api`)
+### 3. นายศุกลวัฒณ์ ไกรษี 68114540629 (Blueprint: `requests`, `api`)
 
 - `@requests_bp.route('/view_request/<id>')` - หน้าดูรายละเอียดคำขอรวม
 - `@requests_bp.route('/view_work/<id>/<idx>')` - หน้าตรวจสอบรายละเอียดผลงานรายชิ้น
 - `@api_bp.route('/api/check_work_duplicate')` - ระบบตรวจสอบความซ้ำซ้อนของผลงาน
 
-### 4. นายฤทธิชัย โสนะกาล (Blueprint: `main`)
+### 4. นายฤทธิชัย โลมะกาล 68114540533 (Blueprint: `main`)
 
 - `@main_bp.route('/api/notifications')` - API ดึงข้อมูลแจ้งเตือน
 - `@main_bp.route('/notifications')` - หน้าศูนย์รวมการแจ้งเตือนทั้งหมด
 
-### 5. นางสาวเบญจมาศ จ่านันท์ (Blueprint: `main`, `requests`)
+### 5. นางสาวเบญจมาศ จ่านันท์ 68114540344 (Blueprint: `main`, `requests`)
 
 - `@main_bp.route('/appeals')` - รายการอุทธรณ์ผลการพิจารณา
 - `@requests_bp.route('/appeal/<id>')` - หน้าการยื่นอุทธรณ์สำหรับผู้ใช้งาน
 
-### 6. นายภัทรพงษ์ จรรยากรณ์ (Blueprint: `admin`)
+### 6. นายภัทรพงษ์ จรรยากรณ์ 68114540434 (Blueprint: `admin`)
 
 - `@admin_bp.route('/manage_criteria')` - หน้าจัดการเกณฑ์คะแนน (Admin)
 - `@admin_bp.route('/edit_criteria')` - ระบบแก้ไขเกณฑ์คะแนนและอัตราการจ่ายเงิน
 
-### 7. นายกฤษฎา ตะเคียนเกลี้ยง (Blueprint: `rounds`)
+### 7. นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (Blueprint: `rounds`)
 
 - _@หมายเหตุ: ปัจจุบันระบบจัดชุด (Batching) ถูกระงับการใช้งานผ่าน app.py ชั่วคราว_
 - `@rounds_bp.route('/manage/rounds')` - ระบบจัดการรอบการพิจารณา
 - `@rounds_bp.route('/round_history')` - ประวัติรอบการพิจารณา
 
-### 8. นายฐิติวัฒน์ ลุณบุตร (Blueprint: `admin`)
+### 8. นายฐิติวัฒน์ ลุณบุตร 68114540814 (Blueprint: `admin`)
 
 - _ผู้รับผิดชอบระบบจัดการ Timeline (กำหนดการเปิด-ปิดระบบ)_
 - (อยู่ระหว่างการปรับปรุงระบบเข้าสู่ระบบฐานข้อมูลใหม่)
