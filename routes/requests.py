@@ -224,6 +224,7 @@ def view_request(req_id):
     req_data = dict(row)
     req_data['works'] = json.loads(req_data['works_json']) if req_data.get('works_json') else []
     req_data['applicant_info'] = json.loads(req_data['applicant_info_json']) if req_data.get('applicant_info_json') else {}
+    req_data['audit_trail'] = json.loads(req_data['history_json']) if req_data.get('history_json') else []
     req_data['applicant'] = req_data['applicant_username'] # Compatibility
     req_data['date'] = req_data['date_submitted']
     req_data['score'] = req_data['total_score']

@@ -172,10 +172,101 @@
                     </div>
                 </div>
 
+                <!-- Section 2: Academic Statistics & Chart -->
+                <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <div class="academic-report-row"
+                    style="display: flex; flex-wrap: wrap; gap: 25px; margin-bottom: 30px; margin-top: 10px;">
+                    <div class="table-container" style="flex: 1; min-width: 350px; margin: 0;">
+                        <h3 style="margin-bottom: 20px;"><i class="fas fa-id-badge"></i> สรุปตามตำแหน่งวิชาการ</h3>
+                        <div class="table-responsive-wrapper">
+                            <table class="styled-table no-margin">
+                                <thead>
+                                    <tr>
+                                        <th>ตำแหน่ง</th>
+                                        <th style="text-align: center;">ยื่น (รวม)</th>
+                                        <th style="text-align: center; color: var(--success-color);">อนุมัติ</th>
+                                        <th style="text-align: center; color: var(--danger-color);">ไม่อนุมัติ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for pos, data in academic_stats.items() %}
+                                    <tr>
+                                        <td><strong>{{ pos }}</strong></td>
+                                        <td style="text-align: center;">{{ data.total }}</td>
+                                        <td style="text-align: center; color: var(--success-color); font-weight: bold;">
+                                            {{ data.approved }}</td>
+                                        <td style="text-align: center; color: var(--danger-color); font-weight: bold;">
+                                            {{ data.rejected }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="table-container" style="flex: 1.5; min-width: 450px; margin: 0;">
+                        <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-bar"></i> กราฟสรุปผลตามตำแหน่ง (%)</h3>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="academicChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <script>
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const ctx = document.getElementById('academicChart').getContext('2d');
+                        const stats = {{ academic_stats | tojson | safe
+                    }};
+                    const labels = Object.keys(stats);
+
+                    const approvedPercent = labels.map(l => {
+                        if (stats[l].total === 0) return 0;
+                        return ((stats[l].approved / stats[l].total) * 100).toFixed(1);
+                    });
+
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'ร้อยละการอนุมัติ (%)',
+                                data: approvedPercent,
+                                backgroundColor: 'rgba(46, 204, 113, 0.7)',
+                                borderColor: '#2ecc71',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    max: 100,
+                                    title: { display: true, text: 'Percentage (%)' }
+                                }
+                            },
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                tooltip: {
+                                    callbacks: {
+                                        footer: (items) => {
+                                            const label = items[0].label;
+                                            const d = stats[label];
+                                            return `จำนวนที่ยื่น: ${d.total}\nอนุมัติ: ${d.approved}\nไม่อนุมัติ: ${d.rejected}`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+                    });
+                </script>
+
                 <div class="table-container">
                     <h3 style="margin-bottom: 20px;">
                         <i class="fas fa-list-ul"></i>
-                        รายการคำขอ{% if current_filter == 'approved' %}ที่อนุมัติแล้ว{% elif current_filter == 'pending'
+                        รายการคำขอ{% if current_filter == 'approved' %}ที่อนุมัติแล้ว{% elif current_filter ==
+                        'pending'
                         %}ที่รอการพิจารณา{% else %}ทั้งหมด{% endif %}
                     </h3>
                     <div class="table-responsive-wrapper">
@@ -186,7 +277,7 @@
                                     <th>ผู้ยื่นคำขอ</th>
                                     <th>วันที่ยื่น</th>
                                     <th>สถานะ</th>
-                                    <th>คะแนน</th>
+                                    <th style="text-align: center; width: 60px;">ดู</th>
                                     <th style="text-align: right;">จำนวนเงิน</th>
                                 </tr>
                             </thead>
@@ -201,7 +292,12 @@
                                             {{ req.status }}
                                         </span>
                                     </td>
-                                    <td>{{ "%.3f"|format(req.total_score|float if req.total_score else 0) }}</td>
+                                    <td style="text-align: center;">
+                                        <a href="{{ url_for('requests.view_request', req_id=req.id) }}#history"
+                                            title="ดูรายละเอียดและประวัติ">
+                                            <i class="fas fa-eye" style="color: #3498db; font-size: 1.2rem;"></i>
+                                        </a>
+                                    </td>
                                     <td style="text-align: right; font-weight: bold; color: var(--success-color);">
                                         {{ "{:,.2f}".format(req.approved_amount|float) if req.approved_amount else
                                         "0.00" }} ฿

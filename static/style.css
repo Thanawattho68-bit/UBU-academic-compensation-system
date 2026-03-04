@@ -226,13 +226,16 @@ input[type="number"] {
   border-top-left-radius: 8px;
   border-left: 1px solid #eee;
 }
+
 .styled-table th:last-child {
   border-top-right-radius: 8px;
   border-right: 1px solid #eee;
 }
+
 .styled-table td:first-child {
   border-left: 1px solid #eee;
 }
+
 .styled-table td:last-child {
   border-right: 1px solid #eee;
 }
@@ -240,9 +243,11 @@ input[type="number"] {
 .styled-table tbody tr {
   transition: background-color 0.2s;
 }
+
 .styled-table tbody tr:hover {
   background-color: #f1f8ff;
 }
+
 .styled-table tbody tr:nth-of-type(even) {
   background-color: #fafbfd;
 }
@@ -290,6 +295,7 @@ input[type="number"] {
   background: var(--accent-color);
   color: white;
 }
+
 .btn-primary:hover {
   background: var(--accent-hover);
   transform: translateY(-1px);
@@ -300,6 +306,7 @@ input[type="number"] {
   background: #95a5a6;
   color: white;
 }
+
 .btn-secondary:hover {
   background: #7f8c8d;
   transform: translateY(-1px);
@@ -309,6 +316,7 @@ input[type="number"] {
   background: var(--success-color);
   color: white;
 }
+
 .btn-success:hover {
   background: #27ae60;
   transform: translateY(-1px);
@@ -318,6 +326,7 @@ input[type="number"] {
   background: var(--danger-color);
   color: white;
 }
+
 .btn-danger:hover {
   background: #c0392b;
   transform: translateY(-1px);
@@ -327,6 +336,7 @@ input[type="number"] {
   background: var(--warning-color);
   color: #34495e;
 }
+
 .btn-warning:hover {
   background: #f39c12;
   transform: translateY(-1px);
@@ -340,6 +350,7 @@ input[type="number"] {
   min-width: 36px;
   height: 34px;
 }
+
 .btn-view:hover {
   background-color: var(--accent-color);
   color: white;
@@ -371,6 +382,7 @@ input[type="number"] {
   color: #ffffff;
   border: 1px solid var(--success-color);
 }
+
 /* Success banners now handled by grouped rule above */
 .status-tag.status-อนุมัติ::before {
   content: "\f00c";
@@ -390,6 +402,7 @@ input[type="number"] {
   color: #ffffff;
   border: 1px solid var(--danger-color);
 }
+
 /* Danger banners now handled by grouped rule above */
 .status-tag.status-ไม่อนุมัติ::before,
 .status-tag.status-ผลงานซ้ำซ้อน::before,
@@ -421,6 +434,7 @@ input[type="number"] {
   color: #ffffff;
   border: 1px solid var(--accent-color);
 }
+
 /* Info banners now handled by grouped rule above */
 
 /* Draft & Grey Group */
@@ -432,16 +446,20 @@ input[type="number"] {
   color: #6c757d;
   border: 1px solid #dee2e6;
 }
+
 .status-tag.status-แบบร่าง {
   font-style: italic;
 }
+
 .status-tag.status-ยกเลิก {
   text-decoration: line-through;
 }
+
 .status-banner.status-แบบร่าง {
   background-color: #95a5a6;
   color: white;
 }
+
 .status-banner.status-ยกเลิก {
   background-color: #7f8c8d;
   color: white;
@@ -451,12 +469,14 @@ input[type="number"] {
 .form-group {
   margin-bottom: 20px;
 }
+
 .form-group label {
   display: block;
   margin-bottom: 8px;
   font-weight: 600;
   color: #2c3e50;
 }
+
 .form-group input:not([type="checkbox"]):not([type="radio"]),
 .form-group select,
 .form-group textarea {
@@ -467,6 +487,7 @@ input[type="number"] {
   font-size: 1rem;
   transition: border 0.2s;
 }
+
 .form-group input:focus,
 .form-group select:focus {
   border-color: var(--accent-color);
@@ -481,6 +502,7 @@ input[type="number"] {
   gap: 10px;
   margin-bottom: 8px;
 }
+
 .checkbox-group input[type="checkbox"],
 .checkbox-group input[type="radio"],
 .checkbox-item input[type="checkbox"],
@@ -489,6 +511,7 @@ input[type="number"] {
   margin-top: 5px;
   flex-shrink: 0;
 }
+
 .checkbox-group label,
 .checkbox-item label {
   display: inline;
@@ -497,47 +520,92 @@ input[type="number"] {
 
 /* Login Page Styling */
 .login-page {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    min-height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 20px;
+  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
 }
+
 .login-wrapper {
-    width: 100%;
-    display: flex;
-    justify-content: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
 }
+
 .login-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border-radius: 20px;
-    padding: 40px;
-    width: 100%;
-    max-width: 550px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 550px;
 }
-.logo-circle, #logo {
-    width: 100px;
-    height: auto;
-    margin: 0 auto 20px;
-    display: block;
+
+.logo-circle,
+#logo {
+  width: 100px;
+  height: auto;
+  margin: 0 auto 20px;
+  display: block;
 }
+
 .logo-circle i {
   font-size: 2.5rem;
   color: white;
 }
-.login-header { text-align: center; margin-bottom: 30px; }
-.login-header h1 { font-size: 1.5rem; color: var(--primary-color); margin-bottom: 10px; }
-.login-header p { font-size: 0.9rem; color: #7f8c8d; }
 
-.form-control { margin-bottom: 20px; }
-.form-control label { display: block; margin-bottom: 8px; font-weight: 600; color: #2c3e50; }
+.login-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
 
-.input-with-icon { position: relative; }
-.input-with-icon i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: #95a5a6; transition: 0.3s; }
-.input-with-icon input { width: 100%; padding: 12px 15px 12px 45px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 1rem; background: #f8f9fa; }
+.login-header h1 {
+  font-size: 1.5rem;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.login-header p {
+  font-size: 0.9rem;
+  color: #7f8c8d;
+}
+
+.form-control {
+  margin-bottom: 20px;
+}
+
+.form-control label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.input-with-icon {
+  position: relative;
+}
+
+.input-with-icon i {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #95a5a6;
+  transition: 0.3s;
+}
+
+.input-with-icon input {
+  width: 100%;
+  padding: 12px 15px 12px 45px;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  background: #f8f9fa;
+}
+
 .input-with-icon input:focus {
   border-color: #3498db;
   background: white;
@@ -546,29 +614,31 @@ input[type="number"] {
 }
 
 .btn-login-submit {
-    width: 100%;
-    padding: 14px;
-    background: linear-gradient(135deg, #3498db, #2980b9);
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-size: 1.1rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
 }
+
 .btn-login-submit:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4);
-    background: linear-gradient(135deg, #2980b9, #3498db);
+  transform: translateY(-3px);
+  box-shadow: 0 15px 30px rgba(52, 152, 219, 0.4);
+  background: linear-gradient(135deg, #2980b9, #3498db);
 }
+
 .btn-login-submit:active {
-    transform: translateY(-1px);
+  transform: translateY(-1px);
 }
 
 /* Modals & Alerts */
@@ -577,27 +647,32 @@ input[type="number"] {
   border-radius: 12px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
+
 .alert {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
   border: 1px solid transparent;
 }
+
 .alert-info {
   background: var(--accent-color);
   color: white;
   border-color: var(--accent-hover);
 }
+
 .alert-success {
   background: var(--success-color);
   color: white;
   border-color: var(--success-color);
 }
+
 .alert-danger {
   background: var(--danger-color);
   color: white;
   border-color: var(--danger-color);
 }
+
 .alert-warning {
   background: var(--warning-color);
   color: var(--primary-color);
@@ -617,18 +692,26 @@ select[disabled] {
   color: white;
   text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
+
 .status-banner h2 {
   margin: 0;
   color: white;
 }
+
 .status-banner.status-edit {
   background-color: #e67e22;
 }
+
 /* Interactive Transitions */
 .stat-card {
-    transition: all 0.3s ease;
+  transition: all 0.3s ease;
 }
+
 .stat-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-md);
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-md);
+}
+
+.no-margin {
+  margin: 0 !important;
 }

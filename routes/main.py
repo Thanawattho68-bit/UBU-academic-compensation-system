@@ -189,6 +189,51 @@ def summary_page():
         
     requests = [dict(r) for r in requests_rows]
     
+    # ──────────────────────────────────────────────
+    # สถิติตามตำแหน่งวิชาการ (ผศ./รศ./ศ.)
+    # ──────────────────────────────────────────────
+    academic_query = '''
+        SELECT rr.status, a.academic_position
+        FROM RequestRecord rr
+        JOIN Account a ON rr.applicant_username = a.username
+        WHERE rr.fiscal_year = ? AND rr.status != ?
+    '''
+    academic_rows = query_db(academic_query, (selected_year, 'แบบร่าง'))
+    
+    academic_stats = {
+        'ผศ.': {'total': 0, 'approved': 0, 'rejected': 0},
+        'รศ.': {'total': 0, 'approved': 0, 'rejected': 0},
+        'ศ.': {'total': 0, 'approved': 0, 'rejected': 0}
+    }
+    
+    for row in academic_rows:
+        status = row['status']
+        pos_raw = row['academic_position']
+        
+        # Parse positions list
+        positions = []
+        if pos_raw:
+            try:
+                positions = json.loads(pos_raw)
+                if not isinstance(positions, list): positions = [positions]
+            except:
+                positions = [pos_raw]
+        
+        # Categorize
+        category = None
+        for p in positions:
+            if p == 'ศาสตราจารย์': category = 'ศ.'
+            elif p == 'รองศาสตราจารย์': category = 'รศ.'
+            elif p == 'ผู้ช่วยศาสตราจารย์': category = 'ผศ.'
+            if category: break
+            
+        if category:
+            academic_stats[category]['total'] += 1
+            if status == 'อนุมัติ':
+                academic_stats[category]['approved'] += 1
+            elif status == 'ไม่อนุมัติ':
+                academic_stats[category]['rejected'] += 1
+                
     return render_template('summary.html', 
                            name=session['name'], 
                            role=session['role'], 
@@ -200,7 +245,8 @@ def summary_page():
                            requests=requests,
                            current_filter=filter_type,
                            available_years=available_years,
-                           selected_year=selected_year)
+                           selected_year=selected_year,
+                           academic_stats=academic_stats)
 
 
 @main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ผู้ตรวจสอบ)
