@@ -38,7 +38,7 @@
             <label>1.2 ฐานข้อมูล; วารสารทางวิชาการตามข้อ 1.1 มีรายชื่ออยู่ในฐานข้อมูลอย่างใดอย่างหนึ่ง ดังนี้</label>
             <div class="checkbox-group">
                 <div>
-                    <input type="radio" name="lvl_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter')" {% if work.lvl == 'inter' %}checked{% endif %}> 
+                    <input type="radio" name="lvl_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter'); updateWork('{{ work.id }}', 'lvl', 'inter')" {% if work.lvl == 'inter' %}checked{% endif %}> 
                     <strong>ระดับนานาชาติ</strong>
                 </div>
                 <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.lvl == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
@@ -49,7 +49,7 @@
                 </div>
 
                 <div>
-                    <input type="radio" name="lvl_sel_{{ work.id }}" value="national" onchange="showSubGroup('{{ work.id }}', 'lvl', 'none'); updateWork('{{ work.id }}', 'database', 'national')" {% if work.lvl == 'national' or (not work.lvl and work.database == 'national') %}checked{% endif %}> 
+                    <input type="radio" name="lvl_sel_{{ work.id }}" value="national" onchange="showSubGroup('{{ work.id }}', 'lvl', 'none'); updateWork('{{ work.id }}', 'database', 'national'); updateWork('{{ work.id }}', 'lvl', 'national')" {% if work.lvl == 'national' or (not work.lvl and work.database == 'national') %}checked{% endif %}> 
                     <strong>ระดับชาติ</strong> <span class="info-icon" data-tooltip="โดยเป็นวารสารที่มีการตีพิมพ์อย่างต่อเนื่องสม่ำเสมอเป็นระยะเวลาอย่างน้อย 3 ปี และมีการตรวจสอบคุณภาพของบทความโดยผู้ทรงคุณวุฒิ (peer reviewer) ซึ่งเป็นบุคคลภายนอกจากหลากหลายสถาบันอย่างน้อย 3 คน ทั้งนี้ วารสารวิชาการดังกล่าวมีกำหนดการเผยแพร่อย่างแน่นอนชัดเจน">i</span>
                 </div>
             </div>

@@ -47,7 +47,7 @@
             ] %}
             {% for lvl_val, lvl_label, lvl_tooltip in levels %}
             <div>
-                <input type="radio" name="pub_sel_{{ work.id }}" value="{{ lvl_val }}" onchange="showSubGroup('{{ work.id }}', 'lvl', '{{ lvl_val }}')" {% if work.lvl == lvl_val %}checked{% endif %}> 
+                <input type="radio" name="pub_sel_{{ work.id }}" value="{{ lvl_val }}" onchange="showSubGroup('{{ work.id }}', 'lvl', '{{ lvl_val }}'); updateWork('{{ work.id }}', 'lvl', '{{ lvl_val }}')" {% if work.lvl == lvl_val %}checked{% endif %}> 
                 <strong>{{ lvl_label }}</strong> <span class="info-icon" data-tooltip="{{ lvl_tooltip }}">i</span>
             </div>
             <div id="sub-lvl-{{ lvl_val }}-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.lvl == lvl_val else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
