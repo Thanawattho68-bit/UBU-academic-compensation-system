@@ -48,8 +48,6 @@
       class="{% if request.endpoint == 'main.appeals_page' %}active{% endif %}">
       <i class="fas fa-gavel"></i> รายการอุทธรณ์
     </a>
-    {% elif role == 'administration' %}
-    {# Remove Create Round links #}
     {% elif role == 'research' %} {% elif role == 'committee' %}
     <a href="{{ url_for('main.appeals_page') }}"
       class="{% if request.endpoint == 'main.appeals_page' %}active{% endif %}">
@@ -83,10 +81,7 @@
           font-weight: bold;
         ">0</span>
     </a>
-
-    <div class="sidebar-footer">
-      <a href="{{ url_for('auth.logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
-    </div>
+    <a href="{{ url_for('auth.logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
   </nav>
 </aside>
 
