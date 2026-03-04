@@ -1,0 +1,81 @@
+<div class="work-card" data-id="{{ work.id }}">
+    <div class="work-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+        <h4 style="margin: 0; color: #2c3e50;"><i class="fas fa-lightbulb"></i> ผลงานนวัตกรรม</h4>
+        <button type="button" class="btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removeWork(this, '{{ work.id }}')">
+            <i class="fas fa-trash-alt"></i> ลบผลงาน
+        </button>
+    </div>
+
+    <div id="status-display-{{ work.id }}" class="status-comment-box sub-section" data-visible="{{ 'true' if work.status_comment else 'false' }}" style="margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2; padding: 10px; border-radius: 4px;">
+        <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: </strong>
+        <span class="work-status-label" style="font-weight: bold;">{{ work.status_label|default('') }}</span>
+        <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;">{{ work.status_comment|default('') }}</div>
+    </div>
+
+    <div class="form-group">
+        <label>ชื่อผลงาน</label>
+        <textarea required onchange="updateWork('{{ work.id }}', 'title', this.value)" rows="1" style="width:100%" class="form-control">{{ work.title|default('') }}</textarea>
+    </div>
+    <div class="form-group">
+        <label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label>
+        <textarea onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+    </div>
+
+    <div class="sub-section">
+        <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer)</h5>
+        <div class="checkbox-group">
+            {% set inn_types = [
+                ('report', '1.1 รายงานการพัฒนาผลงานนวัตกรรม'),
+                ('ip', '1.2 เอกสารแสดงทรัพย์สินทางปัญญา'),
+                ('public', '1.3 การเผยแพร่ผลงานนวัตกรรมผ่านเวทีระดับชาติ/นานาชาติ'),
+                ('diffusion', '1.4 การแพร่หลาย (diffusion)')
+            ] %}
+            {% for i_val, i_label in inn_types %}
+            <div>
+                <input type="radio" name="inn_{{ work.id }}" value="{{ i_val }}" onchange="updateWork('{{ work.id }}', 'type_pub', this.value)" {% if work.type_pub == i_val %}checked{% endif %}> 
+                {{ i_label }}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>2. ระดับผลงาน (Self-Assessment)</h5>
+        <div class="checkbox-group">
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
+                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                <span class="info-icon" data-tooltip="เทคโนโลยีขั้นสูง/ใหม่ พร้อมใช้งานจริงในบ้านผลิต (TRL 8+) ยอมรับระดับชาติ/นานาชาติ ใช้เชิงพาณิชย์/ขยายผลธุรกิจ">i</span>
+             </div>
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_a" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
+                <strong>ระดับ A (คะแนน 1.00)</strong>
+                <span class="info-icon" data-tooltip="ต้นแบบสมบูรณ์ทำงานในสภาพแวดล้อมจริง (TRL 5+) แตกต่างจากเดิม ใช้เชิงพาณิชย์หรือสาธารณะเห็นผลประจักษ์">i</span>
+             </div>
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_b" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
+                <strong>ระดับ B (คะแนน 0.75)</strong>
+                <span class="info-icon" data-tooltip="ประยุกต์เทคโนโลยีเหมาะสม มีต้นแบบทดสอบสถานการณ์จริง (TRL 3+) พิสูจน์แนวคิดได้ สร้างมูลค่าเพิ่ม (EVA)">i</span>
+             </div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>3. การมีส่วนร่วม</h5>
+        <div class="checkbox-group">
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+        </div>
+    </div>
+
+    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ</strong>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+            <li>เอกสารสรุปข้อมูลการพัฒนา 6 ประเด็น</li>
+            <li>หลักฐานสนับสนุน (IP, Startup, ทุนภายนอก)</li>
+            <li>รายงานวิจัยฉบับสมบูรณ์/รายงานเชิงเทคนิค</li>
+            <li>หลักฐานการผ่าน Peer Reviewer</li>
+        </ul>
+    </div>
+    {% include 'work_evidence_footer.html' %}
+</div>

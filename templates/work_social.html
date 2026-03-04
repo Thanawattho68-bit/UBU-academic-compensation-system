@@ -1,0 +1,63 @@
+<div class="work-card" data-id="{{ work.id }}">
+    <div class="work-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+        <h4 style="margin: 0; color: #2c3e50;"><i class="fas fa-users"></i> ผลงานรับใช้ท้องถิ่นและสังคม</h4>
+        <button type="button" class="btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removeWork(this, '{{ work.id }}')">
+            <i class="fas fa-trash-alt"></i> ลบผลงาน
+        </button>
+    </div>
+
+    <div id="status-display-{{ work.id }}" class="status-comment-box sub-section" data-visible="{{ 'true' if work.status_comment else 'false' }}" style="margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2; padding: 10px; border-radius: 4px;">
+        <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: </strong>
+        <span class="work-status-label" style="font-weight: bold;">{{ work.status_label|default('') }}</span>
+        <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;">{{ work.status_comment|default('') }}</div>
+    </div>
+
+    <div class="form-group">
+        <label>ชื่อผลงาน</label>
+        <textarea required onchange="updateWork('{{ work.id }}', 'title', this.value)" rows="1" style="width:100%" class="form-control">{{ work.title|default('') }}</textarea>
+    </div>
+    <div class="form-group">
+        <label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label>
+        <textarea onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+    </div>
+
+    <div class="sub-section">
+        <h5>1. ระดับผลงาน (Self-Assessment)</h5>
+        <div class="checkbox-group">
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
+                <strong>ระดับ A+ (คะแนน 1.25)</strong>
+                <span class="info-icon" data-tooltip="ผลงานส่งผลกระทบวงกว้างเป็นที่ยอมรับระดับชาติ/นานาชาติ หรือได้รับรางวัลจากองค์กรระดับนานาชาติ">i</span>
+             </div>
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_a" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
+                <strong>ระดับ A (คะแนน 1.00)</strong>
+                <span class="info-icon" data-tooltip="เป็นแบบอย่างให้ท้องถิ่นอื่นได้ หรือก่อให้เกิดการเปลี่ยนแปลงเชิงนโยบายระดับจังหวัดหรือประเทศ">i</span>
+             </div>
+             <div>
+                <input type="radio" name="level_{{ work.id }}" value="level_b" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
+                <strong>ระดับ B (คะแนน 0.75)</strong>
+                <span class="info-icon" data-tooltip="แสดงความเชี่ยวชาญ แก้ไขปัญหาหรือพัฒนาชุมชน/ท้องถิ่น/สังคมให้ดีขึ้นอย่างเป็นรูปธรรม">i</span>
+             </div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>2. การมีส่วนร่วม</h5>
+        <div class="checkbox-group">
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+        </div>
+    </div>
+
+    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ</strong>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+            <li>เอกสารผลงาน ที่มีรายละเอียด 7 หัวข้อสำคัญ</li>
+            <li>หลักฐานเพิ่มเติม เช่น รูปภาพ, วีดิทัศน์ หรือแถบเสียง</li>
+            <li>หลักฐานการเผยแพร่สู่สาธารณะ ที่มีการบันทึกเป็นลายลักษณ์อักษร</li>
+            <li>หลักฐานการประเมินคุณภาพโดย Peer Reviewer</li>
+        </ul>
+    </div>
+    {% include 'work_evidence_footer.html' %}
+</div>
