@@ -1,0 +1,71 @@
+<div class="work-card" data-id="{{ work.id }}">
+    <div class="work-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+        <h4 style="margin: 0; color: #2c3e50;"><i class="fas fa-book"></i> ตำราหรือหนังสือ</h4>
+        <button type="button" class="btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removeWork(this, '{{ work.id }}')">
+            <i class="fas fa-trash-alt"></i> ลบผลงาน
+        </button>
+    </div>
+
+    <div id="status-display-{{ work.id }}" class="status-comment-box sub-section" data-visible="{{ 'true' if work.status_comment else 'false' }}" style="margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2; padding: 10px; border-radius: 4px;">
+        <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: </strong>
+        <span class="work-status-label" style="font-weight: bold;">{{ work.status_label|default('') }}</span>
+        <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;">{{ work.status_comment|default('') }}</div>
+    </div>
+
+    <div class="form-group">
+        <label>ชื่อผลงาน (ระบุว่าเป็นตำรา/หนังสือ และระบุชื่อเรื่อง)</label>
+        <textarea required onchange="updateWork('{{ work.id }}', 'title', this.value)" rows="2" style="width:100%" class="form-control">{{ work.title|default('') }}</textarea>
+    </div>
+
+    <div class="sub-section">
+        <h5>1. รูปแบบ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+        <div class="checkbox-group">
+            <div><input type="radio" name="fmt_{{ work.id }}" value="authored" onchange="showSubGroup('{{ work.id }}', 'fmt', 'none'); updateWork('{{ work.id }}', 'format', this.value)" {% if work.format == 'authored' %}checked{% endif %}> เขียนทั้งเล่ม (authored book)</div>
+            <div><input type="radio" name="fmt_{{ work.id }}" value="chapter" onchange="showSubGroup('{{ work.id }}', 'fmt', 'chapter'); updateWork('{{ work.id }}', 'format', this.value)" {% if work.format == 'chapter' %}checked{% endif %}> ผลงานที่เป็นส่วนหนึ่งในหนังสือที่มีผู้เขียนหลายคน (book chapter) <span class="info-icon" data-tooltip="ซึ่งต้องมีอย่างน้อย 5 บท และมีจำนวนหน้า รวมกันแล้วไม่น้อยกว่า 80 หน้า โดยเนื้อหาสาระของบทในหนังสือทั้ง 5 บท จะต้องไม่ซ้ำซ้อนกัน">i</span></div>
+            
+            <div id="sub-fmt-chapter-{{ work.id }}" class="sub-fmt-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.format == 'chapter' else 'false' }}" style="margin-left: 25px; margin-top: 10px; padding: 12px; border-left: 4px solid #3498db; background: #f8fbff; border-radius: 6px; margin-bottom: 10px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);">
+                <label style="display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 8px; color: #2c3e50;">ระบุรายละเอียดบท:</label>
+                <input type="text" placeholder="ระบุจำนวนบท / ชื่อบท / จำนวนหน้า" onchange="updateWork('{{ work.id }}', 'chapter_details', this.value)" style="width: 100%; padding: 8px; border: 1px solid #cbd5e0; border-radius: 4px;" class="form-control" value="{{ work.chapter_details|default('') }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>2. การเผยแพร่ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+        <div class="checkbox-group">
+            <div>
+                <input type="radio" name="publish_type_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter'); updateWork('{{ work.id }}', 'publish_type', 'inter')" {% if work.publish_type == 'inter' %}checked{% endif %}> 
+                <strong>สำนักพิมพ์ในประเทศและต่างประเทศ</strong>
+            </div>
+            <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
+            </div>
+
+            <div>
+                <input type="radio" name="publish_type_sel_{{ work.id }}" value="local" onchange="showSubGroup('{{ work.id }}', 'lvl', 'local'); updateWork('{{ work.id }}', 'publish_type', 'local')" {% if work.publish_type == 'local' %}checked{% endif %}> 
+                <strong>โรงพิมพ์ทั่วไปในประเทศ</strong>
+            </div>
+            <div id="sub-lvl-local-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'local' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+                วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
+            </div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>3. การมีส่วนร่วมในผลงานทางวิชาการ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+        <div class="checkbox-group">
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> เป็นผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+        </div>
+    </div>
+
+    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ</strong>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+            <li>หลักฐานการจัดพิมพ์และเผยแพร่โดยสำนักพิมพ์หรือโรงพิมพ์ทั่วไป</li>
+            <li>หลักฐานการประเมินโดย Peer Reviewer ก่อนการตีพิมพ์</li>
+            <li>กรณี Book Chapter: ต้องมีเนื้อหาอย่างน้อย 5 บท และมีจำนวนหน้ารวมกันไม่น้อยกว่า 80 หน้า</li>
+        </ul>
+    </div>
+    {% include 'work_evidence_footer.html' %}
+</div>
