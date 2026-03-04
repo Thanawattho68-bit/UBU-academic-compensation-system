@@ -94,7 +94,8 @@
             <header class="top-bar"
                 style="display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: white; border-bottom: 1px solid #eee;">
                 <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
-                    <a href="{{ url_for('main.dashboard') }}" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                    <a href="{{ url_for('main.dashboard') }}"
+                        style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
                         <i class="fas fa-arrow-left"></i> หน้าหลัก
                     </a>
                 </div>
@@ -163,7 +164,10 @@
                         <div style="display: flex; gap: 40px; margin-bottom: 40px;">
                             <div style="flex: 1;">
                                 <p style="margin-bottom: 10px;"><strong>ผู้ยื่น:</strong> {{ req.applicant_name }} ({{
-                                    req.applicant_info.academic_position | join(' / ') if req.applicant_info.academic_position is iterable and req.applicant_info.academic_position is not string else (req.applicant_info.academic_position or '-') }})</p>
+                                    req.applicant_info.academic_position | join(' / ') if
+                                    req.applicant_info.academic_position is iterable and
+                                    req.applicant_info.academic_position is not string else
+                                    (req.applicant_info.academic_position or '-') }})</p>
                                 <p style="margin-bottom: 10px;"><strong>สังกัด:</strong> {{ req.applicant_info.faculty
                                     }} / {{ req.applicant_info.department }}</p>
                             </div>
@@ -229,7 +233,8 @@
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {% for work in req.works if not (role == 'committee' and work.status == 'ผลงานซ้ำซ้อน') %}
+                                        {% for work in req.works if not (role == 'committee' and work.status ==
+                                        'ผลงานซ้ำซ้อน') %}
 
                                         {% set row_bg = '#ffffff' %}
                                         {% set badge_color = '#94a3b8' %}
@@ -314,22 +319,24 @@
                                             </td>
                                             <td
                                                 style="padding: 20px; text-align: center; border-bottom: 1px solid #edf2f7; border-left: 1px solid #edf2f7;">
-                                                <div style="display: flex; justify-content: center; align-items: center; gap: 12px;">
+                                                <div
+                                                    style="display: flex; justify-content: center; align-items: center; gap: 12px;">
                                                     <a href="{{ url_for('requests.view_work', req_id=req.id, work_index=loop.index0) }}"
                                                         style="color: #64748b; font-size: 1.2rem; transition: color 0.2s;"
                                                         onmouseover="this.style.color='#3b82f6'"
                                                         onmouseout="this.style.color='#64748b'">
                                                         <i class="fas fa-eye"></i>
                                                     </a>
-                                                    {% if role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ' %}
+                                                    {% if role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ'
+                                                    %}
                                                     <button type="button"
                                                         data-title='{{ (work.details.title | default("")) | tojson | safe }}'
                                                         data-date='{{ (work.details.date_publish | default("")) | tojson | safe }}'
-                                                        data-reqid="{{ req.id }}"
-                                                        onclick='checkDuplicate(this)'
+                                                        data-reqid="{{ req.id }}" onclick='checkDuplicate(this)'
                                                         class="exclude-check"
                                                         style="border: none; background: transparent; color: #f59e0b; font-size: 1.2rem; cursor: pointer; padding: 0;">
-                                                        <i class="fas fa-search-plus" title="ตรวจสอบความซ้ำซ้อน/อายุ"></i>
+                                                        <i class="fas fa-search-plus"
+                                                            title="ตรวจสอบความซ้ำซ้อน/อายุ"></i>
                                                     </button>
                                                     {% endif %}
                                                 </div>
@@ -526,9 +533,10 @@
                                 </div>
 
                                 {% if history %}
-                                <div style="background: #fffcf0; padding: 20px; border-radius: 10px; border: 1px solid #ffd351;">
-                                    <h5 style="color: #856404; font-size: 1.1rem;"><i
-                                            class="fas fa-history"></i> พบประวัติย้อนหลังของ {{ req.applicant_name }}
+                                <div
+                                    style="background: #fffcf0; padding: 20px; border-radius: 10px; border: 1px solid #ffd351;">
+                                    <h5 style="color: #856404; font-size: 1.1rem;"><i class="fas fa-history"></i>
+                                        พบประวัติย้อนหลังของ {{ req.applicant_name }}
                                         ({{ history|length }} รายการ)</h5>
                                     <div style="margin-top: 15px; overflow-x: auto;">
                                         <table style="width: 100%; font-size: 0.95rem; border-collapse: collapse;">
@@ -572,17 +580,20 @@
                                 {% endif %}
 
                                 {% if role == 'applicant' %}
-                                <div style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 20px;">
+                                <div
+                                    style="display: flex; gap: 15px; flex-wrap: wrap; align-items: center; margin-bottom: 20px;">
                                     {% if req.status in ['แบบร่าง', 'แก้ไข'] %}
-                                    <div style="display: flex; gap: 10px; padding: 10px 20px; background: #fff8e1; border-radius: 12px; border: 1px solid #ffeeba;">
-                                        <a href="{{ url_for('requests.new_request', edit_id=req.id) }}" class="btn-secondary"
-                                            style="text-decoration: none;">แก้ไขข้อมูล</a>
+                                    <div
+                                        style="display: flex; gap: 10px; padding: 10px 20px; background: #fff8e1; border-radius: 12px; border: 1px solid #ffeeba;">
+                                        <a href="{{ url_for('requests.new_request', edit_id=req.id) }}"
+                                            class="btn-secondary" style="text-decoration: none;">แก้ไขข้อมูล</a>
                                         <button type="submit" name="action" value="submit"
                                             class="btn-primary">ส่งคำขอ</button>
                                     </div>
                                     {% endif %}
 
-                                    {% if req.status in ['แบบร่าง', 'ส่งแล้ว', 'แก้ไข', 'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
+                                    {% if req.status in ['แบบร่าง', 'ส่งแล้ว', 'แก้ไข', 'รอตรวจประวัติการยื่นขอ',
+                                    'ผลงานผ่าน', 'รอเสนอพิจารณา'] %}
                                     <div style="flex-grow: 1; display: flex; justify-content: flex-end;">
                                         <button type="submit" name="action" value="cancel" class="btn-danger"
                                             style="background: #fff; color: #dc3545; border: 1px solid #dc3545; padding: 8px 20px;"
@@ -612,6 +623,49 @@
                         </form>
                     </div>
                 </div> <!-- End form-container -->
+
+                <!-- Section: Request History (Audit Trail) -->
+                <div id="history" class="form-container"
+                    style="margin-top: 30px; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
+                    <h2 style="font-weight: 700; margin-bottom: 20px; font-size: 1.8rem;"><i class="fas fa-history"></i>
+                        ประวัติการดำเนินการของคำขอนี้</h2>
+                    <div class="table-responsive-wrapper">
+                        <table class="styled-table no-margin" style="width: 100%;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 200px;">วัน/เวลา</th>
+                                    <th style="width: 150px;">โดย (ชื่อ/บทบาท)</th>
+                                    <th>การดำเนินการ</th>
+                                    <th>หมายเหตุ/ความคิดเห็น</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if req.audit_trail %}
+                                {% for h in req.audit_trail | reverse %}
+                                <tr>
+                                    <td style="font-size: 0.9rem;">{{ h.timestamp }}</td>
+                                    <td>
+                                        <strong>{{ h.name }}</strong><br>
+                                        <small style="color: #64748b;">({{ h.role }})</small>
+                                    </td>
+                                    <td>
+                                        <span style="font-weight: 700; color: #2c3e50;">{{ h.action }}</span>
+                                    </td>
+                                    <td style="color: #475569; font-style: italic;">{{ h.comment or '-' }}</td>
+                                </tr>
+                                {% endfor %}
+                                {% else %}
+                                <tr>
+                                    <td colspan="4" style="text-align: center; padding: 30px; color: #94a3b8;">
+                                        ยังไม่มีประวัติการดำเนินการบันทึกไว้
+                                    </td>
+                                </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
             </section>
         </main>
     </div>
@@ -632,75 +686,75 @@
 
         if (userRole === 'administration') {
             const paymentRules = getPaymentRules();
-        const posData = JSON.parse('{{ req.applicant_info.academic_position | tojson | safe }}');
-        const applicantPos = Array.isArray(posData) ? posData.join(' ') : (posData || "");
+            const posData = JSON.parse('{{ req.applicant_info.academic_position | tojson | safe }}');
+            const applicantPos = Array.isArray(posData) ? posData.join(' ') : (posData || "");
 
-        let posKey = '';
-        if (applicantPos.includes('ผู้ช่วยศาสตราจารย์')) posKey = 'asst_prof';
-        else if (applicantPos.includes('รองศาสตราจารย์')) posKey = 'assoc_prof';
-        else if (applicantPos.includes('ศาสตราจารย์')) posKey = 'prof';
+            let posKey = '';
+            if (applicantPos.includes('ผู้ช่วยศาสตราจารย์')) posKey = 'asst_prof';
+            else if (applicantPos.includes('รองศาสตราจารย์')) posKey = 'assoc_prof';
+            else if (applicantPos.includes('ศาสตราจารย์')) posKey = 'prof';
 
-        if (document.getElementById('total_amount_display')) {
-            const scoreInputs = document.querySelectorAll('.work-score-input');
-            const totalDisplay = document.getElementById('total_amount_display');
-            const sumScoreDisplay = document.querySelector('tfoot span[style*="font-size: 1.8rem"]');
-            const totalHidden = document.getElementById('total_amount_hidden');
+            if (document.getElementById('total_amount_display')) {
+                const scoreInputs = document.querySelectorAll('.work-score-input');
+                const totalDisplay = document.getElementById('total_amount_display');
+                const sumScoreDisplay = document.querySelector('tfoot span[style*="font-size: 1.8rem"]');
+                const totalHidden = document.getElementById('total_amount_hidden');
 
-            const recalculate = () => {
-                if (scoreInputs.length === 0) return;
-                let totalScore = 0;
-                scoreInputs.forEach(inp => {
-                    const status = inp.getAttribute('data-status');
-                    if (status !== 'ผลงานซ้ำซ้อน') {
-                        totalScore += parseFloat(inp.value) || 0;
-                    }
-                });
-
-                if (sumScoreDisplay) {
-                    sumScoreDisplay.innerText = totalScore.toFixed(3);
-                }
-
-                let compAmount = 0;
-                if (posKey && paymentRules[posKey]) {
-                    const tiers = paymentRules[posKey];
-                    if (Array.isArray(tiers)) {
-                        const applicable = tiers
-                            .filter(t => totalScore >= parseFloat(t.min_score || 0))
-                            .sort((a, b) => parseFloat(b.min_score) - parseFloat(a.min_score));
-                        if (applicable.length > 0) {
-                            compAmount = parseFloat(applicable[0].amount || 0);
+                const recalculate = () => {
+                    if (scoreInputs.length === 0) return;
+                    let totalScore = 0;
+                    scoreInputs.forEach(inp => {
+                        const status = inp.getAttribute('data-status');
+                        if (status !== 'ผลงานซ้ำซ้อน') {
+                            totalScore += parseFloat(inp.value) || 0;
                         }
-                    } else if (typeof tiers === 'object') {
-                        if (totalScore >= parseFloat(tiers.min_score || 0)) {
-                            compAmount = parseFloat(tiers.amount || 0);
+                    });
+
+                    if (sumScoreDisplay) {
+                        sumScoreDisplay.innerText = totalScore.toFixed(3);
+                    }
+
+                    let compAmount = 0;
+                    if (posKey && paymentRules[posKey]) {
+                        const tiers = paymentRules[posKey];
+                        if (Array.isArray(tiers)) {
+                            const applicable = tiers
+                                .filter(t => totalScore >= parseFloat(t.min_score || 0))
+                                .sort((a, b) => parseFloat(b.min_score) - parseFloat(a.min_score));
+                            if (applicable.length > 0) {
+                                compAmount = parseFloat(applicable[0].amount || 0);
+                            }
+                        } else if (typeof tiers === 'object') {
+                            if (totalScore >= parseFloat(tiers.min_score || 0)) {
+                                compAmount = parseFloat(tiers.amount || 0);
+                            }
                         }
                     }
-                }
 
-                totalDisplay.innerText = '฿' + compAmount.toLocaleString(undefined, {
-                    minimumFractionDigits: (compAmount % 1 === 0) ? 0 : 2,
-                    maximumFractionDigits: 2
+                    totalDisplay.innerText = '฿' + compAmount.toLocaleString(undefined, {
+                        minimumFractionDigits: (compAmount % 1 === 0) ? 0 : 2,
+                        maximumFractionDigits: 2
+                    });
+
+                    // Update class based on amount
+                    if (compAmount > 0) {
+                        totalDisplay.classList.remove('amount-danger');
+                        totalDisplay.classList.add('amount-approved');
+                    } else {
+                        totalDisplay.classList.add('amount-danger');
+                        totalDisplay.classList.remove('amount-approved');
+                    }
+
+                    if (totalHidden) totalHidden.value = compAmount;
+                };
+
+                scoreInputs.forEach(input => {
+                    input.addEventListener('input', recalculate);
                 });
-
-                // Update class based on amount
-                if (compAmount > 0) {
-                    totalDisplay.classList.remove('amount-danger');
-                    totalDisplay.classList.add('amount-approved');
-                } else {
-                    totalDisplay.classList.add('amount-danger');
-                    totalDisplay.classList.remove('amount-approved');
-                }
-
-                if (totalHidden) totalHidden.value = compAmount;
-            };
-
-            scoreInputs.forEach(input => {
-                input.addEventListener('input', recalculate);
-            });
-            recalculate();
+                recalculate();
+            }
         }
-        }
-        
+
         const selectAll = document.getElementById('selectAll');
         if (selectAll) {
             selectAll.addEventListener('change', function () {

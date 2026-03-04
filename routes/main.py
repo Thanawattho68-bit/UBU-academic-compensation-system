@@ -170,25 +170,56 @@ def summary_page():
     pending_requests = query_db('SELECT COUNT(*) as count FROM RequestRecord WHERE status NOT IN (?, ?, ?, ?) AND fiscal_year = ?', ('อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', 'แบบร่าง', selected_year), one=True)['count']
     total_amount = query_db('SELECT SUM(approved_amount) as total FROM RequestRecord WHERE status = ? AND fiscal_year = ?', ('อนุมัติ', selected_year), one=True)['total'] or 0
     
-    # Get filter from query string
-    filter_type = request.args.get('filter', 'all')
-    
-    # Get requests for summary table based on filter and selected year (Exclude 'แบบร่าง' from summary)
-    query_parts = ['SELECT id, applicant_name, status, total_score, approved_amount, date_submitted FROM RequestRecord WHERE fiscal_year = ? AND status != ?']
-    params = [selected_year, 'แบบร่าง']
-
-    if filter_type == 'approved':
-        query_parts.append('AND status = ?')
-        params.append('อนุมัติ')
-    elif filter_type == 'pending':
-        query_parts.append('AND status NOT IN (?, ?, ?, ?)')
-        params.extend(['อนุมัติ', 'ไม่อนุมัติ', 'ยกเลิก', 'แบบร่าง'])
-    
-    query = ' '.join(query_parts) + ' ORDER BY date_submitted DESC'
-    requests_rows = query_db(query, tuple(params))
-        
+    # Get requests for summary table for the selected year (Exclude 'แบบร่าง' from summary)
+    query = 'SELECT id, applicant_name, status, total_score, approved_amount, date_submitted FROM RequestRecord WHERE fiscal_year = ? AND status != ? ORDER BY date_submitted DESC'
+    requests_rows = query_db(query, (selected_year, 'แบบร่าง'))
     requests = [dict(r) for r in requests_rows]
     
+    # ──────────────────────────────────────────────
+    # สถิติตามตำแหน่งวิชาการ (ผศ./รศ./ศ.)
+    # ──────────────────────────────────────────────
+    academic_query = '''
+        SELECT rr.status, a.academic_position
+        FROM RequestRecord rr
+        JOIN Account a ON rr.applicant_username = a.username
+        WHERE rr.fiscal_year = ? AND rr.status != ?
+    '''
+    academic_rows = query_db(academic_query, (selected_year, 'แบบร่าง'))
+    
+    academic_stats = {
+        'ผศ.': {'total': 0, 'approved': 0, 'rejected': 0},
+        'รศ.': {'total': 0, 'approved': 0, 'rejected': 0},
+        'ศ.': {'total': 0, 'approved': 0, 'rejected': 0}
+    }
+    
+    for row in academic_rows:
+        status = row['status']
+        pos_raw = row['academic_position']
+        
+        # Parse positions list
+        positions = []
+        if pos_raw:
+            try:
+                positions = json.loads(pos_raw)
+                if not isinstance(positions, list): positions = [positions]
+            except:
+                positions = [pos_raw]
+        
+        # Categorize
+        category = None
+        for p in positions:
+            if p == 'ศาสตราจารย์': category = 'ศ.'
+            elif p == 'รองศาสตราจารย์': category = 'รศ.'
+            elif p == 'ผู้ช่วยศาสตราจารย์': category = 'ผศ.'
+            if category: break
+            
+        if category:
+            academic_stats[category]['total'] += 1
+            if status == 'อนุมัติ':
+                academic_stats[category]['approved'] += 1
+            elif status == 'ไม่อนุมัติ':
+                academic_stats[category]['rejected'] += 1
+                
     return render_template('summary.html', 
                            name=session['name'], 
                            role=session['role'], 
@@ -198,30 +229,9 @@ def summary_page():
                            pending_requests=pending_requests,
                            total_amount=total_amount,
                            requests=requests,
-                           current_filter=filter_type,
                            available_years=available_years,
-                           selected_year=selected_year)
+                           selected_year=selected_year,
+                           academic_stats=academic_stats)
 
 
-@main_bp.route('/reviewers') # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ผู้ตรวจสอบ)
-def reviewers_page():
-    if 'username' not in session: return redirect(url_for('auth.login'))
-    
-    # จำกัดสิทธิ์เฉพาะเจ้าหน้าที่และกรรมการเท่านั้น
-    if session['role'] == 'applicant':
-        flash("คุณไม่มีสิทธิ์เข้าถึงหน้ารายชื่อผู้พิจารณา")
-        return redirect(url_for('main.dashboard'))
-    
-    # Get users with specific roles
-    reviewers = {
-        'administration': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('administration',))],
-        'research': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('research',))],
-        'committee': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('committee',))],
-        'admin': [dict(r) for r in query_db('SELECT name, academic_position, department FROM Account WHERE role = ?', ('admin',))]
-    }
-    
-    return render_template('reviewers.html', 
-                           name=session['name'], 
-                           role=session['role'], 
-                           position=session.get('position',''),
-                           reviewers=reviewers)
+

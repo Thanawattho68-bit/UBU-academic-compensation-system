@@ -15,7 +15,7 @@ auth_bp = Blueprint('auth', __name__)
 def login():
     if request.method == 'POST':
         username, password = request.form.get('username'), request.form.get('password')
-        user = query_db('SELECT * FROM account WHERE username = ? AND password = ?', (username, password), one=True)
+        user = query_db('SELECT * FROM Account WHERE username = ? AND password = ?', (username, password), one=True)
 
         if user:
             # Parse academic_position from DB (it might be a JSON string or a simple string)
