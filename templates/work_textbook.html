@@ -34,18 +34,18 @@
         <h5>2. การเผยแพร่ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
         <div class="checkbox-group">
             <div>
-                <input type="radio" name="publish_type_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter'); updateWork('{{ work.id }}', 'publish_type', 'inter')" {% if work.publish_type == 'inter' %}checked{% endif %}> 
+                <input type="radio" name="publish_type_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter'); updateWork('{{ work.id }}', 'publish_type', 'inter'); updateWork('{{ work.id }}', 'lvl', 'inter')" {% if work.publish_type == 'inter' %}checked{% endif %}> 
                 <strong>สำนักพิมพ์ในประเทศและต่างประเทศ</strong>
             </div>
-            <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+            <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'inter' or work.lvl == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
                 วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
             </div>
 
             <div>
-                <input type="radio" name="publish_type_sel_{{ work.id }}" value="local" onchange="showSubGroup('{{ work.id }}', 'lvl', 'local'); updateWork('{{ work.id }}', 'publish_type', 'local')" {% if work.publish_type == 'local' %}checked{% endif %}> 
+                <input type="radio" name="publish_type_sel_{{ work.id }}" value="local" onchange="showSubGroup('{{ work.id }}', 'lvl', 'local'); updateWork('{{ work.id }}', 'publish_type', 'local'); updateWork('{{ work.id }}', 'lvl', 'local')" {% if work.publish_type == 'local' %}checked{% endif %}> 
                 <strong>โรงพิมพ์ทั่วไปในประเทศ</strong>
             </div>
-            <div id="sub-lvl-local-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'local' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
+            <div id="sub-lvl-local-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'local' or work.lvl == 'local' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
                 วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
             </div>
         </div>

@@ -237,9 +237,6 @@
                                         {% include 'work_policy.html' %}
                                     {% elif work_item.type == 'innovation' %}
                                         {% include 'work_innovation.html' %}
-                                    {% else %}
-                                        {% set work = work | merge({'label': work_item.type}) %}
-                                        {% include 'work_generic.html' %}
                                     {% endif %}
                                 {% endfor %}
                             {% endif %}
@@ -365,15 +362,6 @@
                 {% endfor %}
             </div>
 
-            <div style="margin-top: 25px; padding-top: 20px; border-top: 2px dashed #edf2f7;">
-                <h4
-                    style="margin-bottom: 12px; font-size: 0.95rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px;">
-                    ไม่พบประเภทผลงานที่ต้องการ?</h4>
-                <button onclick="promptAddNewType()" class="btn-primary"
-                    style="width: 100%; background: #27ae60; border: none; padding: 12px; font-weight: bold;">
-                    <i class="fas fa-plus-circle"></i> เพิ่มประเภทผลงานใหม่
-                </button>
-            </div>
         </div>
     </div>
 
@@ -412,9 +400,6 @@
             {% set work = placeholder_work %}
             {% include 'work_innovation.html' %}
         </template>
-        <template id="template-generic">
-            {% set work = placeholder_work %}
-            {% include 'work_generic.html' %}
         </template>
     </div>
 
@@ -455,75 +440,13 @@
             }
         }
 
-        async function promptAddNewType() {
-            const label = prompt("กรุณาระบุชื่อประเภทผลงานใหม่:");
-            if (!label || label.trim() === "") return;
-
-            try {
-                const response = await fetch("{{ url_for('api.api_add_work_type') }}", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ label: label.trim() })
-                });
-                const result = await response.json();
-                if (result.success) {
-                    const newType = result.type;
-                    const container = document.getElementById('workTypeButtons');
-                    if (container) {
-                        const wrapper = document.createElement('div');
-                        wrapper.id = `type-item-${newType.id}`;
-                        wrapper.style.display = 'flex';
-                        wrapper.style.alignItems = 'stretch';
-                        wrapper.style.gap = '5px';
-
-                        const btn = document.createElement('button');
-                        btn.className = 'btn-secondary';
-                        btn.style.flex = '1';
-                        btn.style.textAlign = 'left';
-                        btn.style.padding = '12px 20px';
-                        btn.style.border = '1px solid #e2e8f0';
-                        btn.style.background = '#fff';
-                        btn.style.color = '#2c3e50';
-                        btn.style.transition = 'all 0.2s';
-                        btn.onclick = () => addWork(newType.id, newType.label);
-                        btn.innerHTML = `<i class="fas fa-chevron-right" style="margin-right: 10px; color: #3498db; font-size: 0.8rem;"></i> ${newType.label}`;
-
-                        const delBtn = document.createElement('button');
-                        delBtn.style.background = '#fff';
-                        delBtn.style.border = '1px solid #fed7d7';
-                        delBtn.style.color = '#e53e3e';
-                        delBtn.style.padding = '0 15px';
-                        delBtn.style.borderRadius = '6px';
-                        delBtn.style.cursor = 'pointer';
-                        delBtn.title = "ลบประเภทนี้ออกจากระบบ";
-                        delBtn.innerHTML = '<i class="fas fa-trash-alt"></i>';
-                        delBtn.onclick = () => deleteWorkType(newType.id);
-
-                        wrapper.appendChild(btn);
-                        wrapper.appendChild(delBtn);
-                        container.appendChild(wrapper);
-                    }
-                    WORK_TYPE_LABELS[newType.id] = newType.label;
-                    alert("เพิ่มประเภทผลงานใหม่เข้าสู่ระบบเรียบร้อยแล้ว");
-                } else {
-                    alert(result.message || "ไม่สามารถเพิ่มประเภทผลงานได้");
-                }
-            } catch (e) {
-                alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
-            }
-        }
-
         function addWork(type, label = '') {
             const id = Date.now();
-            let templateId = `template-${type}`;
-            if (!document.getElementById(templateId)) {
-                templateId = 'template-generic';
-            }
-
+            const templateId = `template-${type}`;
             const template = document.getElementById(templateId);
+            if (!template) return;
+
             let html = template.innerHTML;
-            
-            // Replace all occurrences of ID_PLACEHOLDER with real ID
             html = html.replace(/ID_PLACEHOLDER/g, id);
 
             // Add to works array
@@ -532,13 +455,6 @@
             const container = document.getElementById('works-container');
             const div = document.createElement('div');
             div.innerHTML = html;
-            
-            // If it's a generic type or custom type, update the label
-            if (templateId === 'template-generic') {
-                const titleHeader = div.querySelector('h4');
-                if (titleHeader) titleHeader.innerHTML = `<i class="fas fa-file-alt"></i> ${label || type}`;
-            }
-
             container.appendChild(div.firstElementChild);
 
             document.getElementById('workTypeModal').style.display = 'none';
@@ -625,7 +541,7 @@
                     else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
                     else if (pt.includes('national')) { s = cs.national || 0.75; }
                     else { s = cs.international || 1.25; }
-                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || (w.type.startsWith('custom_') && w.data.level)) {
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || w.data.level) {
                     const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
                     const lvl = w.data.level;
                     if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
@@ -802,105 +718,21 @@
                     const savedWorks = JSON.parse(worksScript.textContent);
                     if (Array.isArray(savedWorks)) {
                         savedWorks.forEach(w => {
-                            addWork(w.type, WORK_TYPE_LABELS[w.type] || ''); // Create the DOM elements
-                            // works array is updated in addWork. Get the last one.
-                            const currentWork = works[works.length - 1];
-                            if (!currentWork) return;
-                            const id = currentWork.id;
-
-                            // Populate data
-                            currentWork.data = JSON.parse(JSON.stringify(w.details || {}));
-                            // IMPORTANT: Keep status/comment to identify historical state, but backend calculation will use them.
-                            currentWork.status = w.status;
-                            currentWork.comment = w.comment;
-
-                            // Update DOM inputs
-                            const card = document.getElementById(`work-${id}`);
-                            if (card) {
-                                // Populate status if exists
-                                if (w.status || w.comment) {
-                                    const statusDisp = card.querySelector(`#status-display-${id}`);
-                                    if (statusDisp) {
-                                        statusDisp.style.display = 'block';
-                                        statusDisp.querySelector('.work-status-label').innerText = w.status || 'อยู่ในระหว่างพิจารณา';
-                                        statusDisp.querySelector('.work-comment-text').innerText = w.comment || '-';
-                                    }
-                                }
-
-                                // Title
-                                const titleInput = card.querySelector('.work-title') || card.querySelector('textarea[onchange*="title"]');
-                                if (titleInput) titleInput.value = w.details.title || '';
-
-                                // Generic Value Setter for other inputs
-                                for (const [key, val] of Object.entries(w.details)) {
-                                    const inputs = card.querySelectorAll(`input, select, textarea`);
-                                    inputs.forEach(el => {
-                                        const attr = el.getAttribute('onchange');
-                                        // Check if onchange contains the key string
-                                        if (attr && attr.includes(`'${key}'`)) {
-                                            if (el.type === 'radio') {
-                                                if (el.value === val) {
-                                                    el.checked = true;
-                                                    // Trigger parent group visibility if nested
-                                                    if (key === 'database') { // Research
-                                                        const parentVal = val.startsWith('scopus') ? 'inter' : 'national';
-                                                        if (parentVal === 'inter') {
-                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="inter"]`);
-                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', 'inter'); }
-                                                        } else {
-                                                            showSubGroup(id, 'lvl', 'none');
-                                                        }
-                                                    } else if (key === 'publish_type') {
-                                                        if (w.type === 'creative') {
-                                                            const parentVal = val.split('_')[0];
-                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="${parentVal}"]`);
-                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', parentVal); }
-                                                        } else if (w.type === 'textbook') { // Textbook
-                                                            const pRadio = card.querySelector(`input[name="lvl_sel_${id}"][value="${val}"]`);
-                                                            if (pRadio) { pRadio.checked = true; showSubGroup(id, 'lvl', val); }
-                                                        }
-                                                    } else if (key === 'evidence_type') {
-                                                        toggleEvidenceSource(id, val);
-                                                    }
-                                                }
-                                            } else if (el.type === 'date') {
-                                                // Convert DD/MM/YYYY (BE) to YYYY-MM-DD (AD) for display in date picker
-                                                if (val && val.includes('/')) {
-                                                    const parts = val.split('/');
-                                                    if (parts.length === 3) {
-                                                        const d = parts[0].padStart(2, '0');
-                                                        const m = parts[1].padStart(2, '0');
-                                                        let y = parseInt(parts[2]);
-                                                        if (y > 2400) y -= 543;
-                                                        el.value = `${y}-${m}-${d}`;
-                                                    }
-                                                } else {
-                                                    el.value = val;
-                                                }
-                                            } else {
-                                                el.value = val;
-                                            }
-                                        }
-                                    });
-                                }
-
-                                // Special handling for showing existing file
-                                if (w.details.evidence_type === 'file' && w.details.evidence_file) {
-                                    const fileInfo = card.querySelector('.existing-file-info');
-                                    if (fileInfo) {
-                                        fileInfo.style.display = 'block';
-                                        fileInfo.querySelector('.filename').innerText = w.details.evidence_file;
-                                    }
-                                    // since a file already exists, we don't require a new upload
-                                    const fileInput = card.querySelector(`input[name="evidence_file_${id}"]`);
-                                    if (fileInput) fileInput.required = false;
-                                }
-                            }
+                            // Populate the works array directly. The DOM is already rendered by Jinja.
+                            works.push({
+                                id: w.details.id,
+                                type: w.type,
+                                data: JSON.parse(JSON.stringify(w.details || {})),
+                                status: w.status,
+                                comment: w.comment
+                            });
                         });
                     }
                 } catch (e) {
                     console.error("Error parsing works data", e);
                 }
+                // Trigger initial calculation and update count
+                updateWorkCount();
             }
             // Trigger initial calculation
             calculateEstimates();
