@@ -222,7 +222,7 @@
                                             {% set status_width = '180px' if role == 'research' else '220px' %}
                                             <th
                                                 style="padding: 18px; text-align: center; font-weight: 700; color: #1e293b; border-bottom: 2px solid #edf2f7; border-left: 1px solid #edf2f7; width: {{ status_width }}; font-size: 1.1rem;">
-                                                {{ 'สถานะ' if role == 'research' else 'สถานะจัดสรร' }}</th>
+                                                {{ 'สถานะ' if role == 'research' else 'สถานะ' }}</th>
                                             <th
                                                 style="padding: 18px; text-align: center; font-weight: 700; color: #1e293b; border-bottom: 2px solid #edf2f7; border-left: 1px solid #edf2f7; border-top-right-radius: 12px; width: 150px; font-size: 1.1rem;">
                                                 รายละเอียด</th>
@@ -610,12 +610,6 @@
                                 {% endif %}
                             </div>
                         </form>
-
-                        {% if role != 'applicant' %}
-                        <br>
-                        <a href="{{ url_for('main.dashboard') }}" style="color: grey;"><i class="fas fa-arrow-left"></i>
-                            กลับหน้าหลัก</a>
-                        {% endif %}
                     </div>
                 </div> <!-- End form-container -->
             </section>

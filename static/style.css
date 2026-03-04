@@ -360,16 +360,16 @@ input[type="number"] {
 
 /* Success Group */
 .status-tag.status-อนุมัติ,
-.status-tag.status-ผลงานถูกต้อง,
+.status-tag.status-ผลงานผ่าน,
 .status-tag.status-ผ่าน,
 .status-tag.pass,
 .status-banner.status-อนุมัติ,
-.status-banner.status-ผลงานถูกต้อง,
+.status-banner.status-ผลงานผ่าน,
 .status-banner.status-ผ่าน,
 .status-banner.pass {
-  background-color: #d4edda;
-  color: #155724;
-  border: 1px solid #c3e6cb;
+  background-color: var(--success-color);
+  color: #ffffff;
+  border: 1px solid var(--success-color);
 }
 .status-banner.status-อนุมัติ,
 .status-banner.status-ผ่าน {
@@ -415,15 +415,12 @@ input[type="number"] {
 .status-banner.status-รอการพิจารณา,
 .status-banner.status-รอตรวจสอบผลงาน,
 .status-banner.status-รอการอุทธรณ์,
-.status-banner.pending {
-  background-color: #fff3cd;
-  color: #856404;
-  border: 1px solid #ffeeba;
-}
 .status-banner.pending,
-.status-banner.status-รอการพิจารณา {
-  background-color: var(--warning-color);
-  color: white;
+.status-banner.status-รอการพิจารณา,
+.status-banner.status-รอตรวจประวัติการยื่นขอ {
+  background-color: #ffd54d;
+  color: #856404;
+  border: 1px solid #ffcd2a;
 }
 
 /* Info/Blue Group */
