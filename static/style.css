@@ -702,15 +702,7 @@ select[disabled] {
   background-color: #e67e22;
 }
 
-/* Interactive Transitions */
-.stat-card {
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-md);
-}
+/* Interactive Transitions Removed */
 
 .no-margin {
   margin: 0 !important;

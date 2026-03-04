@@ -61,19 +61,19 @@ python app.py
 ## โครงสร้างไฟล์ที่สำคัญ
 
 - `app.py`: ไฟล์หลักสำหรับรันระบบ (Entry Point) และลงทะเบียน Blueprints
-- `database.py`: โมดูลจัดการการเชื่อมต่อฐานข้อมูล SQLite
-- `migrate_data.py`: สคริปต์สำหรับการ Migration ข้อมูลเริ่มต้น
+- `database.py`: โมดูลจัดการการเชื่อมต่อฐานข้อมูล SQLite และนิยามโครงสร้าง Table
+- `migrate_data.py`: สคริปต์สำหรับการ Migration ข้อมูลเริ่มต้นจาก JSON เข้าสู่ Database
 - `backup/`: โฟลเดอร์เก็บไฟล์ JSON ข้อมูลเบื้องต้น (Seed Data)
 - `instance/`: โฟลเดอร์เก็บไฟล์ฐานข้อมูล `.db` (Git จะไม่ติดตามโฟลเดอร์นี้)
 - `routes/`: โฟลเดอร์เก็บ Module แยกตาม Blueprint
   - `auth.py`: ระบบจัดการการเข้าสู่ระบบ/ออกจากระบบ
-  - `main.py`: หน้าหลัก Dashboard และการแจ้งเตือน
-  - `requests.py`: ระบบยื่นคำขอและตรวจสอบคำขอ
-  - `admin.py`: ระบบจัดการเกณฑ์คะแนนสำหรับผู้ดูแลระบบ
-  - `api.py`: ระบบ API สำหรับตรวจสอบความซ้ำซ้อนและจัดการประเภทผลงาน
+  - `main.py`: หน้าหลัก Dashboard, การแจ้งเตือน, สรุปยอด, และรายการอุทธรณ์
+  - `requests.py`: ระบบยื่นคำขอใหม่, การดูรายละเอียด และระบบยื่นอุทธรณ์
+  - `admin.py`: ระบบจัดการเกณฑ์คะแนน และจัดการ Timeline กำหนดวันเปิด-ปิด
+  - `api.py`: ระบบ API สำหรับตรวจสอบความซ้ำซ้อน และจัดการไฟล์อัปโหลด
 - `templates/`: เก็บไฟล์ HTML (Jinja2 Templates)
-- `static/`: เก็บไฟล์ CSS, Images และ JavaScript
-- `uploads/`: เก็บไฟล์หลักฐานที่ผู้ใช้ยื่นคำขอ (จะถูกสร้างอัตโนมัติ)
+- `static/`: เก็บไฟล์ CSS (Modern UI), Images และ JavaScript
+- `uploads/`: เก็บไฟล์หลักฐานที่ผู้ใช้ยื่นคำขอ (จะถูกสร้างอัตโนมัติแยกตาม REQ ID)
 
 ---
 
@@ -81,47 +81,48 @@ python app.py
 
 ### 1. นางสาวฐิติรัตน์ แสงห้าว 68114540166 (Blueprint: `main`, `auth`)
 
-- `@main_bp.route('/')` - หน้าแรก (Gateway เช็คสิทธิ์การเข้าใช้งาน)
-- `@main_bp.route('/dashboard')` - หน้าหลักผู้ใช้งานและระบบค้นหาข้อมูลคำขอ
-- `@auth_bp.route('/login')` - ระบบเข้าสู่ระบบ
-- `@auth_bp.route('/logout')` - ระบบออกจากระบบ
+- `@auth_bp.route('/login')` - ระบบเข้าสู่ระบบ (Login)
+- `@auth_bp.route('/logout')` - ระบบออกจากระบบ (Logout)
+- `@main_bp.route('/')` - หน้าแรก (Entry Point)
+- `@main_bp.route('/dashboard')` - หน้าหลักผู้ใช้งาน และระบบค้นหา/กรองข้อมูลคำขอ
 
 ### 2. นายธนวรรธ ทองตื้อ 68114540258 (Blueprint: `requests`, `api`)
 
-- `@requests_bp.route('/new_request')` - แบบฟอร์มยื่นคำขอใหม่ (Form Logic)
-- `@api_bp.route('/api/add_work_type')` - ระบบเพิ่มประเภทผลงานทางวิชาการ
-- `@api_bp.route('/uploads/...')` - ระบบจัดการไฟล์หลักฐานที่อัปโหลด
+- `@requests_bp.route('/new_request')` - ระบบยื่นคำขอใหม่ (Smart Form Implementation)
+- `@api_bp.route('/api/add_work_type')` - ระบบ API เพิ่มประเภทผลงานทางวิชาการแบบกำหนดเอง
+- `@api_bp.route('/api/delete_work_type')` - ระบบ API ลบประเภทผลงาน (เฉพาะรายการที่สร้างใหม่)
+- `@api_bp.route('/uploads/...')` - ระบบให้บริการไฟล์เอกสารหลักฐาน (Secure File Hosting)
 
-### 3. นายศุกลวัฒณ์ ไกรษี 68114540629 (Blueprint: `requests`, `api`)
+### 3. นายศุกลวัฒณ์ ไกรษี 68114540629 (Blueprint: `requests`)
 
-- `@requests_bp.route('/view_request/<id>')` - หน้าดูรายละเอียดคำขอรวม
+- `@requests_bp.route('/view_request/<id>')` - หน้าแสดงรายละเอียดคำขอ และประวัติการพิจารณา (Audit Trail)
 - `@requests_bp.route('/view_work/<id>/<idx>')` - หน้าตรวจสอบรายละเอียดผลงานรายชิ้น
-- `@api_bp.route('/api/check_work_duplicate')` - ระบบตรวจสอบความซ้ำซ้อนของผลงาน
 
-### 4. นายฤทธิชัย โลมะกาล 68114540533 (Blueprint: `main`)
+### 4. นายฤทธิชัย โลมะกาล 68114540533 (Blueprint: `main`, `api`)
 
-- `@main_bp.route('/api/notifications')` - API ดึงข้อมูลแจ้งเตือน
 - `@main_bp.route('/notifications')` - หน้าศูนย์รวมการแจ้งเตือนทั้งหมด
+- `@main_bp.route('/api/notifications')` - ระบบ API ดึงข้อมูลการแจ้งเตือนแบบ Real-time
+- `@main_bp.route('/api/notifications/read/<id>')` - ระบบ API อัปเดตสถานะการอ่านแจ้งเตือน
 
 ### 5. นางสาวเบญจมาศ จ่านันท์ 68114540344 (Blueprint: `main`, `requests`)
 
-- `@main_bp.route('/appeals')` - รายการอุทธรณ์ผลการพิจารณา
-- `@requests_bp.route('/appeal/<id>')` - หน้าการยื่นอุทธรณ์สำหรับผู้ใช้งาน
+- `@main_bp.route('/appeals')` - หน้ารวมรายการอุทธรณ์สำหรับบุคลากรและคณะกรรมการ
+- `@requests_bp.route('/appeal/<id>')` - แบบฟอร์มการยื่นอุทธรณ์ผลการพิจารณา
 
-### 6. นายภัทรพงษ์ จรรยากรณ์ 68114540434 (Blueprint: `admin`)
+### 6. นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (Blueprint: `main`, `api`)
 
-- `@admin_bp.route('/manage_criteria')` - หน้าจัดการเกณฑ์คะแนน (Admin)
-- `@admin_bp.route('/edit_criteria')` - ระบบแก้ไขเกณฑ์คะแนนและอัตราการจ่ายเงิน
+- `@main_bp.route('/summary')` - ระบบสรุปยอดรวมของระบบ (Dashboard Statistics) และรายงานตามตำแหน่งวิชาการ
+- `@api_bp.route('/api/check_work_duplicate')` - ระบบวิเคราะห์ความซ้ำซ้อนของผลงานและตรวจสอบอายุผลงาน (2 ปี)
+- _(หมายเหตุ: ระบบจัดชุด Batching เดิมถูกระงับการใช้งานเพื่อความคล่องตัวของกระบวนการพิจารณา)_
 
-### 7. นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (Blueprint: `rounds`)
+### 7. นายภัทรพงษ์ จรรยากรณ์ 68114540434 (Blueprint: `admin`)
 
-- _@หมายเหตุ: ปัจจุบันระบบจัดชุด (Batching) ถูกระงับการใช้งานผ่าน app.py ชั่วคราว_
-- `@rounds_bp.route('/manage/rounds')` - ระบบจัดการรอบการพิจารณา
-- `@rounds_bp.route('/round_history')` - ประวัติรอบการพิจารณา
+- `@admin_bp.route('/manage_criteria')` - ระบบบริหารจัดการเกณฑ์คะแนน (CRUD)
+- `@admin_bp.route('/edit_criteria')` - แบบฟอร์มแก้ไขเกณฑ์คะแนนและอัตราค่าตอบแทนรายปีงบประมาณ
 
 ### 8. นายฐิติวัฒน์ ลุณบุตร 68114540814 (Blueprint: `admin`)
 
-- _ผู้รับผิดชอบระบบจัดการ Timeline (กำหนดการเปิด-ปิดระบบ)_
-- (อยู่ระหว่างการปรับปรุงระบบเข้าสู่ระบบฐานข้อมูลใหม่)
+- `@admin_bp.route('/manage_timeline')` - ระบบจัดการ Timeline กำหนดวาระการเปิด-ปิดระบบ
+- `@admin_bp.route('/edit_timeline')` - ระบบแก้ไขกำหนดการเปิดรับคำขอในแต่ละปีงบประมาณ
 
 ---

@@ -64,8 +64,14 @@ def migrate():
             reqs = json.load(f)
             for r in reqs:
                 execute_db('''
-                    INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, comments_json, timeline_status, batch_id, applicant_info_json, works_json)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO RequestRecord (
+                        id, applicant_username, applicant_name, fiscal_year, status, 
+                        date_submitted, total_score, approved_amount, comments_json, 
+                        timeline_status, batch_id, applicant_info_json, works_json,
+                        admin_viewer, research_viewer, committee_approver, 
+                        final_approver, decision_reason, history_json
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     r['id'], r['applicant'], r['applicant_name'], r.get('fiscal_year'),
                     r.get('status'), r.get('date'), float(r.get('score', 0) or 0),
@@ -73,9 +79,11 @@ def migrate():
                     json.dumps([{"role": "system", "text": r.get('comment', ''), "name": "System", "timestamp": r.get('date', '')}] if r.get('comment') else [], ensure_ascii=False),
                     r.get('timeline_status'), r.get('batch_id'),
                     json.dumps(r.get('applicant_info', {}), ensure_ascii=False),
-                    json.dumps(r.get('works', []), ensure_ascii=False)
+                    json.dumps(r.get('works', []), ensure_ascii=False),
+                    r.get('admin_viewer'), r.get('research_viewer'), r.get('committee_approver'),
+                    r.get('final_approver'), r.get('decision_reason'), r.get('history_json')
                 ))
-        print(f"✅ Migrated {len(reqs)} requests (including works).")
+        print(f"✅ Migrated {len(reqs)} requests (including works and audit history).")
 
     # 4. Migrate Criteria
     if os.path.exists('backup/criteria.json'):

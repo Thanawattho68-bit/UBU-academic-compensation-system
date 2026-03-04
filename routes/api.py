@@ -2,7 +2,7 @@
 routes/api.py
 จัดการ API routes และการให้บริการไฟล์ที่อัปโหลด
 ผู้รับผิดชอบ:
-  - นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบความซ้ำซ้อน)
+  - นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ตรวจสอบความซ้ำซ้อน)
   - นายธนวรรธ ทองตื้อ 68114540258 (เพิ่ม/ลบประเภทผลงาน, อัปโหลดไฟล์)
 """
 
@@ -16,7 +16,7 @@ from utils import load_data, save_data, parse_thai_date
 api_bp = Blueprint('api', __name__)
 
 
-@api_bp.route('/api/check_work_duplicate', methods=['POST']) # ผู้รับผิดชอบ: นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบความซ้ำซ้อน)
+@api_bp.route('/api/check_work_duplicate', methods=['POST']) # ผู้รับผิดชอบ: นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ตรวจสอบความซ้ำซ้อน)
 def api_check_work_duplicate():
     if 'username' not in session:
         return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
