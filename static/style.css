@@ -1,17 +1,24 @@
 /* Global Styles & Variables */
 :root {
-  --primary-color: #2c3e50;
-  --secondary-color: #34495e;
-  --accent-color: #3498db;
-  --accent-hover: #2980b9;
-  --success-color: #2ecc71;
-  --warning-color: #f1c40f;
-  --danger-color: #e74c3c;
-  --text-color: #2c3e50;
-  --bg-color: #f4f7f6;
+  /* Brand Colors */
+  --primary-color: #1e293b;
+  --secondary-color: #475569;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+
+  /* Semantic Colors - Consolidated */
+  --success-color: #10b981; /* Green */
+  --warning-color: #f59e0b; /* Amber/Orange */
+  --danger-color: #ef4444; /* Red */
+  --neutral-color: #94a3b8; /* Gray */
+  --info-color: #3b82f6; /* Blue */
+
+  /* UI Surface Colors */
+  --text-color: #1e293b;
+  --bg-color: #f8fafc;
   --card-bg: #ffffff;
-  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
   --font-heading: "Sarabun", sans-serif;
   --font-body: "Sarabun", sans-serif;
 }
@@ -303,12 +310,12 @@ input[type="number"] {
 }
 
 .btn-secondary {
-  background: #95a5a6;
+  background: var(--neutral-color);
   color: white;
 }
 
 .btn-secondary:hover {
-  background: #7f8c8d;
+  background: var(--secondary-color);
   transform: translateY(-1px);
 }
 
@@ -318,7 +325,7 @@ input[type="number"] {
 }
 
 .btn-success:hover {
-  background: #27ae60;
+  background: #059669;
   transform: translateY(-1px);
 }
 
@@ -328,17 +335,17 @@ input[type="number"] {
 }
 
 .btn-danger:hover {
-  background: #c0392b;
+  background: #dc2626;
   transform: translateY(-1px);
 }
 
 .btn-warning {
   background: var(--warning-color);
-  color: #34495e;
+  color: white;
 }
 
 .btn-warning:hover {
-  background: #f39c12;
+  background: #d97706;
   transform: translateY(-1px);
 }
 
@@ -369,6 +376,13 @@ input[type="number"] {
   gap: 5px;
 }
 
+/* Labels Mapping:
+   Success: อนุมัติ, ผลงานผ่าน, ผ่าน, pass
+   Danger: ไม่อนุมัติ, ผลงานซ้ำซ้อน, fail, ยกเลิก
+   Warning: แก้ไข, รอการพิจารณา, รอตรวจสอบผลงาน, รอการอุทธรณ์, รอตรวจประวัติการยื่นขอ, pending
+   Neutral: ส่งแล้ว, แบบร่าง (ตามที่ USER กำหนด)
+*/
+
 /* Success Group */
 .status-tag.status-อนุมัติ,
 .status-tag.status-ผลงานผ่าน,
@@ -383,27 +397,27 @@ input[type="number"] {
   border: 1px solid var(--success-color);
 }
 
-/* Success banners now handled by grouped rule above */
 .status-tag.status-อนุมัติ::before {
   content: "\f00c";
   font-family: "Font Awesome 5 Free";
 }
 
-/* Danger/Fail Group */
+/* Danger Group */
 .status-tag.status-ไม่อนุมัติ,
 .status-tag.status-ผลงานซ้ำซ้อน,
 .status-tag.status-ซ้ำซ้อนบางส่วน,
 .status-tag.fail,
+.status-tag.status-ยกเลิก,
 .status-banner.status-ไม่อนุมัติ,
 .status-banner.status-ผลงานซ้ำซ้อน,
 .status-banner.status-ซ้ำซ้อนบางส่วน,
-.status-banner.fail {
+.status-banner.fail,
+.status-banner.status-ยกเลิก {
   background-color: var(--danger-color);
   color: #ffffff;
   border: 1px solid var(--danger-color);
 }
 
-/* Danger banners now handled by grouped rule above */
 .status-tag.status-ไม่อนุมัติ::before,
 .status-tag.status-ผลงานซ้ำซ้อน::before,
 .status-tag.status-ซ้ำซ้อนบางส่วน::before {
@@ -411,58 +425,41 @@ input[type="number"] {
   font-family: "Font Awesome 5 Free";
 }
 
-/* Warning/Pending Group */
+/* Warning Group */
 .status-tag.status-รอตรวจสอบผลงาน,
 .status-tag.status-รอการพิจารณา,
 .status-tag.status-รอการอุทธรณ์,
+.status-tag.status-รอตรวจประวัติการยื่นขอ,
+.status-tag.status-แก้ไข,
 .status-tag.pending,
 .status-banner.status-รอการพิจารณา,
 .status-banner.status-รอตรวจสอบผลงาน,
 .status-banner.status-รอการอุทธรณ์,
-.status-banner.pending,
-.status-banner.status-รอการพิจารณา,
-.status-banner.status-รอตรวจประวัติการยื่นขอ {
+.status-banner.status-รอตรวจประวัติการยื่นขอ,
+.status-banner.status-แก้ไข,
+.status-banner.pending {
   background-color: var(--warning-color);
-  color: var(--primary-color);
+  color: #ffffff;
   border: 1px solid var(--warning-color);
 }
 
-/* Info/Blue Group */
+/* Neutral Group (Submitted & Draft) */
 .status-tag.status-ส่งแล้ว,
-.status-banner.status-ส่งแล้ว {
-  background-color: var(--accent-color);
-  color: #ffffff;
-  border: 1px solid var(--accent-color);
-}
-
-/* Info banners now handled by grouped rule above */
-
-/* Draft & Grey Group */
 .status-tag.status-แบบร่าง,
-.status-tag.status-ยกเลิก,
-.status-banner.status-แบบร่าง,
-.status-banner.status-ยกเลิก {
-  background-color: #f1f1f1;
-  color: #6c757d;
-  border: 1px solid #dee2e6;
+.status-banner.status-ส่งแล้ว,
+.status-banner.status-แบบร่าง {
+  background-color: var(--neutral-color);
+  color: #ffffff;
+  border: 1px solid var(--neutral-color);
 }
 
 .status-tag.status-แบบร่าง {
   font-style: italic;
+  opacity: 0.8;
 }
 
 .status-tag.status-ยกเลิก {
   text-decoration: line-through;
-}
-
-.status-banner.status-แบบร่าง {
-  background-color: #95a5a6;
-  color: white;
-}
-
-.status-banner.status-ยกเลิก {
-  background-color: #7f8c8d;
-  color: white;
 }
 
 /* Form Styles */
