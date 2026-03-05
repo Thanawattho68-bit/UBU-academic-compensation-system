@@ -25,7 +25,7 @@
     <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">
       <i class="fas fa-home"></i> หน้าหลัก
     </a>
-    {% if role != 'applicant' %}
+    {% if role not in ['applicant', 'research'] %}
     <a href="{{ url_for('main.summary_page') }}"
       class="{% if request.endpoint == 'main.summary_page' %}active{% endif %}">
       <i class="fas fa-chart-bar"></i> สรุปยอด

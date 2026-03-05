@@ -632,14 +632,14 @@
               applyPagination();
             }
 
-            let currentSortOrder = "desc";
+            let currentSortOrder = "asc";
             function sortTableByFiscal() {
               const table = document.getElementById("requestsTable");
               const tbody = table.querySelector("tbody");
               const rows = Array.from(tbody.querySelectorAll(".item-row"));
 
               // Toggle sort order
-              currentSortOrder = currentSortOrder === "desc" ? "asc" : "desc";
+              currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
 
               rows.sort((a, b) => {
                 const fyA = parseInt(a.getAttribute("data-fy")) || 0;
@@ -709,9 +709,9 @@
               if (paginationControls) {
                 let controlsHtml = "";
                 if (totalPages > 1) {
-                  controlsHtml += `<button onclick="changePage(-1)" class="btn-view" ${currentPage === 1 ? "disabled" : ""}><i class="fas fa-chevron-left"></i> ก่อนหน้า</button> `;
+                  controlsHtml += `<button onclick="changePage(-1)" class="btn-view" ${currentPage === 1 ? "disabled" : ""}><i class="fas fa-angle-left"></i></button> `;
                   controlsHtml += ` <span style="margin: 0 10px; font-weight:bold; color:#475569;">หน้า ${currentPage} / ${totalPages}</span> `;
-                  controlsHtml += `<button onclick="changePage(1)" class="btn-view" ${currentPage === totalPages ? "disabled" : ""} >ถัดไป <i class="fas fa-chevron-right"></i></button>`;
+                  controlsHtml += `<button onclick="changePage(1)" class="btn-view" ${currentPage === totalPages ? "disabled" : ""} ><i class="fas fa-angle-right"></i></button>`;
                 }
                 paginationControls.innerHTML = controlsHtml;
               }

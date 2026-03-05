@@ -144,7 +144,7 @@ def summary_page():
     if 'username' not in session: return redirect(url_for('auth.login'))
     
     # จำกัดสิทธิ์เฉพาะเจ้าหน้าที่และกรรมการเท่านั้น
-    if session['role'] == 'applicant':
+    if session['role'] in ['applicant', 'research']:
         flash("คุณไม่มีสิทธิ์เข้าถึงหน้าสรุปยอดรวม")
         return redirect(url_for('main.dashboard'))
     

@@ -93,6 +93,14 @@
             <!-- Header -->
             <header class="top-bar"
                 style="display: flex; align-items: center; justify-content: space-between; padding: 0 40px; background: white; border-bottom: 1px solid #eee;">
+                {% if role not in ['applicant', 'research'] %}
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <a href="{{ url_for('main.summary_page', year=request.args.get('year') or req.fiscal_year) }}"
+                        style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-arrow-left"></i> สรุปยอด
+                    </a>
+                </div>
+                {% endif %}
                 <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
                     <a href="{{ url_for('main.dashboard') }}"
                         style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 8px;">
@@ -321,7 +329,7 @@
                                                 style="padding: 20px; text-align: center; border-bottom: 1px solid #edf2f7; border-left: 1px solid #edf2f7;">
                                                 <div
                                                     style="display: flex; justify-content: center; align-items: center; gap: 12px;">
-                                                    <a href="{{ url_for('requests.view_work', req_id=req.id, work_index=loop.index0) }}"
+                                                    <a href="{{ url_for('requests.view_work', req_id=req.id, work_index=loop.index0, year=request.args.get('year')) }}"
                                                         style="color: #64748b; font-size: 1.2rem; transition: color 0.2s;"
                                                         onmouseover="this.style.color='#3b82f6'"
                                                         onmouseout="this.style.color='#64748b'">
@@ -624,6 +632,7 @@
                     </div>
                 </div> <!-- End form-container -->
 
+                {% if role not in ['applicant', 'research'] %}
                 <!-- Section: Request History (Audit Trail) -->
                 <div id="history" class="form-container"
                     style="margin-top: 30px; background: white; border-radius: 20px; padding: 40px; box-shadow: 0 10px 25px rgba(0,0,0,0.05);">
@@ -665,7 +674,7 @@
                         </table>
                     </div>
                 </div>
-
+                {% endif %}
             </section>
         </main>
     </div>
