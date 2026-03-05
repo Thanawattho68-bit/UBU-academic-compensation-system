@@ -1,0 +1,1859 @@
+[
+    {
+        "id": "REQ-2558776211",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2558",
+        "status": "อนุมัติ",
+        "date": "23 มิ.ย. 2558 00:00:00",
+        "score": 24.0,
+        "approved_amount": 24000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2558 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 7.0,
+                "payment_calc": 7000.0
+            },
+            {
+                "id": "work_2",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2558 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 9.0,
+                "payment_calc": 9000.0
+            },
+            {
+                "id": "work_3",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2558 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"23 มิ.ย. 2558 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2558\"}, {\"timestamp\": \"25 มิ.ย. 2558 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"30 มิ.ย. 2558 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"10 ก.ค. 2558 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2558117155",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2558",
+        "status": "อนุมัติ",
+        "date": "2 ส.ค. 2558 00:00:00",
+        "score": 18.0,
+        "approved_amount": 18000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2558 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"2 ส.ค. 2558 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2558\"}, {\"timestamp\": \"4 ส.ค. 2558 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"9 ส.ค. 2558 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"19 ส.ค. 2558 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2558149353",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2558",
+        "status": "อนุมัติ",
+        "date": "14 เม.ย. 2558 00:00:00",
+        "score": 36.0,
+        "approved_amount": 36000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2558 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 6.0,
+                "payment_calc": 6000.0
+            },
+            {
+                "id": "work_2",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2558 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            },
+            {
+                "id": "work_3",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2558 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"14 เม.ย. 2558 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2558\"}, {\"timestamp\": \"16 เม.ย. 2558 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"21 เม.ย. 2558 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"1 พ.ค. 2558 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2558937869",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2558",
+        "status": "อนุมัติ",
+        "date": "12 พ.ค. 2558 00:00:00",
+        "score": 36.0,
+        "approved_amount": 36000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2558 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 11.0,
+                "payment_calc": 11000.0
+            },
+            {
+                "id": "work_2",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2558 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 7.0,
+                "payment_calc": 7000.0
+            },
+            {
+                "id": "work_3",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2558 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"12 พ.ค. 2558 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2558\"}, {\"timestamp\": \"14 พ.ค. 2558 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"19 พ.ค. 2558 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"29 พ.ค. 2558 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2559767338",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2559",
+        "status": "อนุมัติ",
+        "date": "4 เม.ย. 2559 00:00:00",
+        "score": 39.0,
+        "approved_amount": 39000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2559 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 5.0,
+                "payment_calc": 5000.0
+            },
+            {
+                "id": "work_2",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2559 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            },
+            {
+                "id": "work_3",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2559 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 16.0,
+                "payment_calc": 16000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"4 เม.ย. 2559 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2559\"}, {\"timestamp\": \"6 เม.ย. 2559 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"11 เม.ย. 2559 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"21 เม.ย. 2559 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2559259585",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2559",
+        "status": "อนุมัติ",
+        "date": "22 ม.ค. 2559 00:00:00",
+        "score": 8.0,
+        "approved_amount": 8000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2559 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"22 ม.ค. 2559 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2559\"}, {\"timestamp\": \"24 ม.ค. 2559 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"29 ม.ค. 2559 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"8 ก.พ. 2559 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2559324190",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2559",
+        "status": "อนุมัติ",
+        "date": "18 มิ.ย. 2559 00:00:00",
+        "score": 24.0,
+        "approved_amount": 24000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2559 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 6.0,
+                "payment_calc": 6000.0
+            },
+            {
+                "id": "work_2",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2559 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"18 มิ.ย. 2559 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2559\"}, {\"timestamp\": \"20 มิ.ย. 2559 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"25 มิ.ย. 2559 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"5 ก.ค. 2559 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2559783886",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2559",
+        "status": "อนุมัติ",
+        "date": "4 ม.ค. 2559 00:00:00",
+        "score": 41.0,
+        "approved_amount": 41000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2559 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 16.0,
+                "payment_calc": 16000.0
+            },
+            {
+                "id": "work_2",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2559 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            },
+            {
+                "id": "work_3",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2559 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 7.0,
+                "payment_calc": 7000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"4 ม.ค. 2559 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2559\"}, {\"timestamp\": \"6 ม.ค. 2559 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"11 ม.ค. 2559 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"21 ม.ค. 2559 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2560441454",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2560",
+        "status": "อนุมัติ",
+        "date": "26 เม.ย. 2560 00:00:00",
+        "score": 36.0,
+        "approved_amount": 36000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2560 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            },
+            {
+                "id": "work_2",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2560 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"26 เม.ย. 2560 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2560\"}, {\"timestamp\": \"28 เม.ย. 2560 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"3 พ.ค. 2560 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"13 พ.ค. 2560 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2560183634",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2560",
+        "status": "อนุมัติ",
+        "date": "17 ก.ค. 2560 00:00:00",
+        "score": 32.0,
+        "approved_amount": 32000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2560 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 19.0,
+                "payment_calc": 19000.0
+            },
+            {
+                "id": "work_2",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2560 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 13.0,
+                "payment_calc": 13000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"17 ก.ค. 2560 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2560\"}, {\"timestamp\": \"19 ก.ค. 2560 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"24 ก.ค. 2560 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"3 ส.ค. 2560 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2560703655",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2560",
+        "status": "อนุมัติ",
+        "date": "14 ก.ย. 2560 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2560 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 6.0,
+                "payment_calc": 6000.0
+            },
+            {
+                "id": "work_2",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2560 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"14 ก.ย. 2560 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2560\"}, {\"timestamp\": \"16 ก.ย. 2560 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"21 ก.ย. 2560 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"1 ต.ค. 2560 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2560589406",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2560",
+        "status": "อนุมัติ",
+        "date": "3 พ.ค. 2560 00:00:00",
+        "score": 33.0,
+        "approved_amount": 33000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2560 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 14.0,
+                "payment_calc": 14000.0
+            },
+            {
+                "id": "work_2",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2560 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 19.0,
+                "payment_calc": 19000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"3 พ.ค. 2560 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2560\"}, {\"timestamp\": \"5 พ.ค. 2560 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"10 พ.ค. 2560 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"20 พ.ค. 2560 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2561967746",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2561",
+        "status": "อนุมัติ",
+        "date": "7 ม.ค. 2561 00:00:00",
+        "score": 27.0,
+        "approved_amount": 27000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2561 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 10.0,
+                "payment_calc": 10000.0
+            },
+            {
+                "id": "work_2",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2561 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"7 ม.ค. 2561 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2561\"}, {\"timestamp\": \"9 ม.ค. 2561 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"14 ม.ค. 2561 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"24 ม.ค. 2561 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2561449061",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2561",
+        "status": "อนุมัติ",
+        "date": "2 ม.ค. 2561 00:00:00",
+        "score": 17.0,
+        "approved_amount": 17000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2561 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            },
+            {
+                "id": "work_2",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2561 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 5.0,
+                "payment_calc": 5000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"2 ม.ค. 2561 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2561\"}, {\"timestamp\": \"4 ม.ค. 2561 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"9 ม.ค. 2561 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"19 ม.ค. 2561 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2561917564",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2561",
+        "status": "อนุมัติ",
+        "date": "15 ก.พ. 2561 00:00:00",
+        "score": 39.0,
+        "approved_amount": 39000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2561 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            },
+            {
+                "id": "work_2",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2561 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            },
+            {
+                "id": "work_3",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2561 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 9.0,
+                "payment_calc": 9000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"15 ก.พ. 2561 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2561\"}, {\"timestamp\": \"17 ก.พ. 2561 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"22 ก.พ. 2561 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"4 มี.ค. 2561 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2562337668",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2562",
+        "status": "อนุมัติ",
+        "date": "27 ส.ค. 2562 00:00:00",
+        "score": 11.0,
+        "approved_amount": 11000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2562 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 11.0,
+                "payment_calc": 11000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"27 ส.ค. 2562 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2562\"}, {\"timestamp\": \"29 ส.ค. 2562 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"3 ก.ย. 2562 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"13 ก.ย. 2562 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2562615849",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2562",
+        "status": "ไม่อนุมัติ",
+        "date": "20 มี.ค. 2562 00:00:00",
+        "score": 28.0,
+        "approved_amount": 28000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2562 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 15.0,
+                "payment_calc": 15000.0
+            },
+            {
+                "id": "work_2",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2562 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 13.0,
+                "payment_calc": 13000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"20 มี.ค. 2562 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2562\"}, {\"timestamp\": \"22 มี.ค. 2562 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"27 มี.ค. 2562 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"6 เม.ย. 2562 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: ไม่อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2562860013",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2562",
+        "status": "อนุมัติ",
+        "date": "25 ก.ค. 2562 00:00:00",
+        "score": 13.0,
+        "approved_amount": 13000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2562 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 13.0,
+                "payment_calc": 13000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"25 ก.ค. 2562 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2562\"}, {\"timestamp\": \"27 ก.ค. 2562 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"1 ส.ค. 2562 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"11 ส.ค. 2562 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2563880228",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2563",
+        "status": "ไม่อนุมัติ",
+        "date": "8 เม.ย. 2563 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2563 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 14.0,
+                "payment_calc": 14000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"8 เม.ย. 2563 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2563\"}, {\"timestamp\": \"10 เม.ย. 2563 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"15 เม.ย. 2563 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"25 เม.ย. 2563 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: ไม่อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2563604934",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2563",
+        "status": "อนุมัติ",
+        "date": "26 ส.ค. 2563 00:00:00",
+        "score": 18.0,
+        "approved_amount": 18000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2563 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            },
+            {
+                "id": "work_2",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2563 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 6.0,
+                "payment_calc": 6000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"26 ส.ค. 2563 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2563\"}, {\"timestamp\": \"28 ส.ค. 2563 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"2 ก.ย. 2563 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"12 ก.ย. 2563 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2563274716",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2563",
+        "status": "อนุมัติ",
+        "date": "10 ก.ย. 2563 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2563 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 14.0,
+                "payment_calc": 14000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"10 ก.ย. 2563 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2563\"}, {\"timestamp\": \"12 ก.ย. 2563 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"17 ก.ย. 2563 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"27 ก.ย. 2563 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2563553031",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2563",
+        "status": "อนุมัติ",
+        "date": "14 เม.ย. 2563 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2563 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 14.0,
+                "payment_calc": 14000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"14 เม.ย. 2563 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2563\"}, {\"timestamp\": \"16 เม.ย. 2563 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"21 เม.ย. 2563 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"1 พ.ค. 2563 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2564483284",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2564",
+        "status": "ไม่อนุมัติ",
+        "date": "28 เม.ย. 2564 00:00:00",
+        "score": 38.0,
+        "approved_amount": 38000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2564 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            },
+            {
+                "id": "work_2",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2564 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            },
+            {
+                "id": "work_3",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2564 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 13.0,
+                "payment_calc": 13000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"28 เม.ย. 2564 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2564\"}, {\"timestamp\": \"30 เม.ย. 2564 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"5 พ.ค. 2564 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"15 พ.ค. 2564 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: ไม่อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2564230593",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2564",
+        "status": "อนุมัติ",
+        "date": "20 ก.พ. 2564 00:00:00",
+        "score": 23.0,
+        "approved_amount": 23000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2564 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 6.0,
+                "payment_calc": 6000.0
+            },
+            {
+                "id": "work_2",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2564 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"20 ก.พ. 2564 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2564\"}, {\"timestamp\": \"22 ก.พ. 2564 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"27 ก.พ. 2564 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"9 มี.ค. 2564 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2564369416",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2564",
+        "status": "อนุมัติ",
+        "date": "17 ก.ค. 2564 00:00:00",
+        "score": 31.0,
+        "approved_amount": 31000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2564 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 19.0,
+                "payment_calc": 19000.0
+            },
+            {
+                "id": "work_2",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2564 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"17 ก.ค. 2564 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2564\"}, {\"timestamp\": \"19 ก.ค. 2564 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"24 ก.ค. 2564 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"3 ส.ค. 2564 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2564810515",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2564",
+        "status": "อนุมัติ",
+        "date": "14 พ.ค. 2564 00:00:00",
+        "score": 37.0,
+        "approved_amount": 37000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2564 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 11.0,
+                "payment_calc": 11000.0
+            },
+            {
+                "id": "work_2",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2564 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 9.0,
+                "payment_calc": 9000.0
+            },
+            {
+                "id": "work_3",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2564 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"14 พ.ค. 2564 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2564\"}, {\"timestamp\": \"16 พ.ค. 2564 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"21 พ.ค. 2564 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"31 พ.ค. 2564 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2565187484",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2565",
+        "status": "ไม่อนุมัติ",
+        "date": "15 มี.ค. 2565 00:00:00",
+        "score": 39.0,
+        "approved_amount": 39000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2565 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            },
+            {
+                "id": "work_2",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2565 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 16.0,
+                "payment_calc": 16000.0
+            },
+            {
+                "id": "work_3",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2565 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 11.0,
+                "payment_calc": 11000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"15 มี.ค. 2565 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2565\"}, {\"timestamp\": \"17 มี.ค. 2565 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"22 มี.ค. 2565 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"1 เม.ย. 2565 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: ไม่อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2565681885",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2565",
+        "status": "อนุมัติ",
+        "date": "22 เม.ย. 2565 00:00:00",
+        "score": 43.0,
+        "approved_amount": 43000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2565 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            },
+            {
+                "id": "work_2",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2565 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            },
+            {
+                "id": "work_3",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2565 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"22 เม.ย. 2565 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2565\"}, {\"timestamp\": \"24 เม.ย. 2565 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"29 เม.ย. 2565 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"9 พ.ค. 2565 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2565545192",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2565",
+        "status": "อนุมัติ",
+        "date": "19 ก.ย. 2565 00:00:00",
+        "score": 5.0,
+        "approved_amount": 5000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "teaching",
+                "label": "ผลงานการสอน",
+                "details": {
+                    "title": "ผลงาน ผลงานการสอน ประจำปี 2565 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 5.0,
+                "payment_calc": 5000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"19 ก.ย. 2565 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2565\"}, {\"timestamp\": \"21 ก.ย. 2565 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"26 ก.ย. 2565 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"6 ต.ค. 2565 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2566258587",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2566",
+        "status": "อนุมัติ",
+        "date": "23 ก.ค. 2566 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2566 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 14.0,
+                "payment_calc": 14000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"23 ก.ค. 2566 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2566\"}, {\"timestamp\": \"25 ก.ค. 2566 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"30 ก.ค. 2566 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"9 ส.ค. 2566 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2566981387",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2566",
+        "status": "อนุมัติ",
+        "date": "9 พ.ค. 2566 00:00:00",
+        "score": 34.0,
+        "approved_amount": 34000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2566 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 15.0,
+                "payment_calc": 15000.0
+            },
+            {
+                "id": "work_2",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2566 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 19.0,
+                "payment_calc": 19000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"9 พ.ค. 2566 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2566\"}, {\"timestamp\": \"11 พ.ค. 2566 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"16 พ.ค. 2566 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"26 พ.ค. 2566 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2566243726",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2566",
+        "status": "อนุมัติ",
+        "date": "9 ก.พ. 2566 00:00:00",
+        "score": 10.0,
+        "approved_amount": 10000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2566 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 10.0,
+                "payment_calc": 10000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"9 ก.พ. 2566 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2566\"}, {\"timestamp\": \"11 ก.พ. 2566 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"16 ก.พ. 2566 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"26 ก.พ. 2566 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2566954977",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2566",
+        "status": "อนุมัติ",
+        "date": "19 ก.ย. 2566 00:00:00",
+        "score": 17.0,
+        "approved_amount": 17000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "textbook",
+                "label": "ตำราหรือหนังสือ",
+                "details": {
+                    "title": "ผลงาน ตำราหรือหนังสือ ประจำปี 2566 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 17.0,
+                "payment_calc": 17000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"19 ก.ย. 2566 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2566\"}, {\"timestamp\": \"21 ก.ย. 2566 00:00:00\", \"user\": \"admin_work\", \"name\": \"เจ้าหน้าที่งานบุคคล\", \"role\": \"administration\", \"action\": \"ส่งตรวจสอบประวัติ (งานวิจัย)\", \"comment\": \"\"}, {\"timestamp\": \"26 ก.ย. 2566 00:00:00\", \"user\": \"research01\", \"name\": \"เจ้าหน้าที่งานวิจัย\", \"role\": \"research\", \"action\": \"ตรวจความซ้ำซ้อนเรียบร้อย\", \"comment\": \"ผลลัพธ์: ผลงานผ่าน\"}, {\"timestamp\": \"6 ต.ค. 2566 00:00:00\", \"user\": \"board01\", \"name\": \"คณะกรรมการประจำคณะ\", \"role\": \"committee\", \"action\": \"ผลการพิจารณา: อนุมัติ\", \"comment\": \"พิจารณาตามเกณฑ์ปีงบประมาณ\"}]"
+    },
+    {
+        "id": "REQ-2567867938",
+        "applicant": "user01",
+        "applicant_name": "ผศ. สมชาย",
+        "fiscal_year": "2567",
+        "status": "อนุมัติ",
+        "date": "17 มี.ค. 2567 00:00:00",
+        "score": 12.0,
+        "approved_amount": 12000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "creative",
+                "label": "งานสร้างสรรค์",
+                "details": {
+                    "title": "ผลงาน งานสร้างสรรค์ ประจำปี 2567 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"17 มี.ค. 2567 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ. สมชาย\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2567\"}]"
+    },
+    {
+        "id": "REQ-2567205933",
+        "applicant": "user02",
+        "applicant_name": "รศ. สมหญิง",
+        "fiscal_year": "2567",
+        "status": "รอตรวจประวัติการยื่นขอ",
+        "date": "22 ก.ค. 2567 00:00:00",
+        "score": 46.0,
+        "approved_amount": 46000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาง",
+            "academic_position": "รองศาสตราจารย์",
+            "department": "คณิตศาสตร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2567 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "รอตรวจประวัติการยื่นขอ",
+                "score_calc": 8.0,
+                "payment_calc": 8000.0
+            },
+            {
+                "id": "work_2",
+                "type": "innovation",
+                "label": "ผลงานนวัตกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานนวัตกรรม ประจำปี 2567 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 20.0,
+                "payment_calc": 20000.0
+            },
+            {
+                "id": "work_3",
+                "type": "research",
+                "label": "บทความงานวิจัย",
+                "details": {
+                    "title": "ผลงาน บทความงานวิจัย ประจำปี 2567 ลำดับที่ 3",
+                    "id": 3,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "ไม่อนุมัติ",
+                "score_calc": 18.0,
+                "payment_calc": 18000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"22 ก.ค. 2567 00:00:00\", \"user\": \"user02\", \"name\": \"รศ. สมหญิง\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2567\"}]"
+    },
+    {
+        "id": "REQ-2567775765",
+        "applicant": "user03",
+        "applicant_name": "ศ. สมศักดิ์",
+        "fiscal_year": "2567",
+        "status": "ส่งแล้ว",
+        "date": "23 มิ.ย. 2567 00:00:00",
+        "score": 12.0,
+        "approved_amount": 12000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ศาสตราจารย์",
+            "department": "ฟิสิกส์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "industry",
+                "label": "ผลงานวิชาการเพื่ออุตสาหกรรม",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่ออุตสาหกรรม ประจำปี 2567 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "รอตรวจประวัติการยื่นขอ",
+                "score_calc": 12.0,
+                "payment_calc": 12000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"23 มิ.ย. 2567 00:00:00\", \"user\": \"user03\", \"name\": \"ศ. สมศักดิ์\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2567\"}]"
+    },
+    {
+        "id": "REQ-2567560452",
+        "applicant": "user04",
+        "applicant_name": "ศ. สมเกียรติยศ",
+        "fiscal_year": "2567",
+        "status": "รอตรวจประวัติการยื่นขอ",
+        "date": "11 ม.ค. 2567 00:00:00",
+        "score": 14.0,
+        "approved_amount": 14000.0,
+        "comment": "",
+        "timeline_status": "ontime",
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [
+            {
+                "id": "work_1",
+                "type": "policy",
+                "label": "ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ",
+                "details": {
+                    "title": "ผลงาน ผลงานวิชาการเพื่อพัฒนานโยบายสาธารณะ ประจำปี 2567 ลำดับที่ 1",
+                    "id": 1,
+                    "level": "ระดับนานาชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "ผลงานผ่าน",
+                "score_calc": 7.0,
+                "payment_calc": 7000.0
+            },
+            {
+                "id": "work_2",
+                "type": "social",
+                "label": "ผลงานรับใช้ท้องถิ่นและสังคม",
+                "details": {
+                    "title": "ผลงาน ผลงานรับใช้ท้องถิ่นและสังคม ประจำปี 2567 ลำดับที่ 2",
+                    "id": 2,
+                    "level": "ระดับชาติ",
+                    "evidence_type": "url",
+                    "evidence_url": "https://example.com/evidence"
+                },
+                "status": "อนุมัติ",
+                "score_calc": 7.0,
+                "payment_calc": 7000.0
+            }
+        ],
+        "history_json": "[{\"timestamp\": \"11 ม.ค. 2567 00:00:00\", \"user\": \"user04\", \"name\": \"ศ. สมเกียรติยศ\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2567\"}]"
+    }
+]

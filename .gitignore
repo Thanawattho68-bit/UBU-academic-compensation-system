@@ -14,7 +14,6 @@ env/
 # I will exclude the main data jsons to prevent overwriting other team members' data)
 # *.json
 # Actually, for this project, let's keep criteria.json but exclude dynamic data
-requests.json
 notifications.json
 batches.json
 
