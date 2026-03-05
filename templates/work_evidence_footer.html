@@ -12,14 +12,14 @@
     </div>
 
     <div id="evidence_link_container_{{ work.id }}" style="display:{% if work.evidence_type != 'file' %}block{% else %}none{% endif %};">
-        <div style="font-size: 0.85em; color: #555; margin-bottom: 5px;">
+        <div style="font-size: 0.85em; color: #555;">
             <i class="fas fa-link"></i> ลิงก์ผลงานเเละหลักฐาน (เช่น Google Drive, Dropbox, หรือลิงก์จากวารสาร/สำนักพิมพ์)
         </div>
         <input type="url" class="evidence-url-input form-control" placeholder="https://..." onchange="updateWork('{{ work.id }}', 'evidence_url', this.value)" {% if work.evidence_type != 'file' %}required{% endif %} value="{{ work.evidence_url|default('') }}" style="width:100%">
     </div>
 
     <div id="evidence_file_container_{{ work.id }}" style="display:{% if work.evidence_type == 'file' %}block{% else %}none{% endif %};">
-        <div style="font-size: 0.8em; color: #666; margin-bottom: 5px;">อัปโหลดไฟล์หลักฐาน (จำกัดเฉพาะ pdf, doc, docx, zip, rar)</div>
+        <div style="font-size: 0.8em; color: #666;">อัปโหลดไฟล์หลักฐาน (จำกัดเฉพาะ pdf, doc, docx, zip, rar)</div>
         <input type="file" name="evidence_file_{{ work.id }}" accept=".pdf,.doc,.docx,.zip,.rar" style="width:100%; padding: 5px;" class="form-control" {% if work.evidence_type == 'file' and not work.evidence_file %}required{% endif %}>
         {% if work.evidence_file %}
         <div class="existing-file-info" style="margin-top: 5px; font-size: 0.9em; color: #27ae60;">
