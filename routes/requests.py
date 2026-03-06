@@ -268,24 +268,32 @@ def view_request(req_id):
                     flash("ไม่สามารถลบคำขอได้ในสถานะนี้")
                 
             elif action == 'submit_appeal':
-                reason, evidence = request.form.get('appeal_reason', '').strip(), request.form.get('appeal_evidence', '').strip()
-                if not reason: flash("กรุณาระบุเหตุผลในการอุทธรณ์"); return redirect(url_for('requests.view_request', req_id=req_id))
+                selected_for_appeal = request.form.getlist('appeal_items')
+                if not selected_for_appeal:
+                    flash("กรุณาเลือกรายการที่ต้องการอุทธรณ์อย่างน้อย 1 รายการ")
+                    return redirect(url_for('requests.view_request', req_id=req_id))
+
+                any_appealed = False
+                for i in selected_for_appeal:
+                    idx = int(i)
+                    if idx < len(req_data['works']) and req_data['works'][idx].get('status') == 'ไม่อนุมัติ':
+                        req_data['works'][idx]['status'] = 'รอการอุทธรณ์'
+                        req_data['works'][idx]['appeal_comment'] = request.form.get(f'appeal_reason_{idx}', '').strip()
+                        req_data['works'][idx]['already_appealed'] = True
+                        any_appealed = True
                 
-                appealed = 0
-                for w in req_data['works']:
-                    if w.get('status') == 'ไม่อนุมัติ' and not w.get('already_appealed'):
-                        w.update({'status': 'รอการอุทธรณ์', 'appeal_comment': reason, 'appeal_evidence': evidence, 'already_appealed': True})
-                        appealed += 1
-                
-                if appealed > 0:
-                    req_data['status'] = 'รอการอุทธรณ์'
-                    execute_db('''
-                        UPDATE RequestRecord SET status = ?, works_json = ? WHERE id = ?
-                    ''', ('รอการอุทธรณ์', json.dumps(req_data['works'], ensure_ascii=False), req_id))
-                    log_history(req_id, "ยื่นอุทธรณ์", reason)
+                if any_appealed:
+                    execute_db('UPDATE RequestRecord SET status = ?, works_json = ? WHERE id = ?', ('รอการอุทธรณ์', json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                    log_history(req_id, "ยื่นอุทธรณ์", f"จำนวน {len(selected_for_appeal)} รายการ")
                     create_notification(f"มีการยื่นอุทธรณ์คำขอ {req_id}", recipient_role='committee', req_id=req_id)
                     flash("ส่งคำอุทธรณ์เรียบร้อยแล้ว")
-                else: flash("ไม่พบรายการที่สามารถยื่นอุทธรณ์ได้")
+                else: flash("ไม่สามารถยื่นอุทธรณ์ได้สำหรับรายการที่เลือก")
+            
+            elif action == 'submit' and req_data.get('status') in ['แบบร่าง', 'แก้ไข']:
+                 execute_db('UPDATE RequestRecord SET status = ?, date_submitted = ? WHERE id = ?', ('ส่งแล้ว', format_thai_date(datetime.now(), True), req_id))
+                 log_history(req_id, "ส่งคำขอ (Resubmit)")
+                 create_notification(f"คำขอ {req_id} ถูกส่งกลับมาเพื่อพิจารณาอีกครั้ง", recipient_role='administration', req_id=req_id)
+                 flash("ส่งคำขอเรียบร้อยแล้ว")
                 
         # Administration Actions
         elif session['role'] == 'administration':
@@ -382,33 +390,84 @@ def view_request(req_id):
                 execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
             redirect_url = url_for('requests.view_request', req_id=req_id) if 'finalize' not in action else url_for('main.dashboard')
 
-        # Committee Actions (Individual Processing - NO BATCHING)
+        # Committee Actions (Individual Processing via Publish button or Bulk buttons)
         elif session['role'] == 'committee' and req_data['status'] in ['รอการพิจารณา', 'รอการอุทธรณ์']:
-            is_appeal = req_data['status'] == 'รอการอุทธรณ์'
-            status = 'อนุมัติ' if action == 'approve' else 'ไม่อนุมัติ'
-            
-            # Update individual works mapping
-            for idx, w in enumerate(req_data['works']):
-                # ONLY update works that are NOT duplicate (though they should be filtered out already)
-                if w.get('status') != 'ผลงานซ้ำซ้อน':
-                    decision = request.form.get(f"status_{req_id}_{idx}", 'approve' if action == 'approve' else 'reject')
-                    if decision == 'approve':
+            # Handle Individual Appeal Actions
+            if action.startswith('committee_approve_appeal_') or action.startswith('committee_reject_appeal_'):
+                idx = int(action.split('_')[-1])
+                is_approve = 'approve' in action
+                
+                if idx < len(req_data['works']):
+                    new_status = 'อนุมัติ' if is_approve else 'ไม่อนุมัติ'
+                    req_data['works'][idx]['status'] = new_status
+                    
+                    # Store decision comment
+                    decision_comment = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
+                    if decision_comment:
+                        req_data['works'][idx]['comment'] = decision_comment
+                    
+                    execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                    
+                    action_label = "อนุมัติอุทธรณ์" if is_approve else "ไม่อนุมัติอุทธรณ์"
+                    log_history(req_id, f"{action_label} (รายการที่ {idx+1})", decision_comment)
+                    flash(f"ดำเนินการ{action_label}เรียบร้อยแล้ว")
+                    return redirect(url_for('requests.view_request', req_id=req_id))
+
+            # Handle Bulk Actions (Updates work status but stays on page)
+            if action in ['committee_bulk_approve', 'committee_bulk_reject']:
+                selected_indices = request.form.getlist('selected_works')
+                new_status = 'อนุมัติ' if action == 'committee_bulk_approve' else 'ไม่อนุมัติ'
+                global_comment = request.form.get('comment', '')
+                
+                for i in selected_indices:
+                    idx = int(i)
+                    if idx < len(req_data['works']) and req_data['works'][idx].get('status') != 'ผลงานซ้ำซ้อน':
+                        req_data['works'][idx]['status'] = new_status
+                        # Per-item comment (fallback to global for bulk reject)
+                        per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
+                        if new_status == 'ไม่อนุมัติ':
+                            req_data['works'][idx]['comment'] = per_item_comment if per_item_comment else (global_comment or 'ไม่อนุมัติโดยคณะกรรมการ')
+                
+                # Just save the works state and stay
+                execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                flash(f"อัปเดตสถานะผลงานที่เลือกเป็น '{new_status}' เรียบร้อยแล้ว")
+                return redirect(url_for('requests.view_request', req_id=req_id))
+
+            # Handle Final Publication (Calculates total and finishes request)
+            elif action == 'publish':
+                selected_indices = request.form.getlist('selected_works')
+                selected_indices = [int(i) for i in selected_indices]
+                global_comment = request.form.get('comment', '')
+                
+                any_approved = False
+                for idx, w in enumerate(req_data['works']):
+                    if w.get('status') == 'ผลงานซ้ำซ้อน':
+                        continue
+                        
+                    if idx in selected_indices:
                         w['status'] = 'อนุมัติ'
+                        any_approved = True
                     else:
                         w['status'] = 'ไม่อนุมัติ'
-                        w['comment'] = request.form.get(f"comment_{req_id}_{idx}", request.form.get('comment', 'ไม่อนุมัติ'))
+                        per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
+                        w['comment'] = per_item_comment if per_item_comment else (global_comment or 'ไม่อนุมัติโดยคณะกรรมการ')
 
-            s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
-            
-            execute_db('''
-                UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
-                WHERE id = ?
-            ''', (status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], request.form.get('comment', ''), req_id))
-            log_history(req_id, f"ผลการพิจารณา: {status}", request.form.get('comment', ''))
-            
-            create_notification(f"คำขอ {req_id} มีผล {status}", recipient_username=req_data['applicant_username'], req_id=req_id)
-            flash(f"ดำเนินการพิจารณาคำขอ {req_id} เรียบร้อยแล้ว")
-            return redirect(url_for('main.dashboard'))
+                # Overall request status
+                final_status = 'อนุมัติ' if any_approved else 'ไม่อนุมัติ'
+                
+                s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                
+                execute_db('''
+                    UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
+                    WHERE id = ?
+                ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], global_comment, req_id))
+                
+                log_history(req_id, f"เผยแพร่ผลพิจารณา: {final_status}", global_comment)
+                create_notification(f"คำขอ {req_id} ได้รับการพิจารณาแล้ว ผลคือ: {final_status}", recipient_username=req_data['applicant_username'], req_id=req_id)
+                flash(f"เผยแพร่ผลการพิจารณาคำขอ {req_id} เรียบร้อยแล้ว")
+                return redirect(url_for('main.dashboard'))
+            else:
+                return redirect(url_for('requests.view_request', req_id=req_id))
 
         return redirect(redirect_url)
 
@@ -421,7 +480,10 @@ def view_request(req_id):
     criteria = dict(criteria_row) if criteria_row else {}
     if criteria.get('payment_rules'): criteria['payment_rules'] = json.loads(criteria['payment_rules'])
 
-    return render_template('view_request.html', name=session['name'], role=session['role'], position=session.get('position',''), req=req_data, history=applicant_history, edit_remaining=edit_remaining, appeal_remaining=appeal_remaining, criteria=criteria)
+    # Calculate appealing_works for template
+    appealing_works = [w for w in req_data['works'] if w.get('status') == 'รอการอุทธรณ์' or (session['role'] == 'committee' and w.get('appeal_comment'))]
+
+    return render_template('view_request.html', name=session['name'], role=session['role'], position=session.get('position',''), req=req_data, history=applicant_history, edit_remaining=edit_remaining, appeal_remaining=appeal_remaining, criteria=criteria, appealing_works=appealing_works)
 
 
 @requests_bp.route('/appeal/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นางสาวเบญจมาศ จ่านันท์ 68114540344 (ยื่นอุทธรณ์)
