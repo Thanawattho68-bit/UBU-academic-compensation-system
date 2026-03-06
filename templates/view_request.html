@@ -17,34 +17,56 @@
       rel="stylesheet"
     />
     <style>
-      .th-radius {
-        border-top-left-radius: 12px;
-      }
+      .th-radius { border-top-left-radius: 12px; }
+      .amount-display { font-weight: 800; font-size: 2.2rem; }
+      .amount-approved { color: #059669; }
+      .amount-rejected { color: #94a3b8; }
+      .amount-danger { color: #e74c3c; }
 
-      .amount-display {
-        font-weight: 800;
-        font-size: 2.2rem;
+      .status-banner {
+        text-align: left;
+        padding: 20px 40px;
+        border-radius: 16px;
+        margin-bottom: 30px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
-
-      .amount-approved {
-        color: #059669;
-      }
-
-      .amount-rejected {
-        color: #94a3b8;
-      }
-
-      .amount-danger {
-        color: #e74c3c;
-      }
-
-      .badge-status {
-        display: inline-block;
-        padding: 8px 18px;
-        border-radius: 20px;
-        font-size: 0.95rem;
-        font-weight: 800;
+      .status-banner h2 {
+        margin: 0;
         color: white;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-weight: 700;
+      }
+      .banner-note {
+        margin-top: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid white;
+        padding: 10px 20px;
+        border-radius: 0 8px 8px 0;
+        color: white;
+      }
+
+      .work-table-container {
+        overflow-x: auto;
+        border: 1px solid #e0e6ed;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+      }
+      .work-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .work-table th {
+        padding: 18px;
+        font-weight: 700;
+        border-bottom: 2px solid #edf2f7;
+      }
+      .work-table td {
+        padding: 20px;
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
       }
 
       .appeal-container {
@@ -53,15 +75,13 @@
         overflow: hidden;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       }
-
       .appeal-header-active {
         background: #fbbf24;
-        color: #92400e;
+        color: white;
         padding: 15px 30px;
-        font-weight: 800;
+        font-weight: 700;
         font-size: 1.3rem;
       }
-
       .appeal-header-inactive {
         background: #e2e8f0;
         color: #475569;
@@ -69,7 +89,6 @@
         font-weight: 800;
         font-size: 1.3rem;
       }
-
       .appeal-body {
         background: #fffcf0;
         padding: 30px;
@@ -78,17 +97,26 @@
         border-bottom-left-radius: 16px;
         border-bottom-right-radius: 16px;
       }
-
-      .appeal-body.active {
-        border-color: #fbbf24;
-      }
-
-      .status-badge {
-        padding: 6px 14px;
+      .badge-status {
+        display: inline-block;
+        padding: 8px 18px;
         border-radius: 20px;
-        font-size: 0.85rem;
-        font-weight: 700;
+        font-size: 0.95rem;
+        font-weight: 800;
         color: white;
+      }
+      .badge-success { background: var(--success-color); }
+      .badge-danger { background: var(--danger-color); }
+      .badge-warning { background: var(--warning-color); }
+      .badge-neutral { background: var(--neutral-color); }
+
+      .table-footer {
+        background: #f1f5f9;
+        border-top: 2px solid #e2e8f0;
+      }
+      .table-footer td {
+        padding: 24px;
+        border-left: 1px solid #e2e8f0;
       }
     </style>
   </head>
@@ -147,55 +175,21 @@
 
         <section class="content-area">
           <!-- Status Banner -->
-          <div
-            class="status-banner status-{{ req.status }}"
-            style="
-              text-align: left;
-              padding: 20px 40px;
-              border-radius: 16px;
-              margin-bottom: 30px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            "
-          >
-            <h2
-              style="
-                margin: 0;
-                color: white;
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                font-weight: 700;
-              "
-            >
-              {% set full_label = req | rich_status_label(role) %} {% if
-              'ไม่อนุญาตบางส่วน' in full_label %}
-              <i class="fas fa-exclamation-triangle"></i> สถานะ: {{ full_label
-              }} {% elif req.status == 'อนุมัติ' %}
-              <i class="fas fa-check-circle"></i> สถานะ: {{ full_label }} {%
-              elif req.status == 'ไม่อนุมัติ' %}
-              <i class="fas fa-times-circle"></i> สถานะ: {{ full_label }} {%
-              else %} <i class="fas fa-info-circle"></i> สถานะ: {{ full_label }}
-              {% endif %}
+          <div class="status-banner status-{{ req.status }}">
+            <h2>
+              {% set full_label = req | rich_status_label(role) %}
+              {% if 'ไม่อนุญาตบางส่วน' in full_label %}<i class="fas fa-exclamation-triangle"></i>
+              {% elif req.status == 'อนุมัติ' %}<i class="fas fa-check-circle"></i>
+              {% elif req.status == 'ไม่อนุมัติ' %}<i class="fas fa-times-circle"></i>
+              {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+              สถานะ: {{ full_label }}
             </h2>
-            {% if req.status in ['แก้ไข','ส่งคืน','ไม่อนุมัติ','ผลงานซ้ำซ้อน']
-            %} {% set ns = namespace(comment=req.comment) %} {% if not
-            ns.comment %} {% for w in req.works %} {% if w.comment and not
-            ns.comment %} {% set ns.comment = w.comment %} {% endif %} {% endfor
-            %} {% endif %} {% if ns.comment %}
-            <div
-              style="
-                margin-top: 12px;
-                background: rgba(255, 255, 255, 0.2);
-                border-left: 4px solid white;
-                padding: 10px 20px;
-                border-radius: 0 8px 8px 0;
-                color: white;
-              "
-            >
-              <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{
-              ns.comment }}
+            {% set note = (req.decision_reason or (req.works|selectattr('comment')|map(attribute='comment')|first)) if req.status in ['แก้ไข', 'ส่งคืน', 'ไม่อนุมัติ', 'ผลงานซ้ำซ้อน', 'ประกาศผลแล้ว', 'อนุมัติ'] else None %}
+            {% if note %}
+            <div class="banner-note">
+              <strong><i class="fas fa-comment-dots"></i> หมายเหตุ:</strong> {{ note }}
             </div>
-            {% endif %} {% endif %}
+            {% endif %}
           </div>
 
           <div
@@ -282,152 +276,102 @@
                   >
                     <i class="fas fa-save"></i> บันทึกคะแนน/ค่าตอบแทน
                   </button>
-                  {% endif %} {% if role == 'research' and req.status ==
-                  'รอตรวจประวัติการยื่นขอ' %}
+                  {% endif %} 
+
+                  {% if role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] %}
+                  <div style="display: flex; gap: 10px">
+                    <button
+                      type="submit"
+                      name="action"
+                      value="committee_bulk_reject"
+                      class="btn-danger"
+                      style="background: #ef4444; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      ไม่อนุมัติ (รายการที่เลือก)
+                    </button>
+                    <button
+                      type="submit"
+                      name="action"
+                      value="committee_bulk_approve"
+                      class="btn-success"
+                      style="background: #22c55e; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      อนุมัติ (รายการที่เลือก)
+                    </button>
+                  </div>
+                  {% elif role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ' %}
                   <div style="display: flex; gap: 10px">
                     <button
                       type="submit"
                       name="action"
                       value="research_bulk_duplicate"
                       class="btn-danger"
-                      style="
-                        background: #ef4444;
-                        padding: 8px 20px;
-                        border-radius: 10px;
-                        font-weight: 700;
-                        border: none;
-                        box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.2);
-                      "
+                      style="background: #ef4444; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
                     >
-                      เคยใช้แล้ว
+                      เคยใช้แล้ว (รายการที่เลือก)
                     </button>
                     <button
                       type="submit"
                       name="action"
                       value="research_bulk_verify"
                       class="btn-success"
-                      style="
-                        background: #22c55e;
-                        padding: 8px 20px;
-                        border-radius: 10px;
-                        font-weight: 700;
-                        border: none;
-                        box-shadow: 0 4px 6px -1px rgba(34, 197, 94, 0.2);
-                      "
+                      style="background: #22c55e; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
                     >
-                      ไม่เคยใช้
+                      ไม่เคยใช้ (รายการที่เลือก)
                     </button>
                   </div>
                   {% endif %}
                 </div>
 
-                <div
-                  style="
-                    overflow-x: auto;
-                    border: 1px solid #e0e6ed;
-                    border-radius: 12px;
-                    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
-                  "
-                >
-                  <table
-                    style="
-                      width: 100%;
-                      border-collapse: separate;
-                      border-spacing: 0;
-                    "
-                  >
+                <div class="work-table-container">
+                  <table class="work-table">
                     <thead>
                       <tr style="background: #f8f9fb">
-                        {% if role == 'research' and req.status ==
-                        'รอตรวจประวัติการยื่นขอ' %}
-                        <th
-                          style="
-                            padding: 18px;
-                            text-align: center;
-                            width: 60px;
-                            border-bottom: 2px solid #edf2f7;
-                            border-top-left-radius: 12px;
-                          "
-                        >
-                          <input
-                            type="checkbox"
-                            id="selectAll"
-                            style="width: 20px; height: 20px; cursor: pointer"
-                          />
+                        {% if (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                        <th style="text-align: center; color: #4b5563; border-top-left-radius: 12px; width: 60px; border-right: 1px solid #edf2f7;" title="เลือกเพื่ออนุมัติ / ไม่เลือกเพื่อไม่อนุมัติ">
+                          <div style="font-size: 0.75rem; margin-bottom: 3px;">{{ 'พิจารณา' if role == 'committee' else '' }}</div>
+                          <input type="checkbox" id="selectAll" style="width: 20px; height: 20px; cursor: pointer" />
                         </th>
                         {% endif %}
-                        <th
-                          style="
-                            padding: 18px;
-                            text-align: left;
-                            font-weight: 700;
-                            color: #4b5563;
-                            border-bottom: 2px solid #edf2f7;
-                          "
-                          class="{{ 'th-radius' if role != 'research' or req.status != 'รอตรวจประวัติการยื่นขอ' else '' }}"
-                        >
+                        <th style="text-align: left; color: #4b5563;" class="{{ 'th-radius' if not ((role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'])) else '' }}">
                           รายการผลงาน
                         </th>
                         {% if role != 'research' %}
-                        <th
-                          style="
-                            padding: 18px;
-                            text-align: center;
-                            font-weight: 700;
-                            color: #1e293b;
-                            border-bottom: 2px solid #edf2f7;
-                            border-left: 1px solid #edf2f7;
-                            width: 100px;
-                            font-size: 1.1rem;
-                          "
-                        >
+                        <th style="text-align: center; color: #1e293b; border-left: 1px solid #edf2f7; width: 120px; font-size: 1.1rem;">
                           คะแนน
                         </th>
-                        {% endif %} {% set status_width = '180px' if role ==
-                        'research' else '220px' %}
-                        <th
-                          style="padding: 18px; text-align: center; font-weight: 700; color: #1e293b; border-bottom: 2px solid #edf2f7; border-left: 1px solid #edf2f7; width: {{ status_width }}; font-size: 1.1rem;"
-                        >
-                          {{ 'สถานะ' if role == 'research' else 'สถานะ' }}
+                        {% endif %}
+                        {% set status_width = '180px' if role == 'research' else '220px' %}
+                        <th style="text-align: center; color: #1e293b; border-left: 1px solid #edf2f7; width: {{ status_width }}; font-size: 1.1rem;">
+                          สถานะ
                         </th>
-                        <th
-                          style="
-                            padding: 18px;
-                            text-align: center;
-                            font-weight: 700;
-                            color: #1e293b;
-                            border-bottom: 2px solid #edf2f7;
-                            border-left: 1px solid #edf2f7;
-                            border-top-right-radius: 12px;
-                            width: 150px;
-                            font-size: 1.1rem;
-                          "
-                        >
+                        <th style="text-align: center; color: #1e293b; border-left: 1px solid #edf2f7; border-top-right-radius: 12px; width: 150px; font-size: 1.1rem;">
                           รายละเอียด
                         </th>
                       </tr>
                     </thead>
                     <tbody>
-                      {% for work in req.works if not (role == 'committee' and
-                      work.status == 'ผลงานซ้ำซ้อน') %} {% set row_bg =
-                      '#ffffff' %} {% set badge_color = 'var(--neutral-color)'
-                      %} {% if role == 'research' %} {% set row_bg = '#ffffff'
-                      %} {% set badge_color = 'var(--neutral-color)' %} {% else
-                      %} {% if work.status == 'อนุมัติ' %} {% set row_bg =
-                      'rgba(16, 185, 129, 0.05)' %}{% set badge_color =
-                      'var(--success-color)' %} {% elif work.status in
-                      ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] %} {% set row_bg =
-                      'rgba(239, 68, 68, 0.05)' %}{% set badge_color =
-                      'var(--danger-color)' %} {% elif work.status ==
-                      'รอการอุทธรณ์' %} {% set row_bg = 'rgba(245, 158, 11,
-                      0.05)' %}{% set badge_color = 'var(--warning-color)' %} {%
-                      endif %} {% endif %}
+                      {% for work in req.works %}
+                        {% if not (role == 'committee' and work.status == 'ผลงานซ้ำซ้อน') %}
+                      {% set row_bg = '#ffffff' %}
+                      {% set badge_class = 'badge-neutral' %}
+                      {% if role != 'research' %}
+                        {% if work.status == 'อนุมัติ' %}
+                          {% set row_bg = 'rgba(16, 185, 129, 0.05)' %}
+                          {% set badge_class = 'badge-success' %}
+                        {% elif work.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] %}
+                          {% set row_bg = 'rgba(239, 68, 68, 0.05)' %}
+                          {% set badge_class = 'badge-danger' %}
+                        {% elif work.status == 'รอการอุทธรณ์' %}
+                          {% set row_bg = 'rgba(245, 158, 11, 0.05)' %}
+                          {% set badge_class = 'badge-warning' %}
+                        {% endif %}
+                      {% endif %}
 
                       <tr
                         style="background: {{ row_bg }}; transition: background 0.2s; border-bottom: 1px solid #edf2f7;"
                       >
-                        {% if role == 'research' and req.status ==
-                        'รอตรวจประวัติการยื่นขอ' %}
+                        {% if (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
                         <td
                           style="
                             padding: 20px;
@@ -441,39 +385,42 @@
                             value="{{ loop.index0 }}"
                             class="work-checkbox"
                             style="width: 20px; height: 20px; cursor: pointer"
+                            {{ 'checked' if (role == 'committee' and work.status == 'อนุมัติ') else '' }}
                           />
                         </td>
                         {% endif %}
-                        <td
-                          style="
-                            padding: 20px;
-                            border-bottom: 1px solid #edf2f7;
-                            vertical-align: middle;
-                          "
-                        >
-                          <span
-                            style="
-                              font-weight: 700;
-                              font-size: 1.15rem;
-                              color: #0f172a;
-                              display: flex;
-                              align-items: center;
-                              gap: 10px;
-                            "
-                          >
-                            <span style="color: #64748b">•</span> {{ work.type |
-                            translate_work_type }}
+                        <td style="padding: 20px; border-bottom: 1px solid #edf2f7; vertical-align: middle;">
+                          <span style="font-weight: 700; font-size: 1.15rem; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+                            <span style="color: #64748b">•</span> {{ work.type | translate_work_type }}
                           </span>
-                          {% if work.comment %}
-                          <div
-                            style="
-                              margin-top: 5px;
-                              font-size: 0.9rem;
-                              color: #dc3545;
-                              padding-left: 20px;
-                            "
-                          >
+                          
+                          {% if role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] %}
+                          <div style="margin-top: 10px; padding-left: 20px;">
+                            <input type="text" name="work_comment_{{ loop.index0 }}" 
+                                   value="{{ work.comment or '' }}" 
+                                   placeholder="ระบุเหตุผลหากไม่ผ่าน/ต้องแก้ไข..."
+                                   style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                          </div>
+                          {% elif role == 'applicant' and work.status == 'ไม่อนุมัติ' and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] and not work.already_appealed %}
+                          <div style="margin-top: 10px; padding-left: 20px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px dashed #f59e0b;">
+                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                <input type="checkbox" name="appeal_items" value="{{ loop.index0 }}" id="appeal_cb_{{ loop.index0 }}" style="width: 18px; height: 18px;">
+                                <label for="appeal_cb_{{ loop.index0 }}" style="color: #92400e; font-weight: 700; cursor: pointer;">ต้องการยื่นอุทธรณ์รายการนี้</label>
+                             </div>
+                             <textarea name="appeal_reason_{{ loop.index0 }}" placeholder="ระบุเหตุผลในการอุทธรณ์..." style="width: 100%; padding: 8px; font-size: 0.85rem; border: 1px solid #fbd38d; border-radius: 6px; min-height: 60px;"></textarea>
+                          </div>
+                          {% elif work.comment %}
+                          <div style="margin-top: 5px; font-size: 0.9rem; color: #dc3545; padding-left: 20px;">
                             <strong>เหตุผล:</strong> {{ work.comment }}
+                          </div>
+                          {% endif %}
+
+                          {% if work.appeal_comment %}
+                          <div style="margin-top: 8px; padding: 8px 12px; background: #f0f9ff; border-radius: 6px; border-left: 4px solid #3b82f6; margin-left: 20px;">
+                             <div style="font-size: 0.85rem; color: #1e3a8a; font-weight: 700; margin-bottom: 2px;">
+                                <i class="fas fa-gavel"></i> เหตุผลการอุทธรณ์:
+                             </div>
+                             <div style="font-size: 0.9rem; color: #1e40af;">{{ work.appeal_comment }}</div>
                           </div>
                           {% endif %}
                         </td>
@@ -534,56 +481,18 @@
                             vertical-align: middle;
                           "
                         >
-                          {% if role == 'research' %} {% if work.status ==
-                          'ผลงานซ้ำซ้อน' %}
-                          <span
-                            style="
-                              display: inline-block;
-                              padding: 6px 16px;
-                              border-radius: 20px;
-                              background: var(--danger-color);
-                              color: white;
-                              font-weight: 700;
-                              font-size: 0.95rem;
-                              border: 1px solid var(--danger-color);
-                            "
-                            >เคยใช้แล้ว</span
-                          >
-                          {% elif work.status == 'ผลงานผ่าน' %}
-                          <span
-                            style="
-                              display: inline-block;
-                              padding: 6px 16px;
-                              border-radius: 20px;
-                              background: var(--success-color);
-                              color: white;
-                              font-weight: 700;
-                              font-size: 0.95rem;
-                              border: 1px solid var(--success-color);
-                            "
-                            >ไม่เคยใช้</span
-                          >
+                          {% if role == 'research' %}
+                            {% if work.status == 'ผลงานซ้ำซ้อน' %}
+                              <span class="badge-status badge-danger">เคยใช้แล้ว</span>
+                            {% elif work.status == 'ผลงานผ่าน' %}
+                              <span class="badge-status badge-success">ไม่เคยใช้</span>
+                            {% else %}
+                              <span class="badge-status badge-neutral" style="background:#fff; color:var(--neutral-color); border:1px solid var(--neutral-color);">รอตรวจสอบ</span>
+                            {% endif %}
                           {% else %}
-                          <span
-                            style="
-                              display: inline-block;
-                              padding: 6px 16px;
-                              border-radius: 20px;
-                              background: #ffffff;
-                              color: var(--neutral-color);
-                              font-weight: 700;
-                              font-size: 0.95rem;
-                              border: 1px solid var(--neutral-color);
-                            "
-                            >รอตรวจสอบ</span
-                          >
-                          {% endif %} {% else %}
-                          <span
-                            style="display: inline-block; padding: 8px 18px; border-radius: 20px; font-size: 0.95rem; font-weight: 800; color: white; background: {{ badge_color }};"
-                          >
-                            {{ work.status | role_status_label(role) if
-                            work.status else 'รอดำเนินการ' }}
-                          </span>
+                            <span class="badge-status {{ badge_class }}">
+                              {{ work.status | role_status_label(role) if work.status else 'รอดำเนินการ' }}
+                            </span>
                           {% endif %}
                         </td>
                         <td
@@ -641,76 +550,30 @@
                           </div>
                         </td>
                       </tr>
+                        {% endif %}
                       {% endfor %}
                     </tbody>
                     {% if role != 'research' %}
                     <tfoot>
-                      <tr
-                        style="
-                          background: #f1f5f9;
-                          border-top: 2px solid #e2e8f0;
-                        "
-                      >
-                        <td
-                          style="
-                            padding: 24px;
-                            text-align: right;
-                            font-weight: 700;
-                            color: #475569;
-                            font-size: 1.1rem;
-                            border-bottom-left-radius: 12px;
-                          "
-                        >
+                      <tr class="table-footer">
+                        {% set has_check = (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                        <td colspan="{{ 2 if has_check else 1 }}" style="text-align: right; font-weight: 700; color: #475569; font-size: 1.1rem; border-bottom-left-radius: 12px; border-left: none;">
                           คะแนนรวมสุทธิ และ ยอดรวมเงินค่าตอบแทนสิทธิ
                         </td>
-                        <td
-                          style="
-                            padding: 24px;
-                            text-align: center;
-                            border-left: 1px solid #e2e8f0;
-                          "
-                        >
-                          {% set total_score = req.works | rejectattr('status',
-                          'in', ['ผลงานซ้ำซ้อน', 'ไม่อนุมัติ']) |
-                          map(attribute='score_calc') | map('float') | sum %}
-                          <span
-                            style="
-                              font-weight: 800;
-                              color: #1e293b;
-                              font-size: 1.8rem;
-                            "
-                          >
+                        <td style="text-align: center; width: 120px;">
+                          {% set total_score = req.works | rejectattr('status', 'in', ['ผลงานซ้ำซ้อน', 'ไม่อนุมัติ']) | map(attribute='score_calc') | map('float') | sum %}
+                          <span style="font-weight: 800; color: #1e293b; font-size: 1.8rem;">
                             {{ "%.3f"|format(total_score) }}
                           </span>
                         </td>
-                        <td
-                          style="
-                            padding: 24px;
-                            text-align: center;
-                            border-left: 1px solid #e2e8f0;
-                          "
-                        >
+                        <td style="text-align: center; width: {{ status_width }};">
                           {% set amt = (req.approved_amount)|float %}
-                          <span
-                            id="total_amount_display"
-                            class="amount-display {{ 'amount-danger' if (amt == 0 or req.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน', 'ยกเลิก', 'ซ้ำซ้อนบางส่วน']) else 'amount-approved' }}"
-                          >
-                            ฿{{ "{:,.0f}".format(amt) if amt % 1 == 0 else
-                            "{:,.2f}".format(amt) }}
+                          <span id="total_amount_display" class="amount-display {{ 'amount-danger' if (amt == 0 or req.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน', 'ยกเลิก', 'ซ้ำซ้อนบางส่วน']) else 'amount-approved' }}">
+                            ฿{{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
                           </span>
-                          <input
-                            type="hidden"
-                            name="amount"
-                            id="total_amount_hidden"
-                            value="{{ req.approved_amount }}"
-                          />
+                          <input type="hidden" name="amount" id="total_amount_hidden" value="{{ req.approved_amount }}" />
                         </td>
-                        <td
-                          style="
-                            border-bottom-right-radius: 12px;
-                            border-left: 1px solid #e2e8f0;
-                          "
-                        ></td>
+                        <td style="border-bottom-right-radius: 12px; width: 150px;"></td>
                       </tr>
                     </tfoot>
                     {% endif %}
@@ -718,158 +581,40 @@
                 </div>
 
                 <!-- Appeals Management Section -->
-                {% set appealable_works = [] %} {% set appealing_works = [] %}
-                {% for w in req.works %} {% if role == 'applicant' and w.status
-                == 'ไม่อนุมัติ' and req.status in ['อนุมัติ', 'อนุมัติบางส่วน',
-                'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] and not
-                w.already_appealed %} {% set _ = appealable_works.append(w) %}
-                {% endif %} {% if w.status == 'รอการอุทธรณ์' %} {% set _ =
-                appealing_works.append(w) %} {% endif %} {% endfor %}
+                {% set appealable_works = [] %}
+                {% if role == 'applicant' %}
+                  {% for w in req.works %}
+                    {% if w.status == 'ไม่อนุมัติ' and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] and not w.already_appealed %}
+                      {% set _ = appealable_works.append(w) %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
 
-                <!-- Applicant Appeal Form (Single Block) -->
+                {# appealing_works from backend is more accurate #}
+                {% if not appealing_works %}
+                   {% set appealing_works = req.works | selectattr('status', 'equalto', 'รอการอุทธรณ์') | list %}
+                {% endif %}
+
                 {% if role == 'applicant' and appealable_works|length > 0 %}
-                <div
-                  class="appeal-container"
-                  style="
-                    margin-top: 40px;
-                    border-radius: 16px;
-                    overflow: hidden;
-                    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-                  "
-                >
-                  <div
-                    class="appeal-header-active"
-                    style="
-                      background: #fbbf24;
-                      color: white;
-                      padding: 15px 30px;
-                      font-weight: 700;
-                      font-size: 1.3rem;
-                    "
-                  >
-                    ยื่นอุทธรณ์ ภายใน 7 วัน
-                  </div>
-                  <div
-                    class="appeal-body"
-                    style="background: #fffbeb; padding: 30px; border: none"
-                  >
-                    <div style="margin-bottom: 20px">
-                      <label
-                        style="
-                          display: block;
-                          font-weight: 700;
-                          color: #1e293b;
-                          margin-bottom: 10px;
-                          font-size: 1rem;
-                        "
-                        >เหตุผลในการอุทธรณ์</label
-                      >
-                      <input
-                        type="text"
-                        name="appeal_reason"
-                        placeholder=""
-                        style="
-                          width: 100%;
-                          padding: 12px 15px;
-                          border: 1px solid #e2e8f0;
-                          border-radius: 8px;
-                          font-size: 1rem;
-                          outline: none;
-                          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                        "
-                      />
-                    </div>
-                    <div style="margin-bottom: 25px">
-                      <label
-                        style="
-                          display: block;
-                          font-weight: 700;
-                          color: #1e293b;
-                          margin-bottom: 10px;
-                          font-size: 1rem;
-                        "
-                        >หลักฐานเพิ่มเติม (ถ้ามี)</label
-                      >
-                      <input
-                        type="text"
-                        name="appeal_evidence"
-                        placeholder=""
-                        style="
-                          width: 100%;
-                          padding: 12px 15px;
-                          border: 1px solid #e2e8f0;
-                          border-radius: 8px;
-                          font-size: 1rem;
-                          outline: none;
-                          box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-                        "
-                      />
-                    </div>
-                    <!-- Hidden functionality: Submit appeal for all appealable works -->
-                    <button
-                      type="submit"
-                      name="action"
-                      value="submit_appeal"
-                      style="
-                        background: #f59e0b;
-                        color: white;
-                        border: none;
-                        padding: 12px 30px;
-                        border-radius: 8px;
-                        font-weight: 700;
-                        font-size: 1rem;
-                        cursor: pointer;
-                        display: none;
-                      "
-                    >
-                      ยืนยันการอุทธรณ์
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" name="action" value="submit_appeal" class="btn-warning" style="padding: 12px 30px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+                      <i class="fas fa-paper-plane"></i> ส่งคำอุทธรณ์ (สำหรับรายการที่เลือก)
                     </button>
-                    <!-- Note: Implicit submit on Enter or user needs a button? The image didn't show the button clearly but a form usually has one. I will add a visible button matching the style often used or just press enter logic? 
-                                    The prompt said "Create an appeal button like this" referring to the UI. I'll add the button. -->
-                    <button
-                      type="submit"
-                      name="action"
-                      value="submit_appeal"
-                      class="btn-warning"
-                      style="
-                        width: 100%;
-                        padding: 12px;
-                        font-weight: 700;
-                        font-size: 1.1rem;
-                        border-radius: 8px;
-                        box-shadow: 0 4px 6px -1px rgba(245, 158, 11, 0.2);
-                        background: #f59e0b;
-                        border: none;
-                        color: white;
-                      "
-                    >
-                      ส่งคำอุทธรณ์
-                    </button>
-                  </div>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">
+                      <i class="fas fa-info-circle"></i> ท่านสามารถเลือกอุทธรณ์เป็นรายรายการได้ในตารางผลงานด้านบน
+                    </p>
                 </div>
                 {% endif %}
 
-                <!-- Display Appeals (Committee View & Applicant Status View) -->
-                {% if appealing_works|length > 0 or (role == 'committee' and
-                req.status in ['รอการอุทธรณ์', 'รอการพิจารณา']) %}
+                {% if appealing_works|length > 0 %}
                 <div class="appeal-container">
-                  <div class="appeal-header-inactive">
-                    <i class="fas fa-gavel"></i> รายการที่อยู่ระหว่างการอุทธรณ์
+                  <div class="appeal-header-inactive" style="background: #eff6ff; color: #1d4ed8; border-bottom: 2px solid #3b82f6;">
+                    <i class="fas fa-gavel"></i> ประวัติการอุทธรณ์
                   </div>
-                  <div class="appeal-body">
-                    {% for work in req.works %} {% if work.status ==
-                    'รอการอุทธรณ์' or (role == 'committee' and
-                    work.appeal_comment) %}
-                    <div
-                      style="
-                        background: white;
-                        border: 1px solid #e2e8f0;
-                        border-radius: 12px;
-                        padding: 20px;
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
-                        margin-bottom: 20px;
-                      "
-                    >
+                   <div class="appeal-body">
+                    {% for work in req.works %} 
+                    {% if work.appeal_comment %}
+                    <div class="appeal-item">
                       <div
                         style="
                           display: flex;
@@ -956,7 +701,23 @@
                         {% endif %}
                       </div>
 
-                      <!-- Individual appeal decision buttons removed to use unified global buttons at bottom -->
+                       <!-- Individual appeal decision buttons for Committee -->
+                       {% if role == 'committee' and work.status == 'รอการอุทธรณ์' %}
+                       <div style="margin-top: 20px; border-top: 1px solid #fde68a; padding-top: 15px;">
+                          <div class="form-group" style="margin-bottom: 12px;">
+                             <label style="color: #92400e; font-weight: 700; font-size: 0.9rem;">หมายเหตุการพิจารณาอุทธรณ์:</label>
+                             <input type="text" name="appeal_decision_comment_{{ loop.index0 }}" placeholder="ระบุเหตุผลการตัดสินอุทธรณ์..." style="width: 100%; padding: 8px 12px; border: 1px solid #fbd38d; border-radius: 6px;">
+                          </div>
+                          <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                             <button type="submit" name="action" value="committee_reject_appeal_{{ loop.index0 }}" class="btn-danger" style="padding: 8px 16px; font-weight: 700; border-radius: 8px;">
+                                <i class="fas fa-times"></i> ไม่อนุมัติการอุทธรณ์ (ยืนยันตามเดิม)
+                             </button>
+                             <button type="submit" name="action" value="committee_approve_appeal_{{ loop.index0 }}" class="btn-success" style="padding: 8px 16px; font-weight: 700; border-radius: 8px;">
+                                <i class="fas fa-check"></i> อนุมัติการอุทธรณ์ (ผลงานผ่าน)
+                             </button>
+                          </div>
+                       </div>
+                       {% endif %}
                     </div>
                     {% endif %} {% endfor %}
                   </div>
@@ -1260,26 +1021,21 @@
                         border-radius: 8px;
                       "
                     />
-                    <div style="display: flex; gap: 10px">
-                      <button
-                        type="submit"
-                        name="action"
-                        value="approve"
-                        class="btn-success"
-                        style="flex: 1"
-                      >
-                        อนุมัติคำขอรวม
-                      </button>
-                      <button
-                        type="submit"
-                        name="action"
-                        value="reject"
-                        class="btn-danger"
-                        style="flex: 1"
-                      >
-                        ไม่อนุมัติคำขอรวม
-                      </button>
-                    </div>
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                       <p style="margin:0; font-size: 0.9rem; color: #64748b;">
+                         <i class="fas fa-info-circle"></i> <strong>คำแนะนำ:</strong> กรุณาเลือก (ติ๊กถูก) รายรายการผลงานที่ต้องการ "อนุมัติ" ในตารางด้านบน และระบุเหตุผลหากมีการไม่อนุมัติบางส่วน
+                       </p>
+                       <button
+                         type="submit"
+                         name="action"
+                         value="publish"
+                         class="btn-primary"
+                         style="width: 100%; padding: 15px; font-size: 1.1rem; letter-spacing: 1px;"
+                         onclick="return confirm('คุณแน่ใจหรือไม่ว่าต้องการเผยแพร่ผลการพิจารณานี้?')"
+                       >
+                         <i class="fas fa-paper-plane"></i> เผยแพร่ผลพิจารณา
+                       </button>
+                     </div>
                   </div>
                   {% endif %}
                 </div>
@@ -1355,149 +1111,142 @@
 
     <script src="{{ url_for('static', filename='notifications.js') }}"></script>
     <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        // Select All Functionality (Event Delegation for robustness)
+        document.addEventListener("change", function (e) {
+          if (e.target && e.target.id === "selectAll") {
+            const checkboxes = document.querySelectorAll(".work-checkbox");
+            checkboxes.forEach((cb) => {
+              cb.checked = e.target.checked;
+              // Trigger change event for sub-checkboxes if they have listeners
+              cb.dispatchEvent(new Event("change"));
+            });
+          }
+        });
+
+        const userRole = "{{ role }}";
+        if (userRole === "administration") {
+          const paymentRules = getPaymentRules();
+          const posData = JSON.parse(
+            "{{ req.applicant_info.academic_position | tojson | safe }}",
+          );
+          const applicantPos = Array.isArray(posData)
+            ? posData.join(" ")
+            : posData || "";
+
+          let posKey = "";
+          if (applicantPos.includes("ผู้ช่วยศาสตราจารย์")) posKey = "asst_prof";
+          else if (applicantPos.includes("รองศาสตราจารย์"))
+            posKey = "assoc_prof";
+          else if (applicantPos.includes("ศาสตราจารย์")) posKey = "prof";
+
+          if (document.getElementById("total_amount_display")) {
+            const scoreInputs = document.querySelectorAll(".work-score-input");
+            const totalDisplay = document.getElementById("total_amount_display");
+            const sumScoreDisplay = document.querySelector(
+              'tfoot span[style*="font-size: 1.8rem"]',
+            );
+            const totalHidden = document.getElementById("total_amount_hidden");
+
+            const recalculate = () => {
+              if (scoreInputs.length === 0) return;
+              let totalScore = 0;
+              scoreInputs.forEach((inp) => {
+                const status = inp.getAttribute("data-status");
+                if (status !== "ผลงานซ้ำซ้อน") {
+                  totalScore += parseFloat(inp.value) || 0;
+                }
+              });
+
+              if (sumScoreDisplay) {
+                sumScoreDisplay.innerText = totalScore.toFixed(3);
+              }
+
+              let compAmount = 0;
+              if (posKey && paymentRules[posKey]) {
+                const tiers = paymentRules[posKey];
+                if (Array.isArray(tiers)) {
+                  const applicable = tiers
+                    .filter((t) => totalScore >= parseFloat(t.min_score || 0))
+                    .sort(
+                      (a, b) =>
+                        parseFloat(b.min_score) - parseFloat(a.min_score),
+                    );
+                  if (applicable.length > 0) {
+                    compAmount = parseFloat(applicable[0].amount || 0);
+                  }
+                } else if (typeof tiers === "object") {
+                  if (totalScore >= parseFloat(tiers.min_score || 0)) {
+                    compAmount = parseFloat(tiers.amount || 0);
+                  }
+                }
+              }
+
+              totalDisplay.innerText =
+                "฿" +
+                compAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: compAmount % 1 === 0 ? 0 : 2,
+                  maximumFractionDigits: 2,
+                });
+
+              if (compAmount > 0) {
+                totalDisplay.classList.remove("amount-danger");
+                totalDisplay.classList.add("amount-approved");
+              } else {
+                totalDisplay.classList.add("amount-danger");
+                totalDisplay.classList.remove("amount-approved");
+              }
+
+              if (totalHidden) totalHidden.value = compAmount;
+            };
+
+            scoreInputs.forEach((input) => {
+              input.addEventListener("input", recalculate);
+            });
+            recalculate();
+          }
+        }
+
+        const viewForm = document.querySelector("form");
+        if (viewForm) {
+          viewForm.addEventListener("submit", function (e) {
+            const action = e.submitter ? e.submitter.value : "";
+            if (
+              action === "research_bulk_duplicate" ||
+              action === "research_bulk_verify" ||
+              action === "committee_bulk_approve" ||
+              action === "committee_bulk_reject"
+            ) {
+              const selected = document.querySelectorAll(
+                'input[name="selected_works"]:checked'
+              );
+              if (selected.length === 0) {
+                e.preventDefault();
+                alert("กรุณาเลือกผลงานอย่างน้อย 1 รายการ");
+              }
+            } else if (action === "return") {
+              const comment = document
+                .querySelector('textarea[name="comment"]')
+                .value.trim();
+              if (!comment) {
+                e.preventDefault();
+                alert("กรุณาระบุสิ่งที่ต้องแก้ไข ก่อนทำการส่งคืน");
+              }
+            }
+          });
+        }
+      });
+
       // Use a function to safely inject data from server
       function getPaymentRules() {
         try {
           return JSON.parse(
-            '{{ criteria.get("payment_rules", {}) | tojson | safe }}',
+            '{{ criteria.get("payment_rules", {}) | tojson | safe }}'
           );
         } catch (e) {
           console.error("Rules parsing failed", e);
           return {};
         }
-      }
-
-      const userRole = "{{ role }}";
-
-      if (userRole === "administration") {
-        const paymentRules = getPaymentRules();
-        const posData = JSON.parse(
-          "{{ req.applicant_info.academic_position | tojson | safe }}",
-        );
-        const applicantPos = Array.isArray(posData)
-          ? posData.join(" ")
-          : posData || "";
-
-        let posKey = "";
-        if (applicantPos.includes("ผู้ช่วยศาสตราจารย์")) posKey = "asst_prof";
-        else if (applicantPos.includes("รองศาสตราจารย์")) posKey = "assoc_prof";
-        else if (applicantPos.includes("ศาสตราจารย์")) posKey = "prof";
-
-        if (document.getElementById("total_amount_display")) {
-          const scoreInputs = document.querySelectorAll(".work-score-input");
-          const totalDisplay = document.getElementById("total_amount_display");
-          const sumScoreDisplay = document.querySelector(
-            'tfoot span[style*="font-size: 1.8rem"]',
-          );
-          const totalHidden = document.getElementById("total_amount_hidden");
-
-          const recalculate = () => {
-            if (scoreInputs.length === 0) return;
-            let totalScore = 0;
-            scoreInputs.forEach((inp) => {
-              const status = inp.getAttribute("data-status");
-              if (status !== "ผลงานซ้ำซ้อน") {
-                totalScore += parseFloat(inp.value) || 0;
-              }
-            });
-
-            if (sumScoreDisplay) {
-              sumScoreDisplay.innerText = totalScore.toFixed(3);
-            }
-
-            let compAmount = 0;
-            if (posKey && paymentRules[posKey]) {
-              const tiers = paymentRules[posKey];
-              if (Array.isArray(tiers)) {
-                const applicable = tiers
-                  .filter((t) => totalScore >= parseFloat(t.min_score || 0))
-                  .sort(
-                    (a, b) => parseFloat(b.min_score) - parseFloat(a.min_score),
-                  );
-                if (applicable.length > 0) {
-                  compAmount = parseFloat(applicable[0].amount || 0);
-                }
-              } else if (typeof tiers === "object") {
-                if (totalScore >= parseFloat(tiers.min_score || 0)) {
-                  compAmount = parseFloat(tiers.amount || 0);
-                }
-              }
-            }
-
-            totalDisplay.innerText =
-              "฿" +
-              compAmount.toLocaleString(undefined, {
-                minimumFractionDigits: compAmount % 1 === 0 ? 0 : 2,
-                maximumFractionDigits: 2,
-              });
-
-            // Update class based on amount
-            if (compAmount > 0) {
-              totalDisplay.classList.remove("amount-danger");
-              totalDisplay.classList.add("amount-approved");
-            } else {
-              totalDisplay.classList.add("amount-danger");
-              totalDisplay.classList.remove("amount-approved");
-            }
-
-            if (totalHidden) totalHidden.value = compAmount;
-          };
-
-          scoreInputs.forEach((input) => {
-            input.addEventListener("input", recalculate);
-          });
-          recalculate();
-        }
-      }
-
-      const selectAll = document.getElementById("selectAll");
-      if (selectAll) {
-        selectAll.addEventListener("change", function () {
-          const checkboxes = document.querySelectorAll(".work-checkbox");
-          checkboxes.forEach((cb) => (cb.checked = selectAll.checked));
-        });
-      }
-
-      const viewForm = document.querySelector("form");
-      if (viewForm) {
-        viewForm.addEventListener("submit", function (e) {
-          const action = e.submitter ? e.submitter.value : "";
-
-          if (
-            action === "research_bulk_duplicate" ||
-            action === "research_bulk_verify"
-          ) {
-            const selected = document.querySelectorAll(
-              ".work-checkbox:checked",
-            );
-            if (selected.length === 0) {
-              e.preventDefault();
-              alert("กรุณาเลือกผลงานที่ต้องการดำเนินการ");
-              return;
-            }
-          }
-
-          if (action === "return") {
-            const commentInput = document.querySelector(
-              'input[name="comment"]',
-            );
-            const comment = commentInput ? commentInput.value.trim() : "";
-            if (!comment) {
-              e.preventDefault();
-              alert("กรุณาระบุสิ่งที่ต้องแก้ไข ก่อนทำการส่งคืน");
-            }
-          } else if (action.startsWith("appeal_work_")) {
-            const idx = action.split("_").pop();
-            const appealInput = document.querySelector(
-              `textarea[name="appeal_comment_${idx}"]`,
-            );
-            const appealComment = appealInput ? appealInput.value.trim() : "";
-            if (!appealComment) {
-              e.preventDefault();
-              alert("กรุณาระบุเหตุผลในการอุทธรณ์");
-            }
-          }
-        });
       }
       function checkDuplicate(btn) {
         const title = btn.getAttribute("data-title").replace(/^"|"$/g, "");
