@@ -698,8 +698,16 @@ select[disabled] {
   color: white;
 }
 
-.status-banner.status-edit {
-  background-color: #e67e22;
+.status-banner.status-edit,
+.status-banner.status-แก้ไข {
+  background-color: var(--warning-color);
+  color: #ffffff;
+}
+
+.status-tag.status-แก้ไข {
+  background-color: var(--warning-color);
+  color: #ffffff;
+  border: 1px solid var(--warning-color);
 }
 
 /* Interactive Transitions Removed */

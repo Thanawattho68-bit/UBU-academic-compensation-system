@@ -34,10 +34,10 @@ def dashboard():
     
     # ดึงข้อมูลคำขอจาก database โดยกรองตามสิทธิ์การใช้งาน
     if role == 'applicant':
-        rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ?', (username,))
+        rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? ORDER BY id DESC', (username,))
     elif role in ['administration', 'research', 'committee']:
         # สำหรับเจ้าหน้าที่และกรรมการ ให้เห็นคำขอทั้งหมดที่ไม่ใช่แบบร่าง
-        rows = query_db('SELECT * FROM RequestRecord WHERE status != ?', ('แบบร่าง',))
+        rows = query_db('SELECT * FROM RequestRecord WHERE status != ? ORDER BY id DESC', ('แบบร่าง',))
     else:
         rows = []
     
