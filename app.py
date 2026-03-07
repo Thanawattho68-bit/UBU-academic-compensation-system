@@ -155,6 +155,39 @@ def translate_contribution(role):
     }
     return mapping.get(role, role)
 
+# ──────────────────────────────────────────────
+# Error Handlers
+# ──────────────────────────────────────────────
+@app.errorhandler(413)
+def request_entity_too_large(error):
+    max_mb = app.config['MAX_CONTENT_LENGTH'] // (1024 * 1024)
+    return f'''
+    <!DOCTYPE html>
+    <html lang="th">
+    <head>
+        <meta charset="UTF-8">
+        <title>ขนาดไฟล์เกินกำหนด</title>
+        <style>
+            body {{ font-family: 'Sarabun', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f4f6f9; margin: 0; }}
+            .card {{ background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); text-align: center; max-width: 500px; width: 90%; }}
+            h1 {{ color: #e74c3c; margin-top: 0; }}
+            p {{ color: #555; font-size: 16px; margin: 15px 0; line-height: 1.5; }}
+            .size-badge {{ display: inline-block; background-color: #fef0f0; color: #e74c3c; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin: 15px 0; }}
+            .btn {{ display: inline-block; margin-top: 20px; padding: 10px 25px; background: #3498db; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: background 0.3s; }}
+            .btn:hover {{ background: #2980b9; }}
+        </style>
+    </head>
+    <body>
+        <div class="card">
+            <h1>ไฟล์มีขนาดใหญ่เกินไป</h1>
+            <p>ขออภัย ข้อมูลหรือไฟล์ที่คุณพยายามอัปโหลดมีขนาดรวมกันเกินกว่าที่ระบบสามารถรับได้</p>
+            <div class="size-badge">ระบบรองรับขนาดสูงสุด: {max_mb} MB</div>
+            <p>กรุณาลดขนาดไฟล์ (เช่น การบีบอัด PDF) หรือแบ่งไฟล์ แล้วลองทำรายการใหม่อีกครั้ง</p>
+            <a href="javascript:history.back()" class="btn">ย้อนกลับไปแก้ไข</a>
+        </div>
+    </body>
+    </html>
+    ''', 413
 
 # ──────────────────────────────────────────────
 # Run App
