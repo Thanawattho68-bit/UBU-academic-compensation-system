@@ -134,6 +134,7 @@ def appeals_page():
     for row in rows:
         r = dict(row)
         r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
+        r['applicant_info'] = json.loads(r['applicant_info_json']) if r.get('applicant_info_json') else {}
         appeal_reqs.append(r)
     
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
