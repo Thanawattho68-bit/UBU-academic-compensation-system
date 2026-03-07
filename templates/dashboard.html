@@ -371,6 +371,7 @@
                 <tr
                   class="item-row"
                   data-fy="{{ req.fiscal_year }}"
+                  data-date="{{ req.date }}"
                   data-status="{{ req.status }}"
                   data-types="{{ req.works | map(attribute='type') | join(',') }}"
                 >
@@ -645,8 +646,26 @@
                 const fyA = parseInt(a.getAttribute("data-fy")) || 0;
                 const fyB = parseInt(b.getAttribute("data-fy")) || 0;
 
-                if (currentSortOrder === "asc") return fyA - fyB;
-                else return fyB - fyA;
+                if (fyA !== fyB) {
+                  return currentSortOrder === "asc" ? fyA - fyB : fyB - fyA;
+                }
+
+                // If years are same, sort by date: "DD/MM/YYYY HH:MM"
+                const dateA = a.getAttribute("data-date") || "";
+                const dateB = b.getAttribute("data-date") || "";
+
+                const toTimestamp = (s) => {
+                  const parts = s.split(/[\/\s:]/); // [DD, MM, YYYY, HH, MM]
+                  if (parts.length < 5) return s;
+                  // Return YYYYMMDDHHMM for string comparison
+                  return parts[2] + parts[1] + parts[0] + parts[3] + parts[4];
+                };
+
+                const valA = toTimestamp(dateA);
+                const valB = toTimestamp(dateB);
+
+                if (currentSortOrder === "asc") return valA.localeCompare(valB);
+                else return valB.localeCompare(valA);
               });
 
               // Append in new order

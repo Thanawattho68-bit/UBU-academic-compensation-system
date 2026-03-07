@@ -410,7 +410,6 @@ input[type="number"] {
 .status-tag.status-ยกเลิก,
 .status-banner.status-ไม่อนุมัติ,
 .status-banner.status-ผลงานซ้ำซ้อน,
-.status-banner.status-ซ้ำซ้อนบางส่วน,
 .status-banner.fail,
 .status-banner.status-ยกเลิก {
   background-color: var(--danger-color);
@@ -437,6 +436,8 @@ input[type="number"] {
 .status-banner.status-รอการอุทธรณ์,
 .status-banner.status-รอตรวจประวัติการยื่นขอ,
 .status-banner.status-แก้ไข,
+.status-banner.status-ซ้ำซ้อนบางส่วน,
+.status-banner.status-partial-warning,
 .status-banner.pending {
   background-color: var(--warning-color);
   color: #ffffff;
