@@ -223,12 +223,14 @@ def view_request(req_id):
     
     req_data = dict(row)
     
-    # Draft System Initialization
+    # Draft Ownership Logic
     if session['role'] in ['research', 'committee']:
-        if not req_data.get('works_draft_json'):
-            req_data['works_draft_json'] = req_data['works_json']
-            execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (req_data['works_draft_json'], req_id))
-        req_data['works'] = json.loads(req_data['works_draft_json'])
+        # If I am the owner of the draft, show me my draft.
+        if req_data.get('draft_owner') == session['username']:
+            req_data['works'] = json.loads(req_data['works_draft_json']) if req_data.get('works_draft_json') else json.loads(req_data['works_json'])
+        else:
+            # If I'm NOT the owner, I see the "base" official version.
+            req_data['works'] = json.loads(req_data['works_json'])
     else:
         req_data['works'] = json.loads(req_data['works_json']) if req_data.get('works_json') else []
 
@@ -393,15 +395,16 @@ def view_request(req_id):
                     new_status = 'ผลงานผ่าน'
                 
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                # Clear draft ownership when research is finalized
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, research_viewer = ? 
+                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, research_viewer = ?, draft_owner = NULL 
                     WHERE id = ?
                 ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
                 log_history(req_id, "ตรวจความซ้ำซ้อนเรียบร้อย", f"ผลลัพธ์: {new_status}")
                 create_notification(f"ตรวจสอบผลงาน {req_id} แล้ว กรุณาส่งพิจารณาต่อ", recipient_role='administration', req_id=req_id)
             
             if 'finalize' not in action:
-                execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
             redirect_url = url_for('requests.view_request', req_id=req_id) if 'finalize' not in action else url_for('main.dashboard')
 
         # Committee Actions (Individual Processing via Publish button or Bulk buttons)
@@ -425,7 +428,7 @@ def view_request(req_id):
                             req_data['works'][idx]['comment'] = decision_comment
                     
                     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
-                    execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                    execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
                     
                     action_label = "อนุมัติอุทธรณ์" if is_approve else "ไม่อนุมัติอุทธรณ์"
                     log_history(req_id, f"{action_label} (รายการที่ {idx+1})", decision_comment)
@@ -450,11 +453,9 @@ def view_request(req_id):
                             # Clear comment if approved
                             req_data['works'][idx]['comment'] = ""
                 
-                # Just save the works state and stay
-                # Recalculate and update totals so the UI stays in sync for Committee
-                # (Still saving to DRAFT only)
+                # Just save the works state and stay (DRAFT only, owned by current user)
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
-                execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
                 return redirect(url_for('requests.view_request', req_id=req_id))
 
             # Handle Final Publication (Calculates total and finishes request)
@@ -497,7 +498,7 @@ def view_request(req_id):
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
+                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?, draft_owner = NULL
                     WHERE id = ?
                 ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], global_comment, req_id))
                 

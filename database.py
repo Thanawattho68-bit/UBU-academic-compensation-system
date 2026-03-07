@@ -47,6 +47,7 @@ def init_db():
             applicant_info_json TEXT,
             works_json TEXT,
             works_draft_json TEXT,
+            draft_owner TEXT,
             admin_viewer TEXT,
             research_viewer TEXT,
             committee_approver TEXT,
