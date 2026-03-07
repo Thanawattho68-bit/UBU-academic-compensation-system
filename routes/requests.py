@@ -200,9 +200,9 @@ def new_request():
             log_history(req_id, "ส่งคำขอ" if action == "submit" else "บันทึกแบบร่าง")
         else:
             execute_db('''
-                INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, timeline_status, applicant_info_json, works_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, "ontime" if can_submit else "late", json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
+                INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, timeline_status, applicant_info_json, works_json, works_draft_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, "ontime" if can_submit else "late", json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
             log_history(req_id, "สร้างคำขอใหม่" + (" (ส่ง)" if action == "submit" else " (แบบร่าง)"))
 
         if action == "submit": create_notification(f"มีคำขอใหม่ {req_id} จาก {session['name']}", recipient_role='administration', req_id=req_id)
@@ -222,7 +222,16 @@ def view_request(req_id):
         return redirect(url_for('main.dashboard'))
     
     req_data = dict(row)
-    req_data['works'] = json.loads(req_data['works_json']) if req_data.get('works_json') else []
+    
+    # Draft System Initialization
+    if session['role'] in ['research', 'committee']:
+        if not req_data.get('works_draft_json'):
+            req_data['works_draft_json'] = req_data['works_json']
+            execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (req_data['works_draft_json'], req_id))
+        req_data['works'] = json.loads(req_data['works_draft_json'])
+    else:
+        req_data['works'] = json.loads(req_data['works_json']) if req_data.get('works_json') else []
+
     req_data['applicant_info'] = json.loads(req_data['applicant_info_json']) if req_data.get('applicant_info_json') else {}
     req_data['audit_trail'] = json.loads(req_data['history_json']) if req_data.get('history_json') else []
     req_data['applicant'] = req_data['applicant_username'] # Compatibility
@@ -385,14 +394,14 @@ def view_request(req_id):
                 
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, research_viewer = ? 
+                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, research_viewer = ? 
                     WHERE id = ?
-                ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
+                ''', (new_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
                 log_history(req_id, "ตรวจความซ้ำซ้อนเรียบร้อย", f"ผลลัพธ์: {new_status}")
                 create_notification(f"ตรวจสอบผลงาน {req_id} แล้ว กรุณาส่งพิจารณาต่อ", recipient_role='administration', req_id=req_id)
             
             if 'finalize' not in action:
-                execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
             redirect_url = url_for('requests.view_request', req_id=req_id) if 'finalize' not in action else url_for('main.dashboard')
 
         # Committee Actions (Individual Processing via Publish button or Bulk buttons)
@@ -416,7 +425,7 @@ def view_request(req_id):
                             req_data['works'][idx]['comment'] = decision_comment
                     
                     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
-                    execute_db('UPDATE RequestRecord SET works_json = ?, total_score = ?, approved_amount = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
+                    execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
                     
                     action_label = "อนุมัติอุทธรณ์" if is_approve else "ไม่อนุมัติอุทธรณ์"
                     log_history(req_id, f"{action_label} (รายการที่ {idx+1})", decision_comment)
@@ -442,9 +451,10 @@ def view_request(req_id):
                             req_data['works'][idx]['comment'] = ""
                 
                 # Just save the works state and stay
-                # Recalculate and update totals so the UI stays in sync
+                # Recalculate and update totals so the UI stays in sync for Committee
+                # (Still saving to DRAFT only)
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
-                execute_db('UPDATE RequestRecord SET works_json = ?, total_score = ?, approved_amount = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
+                execute_db('UPDATE RequestRecord SET works_draft_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
                 return redirect(url_for('requests.view_request', req_id=req_id))
 
             # Handle Final Publication (Calculates total and finishes request)
@@ -473,14 +483,23 @@ def view_request(req_id):
                             w['comment'] = global_comment
 
                 # Overall request status
-                final_status = 'อนุมัติ' if any_approved else 'ไม่อนุมัติ'
+                non_duplicate_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']
+                total_to_consider = len(non_duplicate_works)
+                approved_count = sum(1 for w in non_duplicate_works if w.get('status') == 'อนุมัติ')
+                
+                final_status = 'ไม่อนุมัติ'
+                if approved_count > 0:
+                    if approved_count == total_to_consider:
+                        final_status = 'อนุมัติ'
+                    else:
+                        final_status = 'อนุมัติบางส่วน'
                 
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
+                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?
                     WHERE id = ?
-                ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], global_comment, req_id))
+                ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], global_comment, req_id))
                 
                 log_history(req_id, f"เผยแพร่ผลพิจารณา: {final_status}", global_comment)
                 create_notification(f"คำขอ {req_id} ได้รับการพิจารณาแล้ว ผลคือ: {final_status}", recipient_username=req_data['applicant_username'], req_id=req_id)

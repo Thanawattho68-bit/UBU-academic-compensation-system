@@ -46,6 +46,7 @@ def init_db():
             batch_id TEXT,
             applicant_info_json TEXT,
             works_json TEXT,
+            works_draft_json TEXT,
             admin_viewer TEXT,
             research_viewer TEXT,
             committee_approver TEXT,
