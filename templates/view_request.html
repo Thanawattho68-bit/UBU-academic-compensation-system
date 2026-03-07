@@ -188,7 +188,7 @@
             {# สถานะที่ควรแสดงหมายเหตุ: ถ้าเป็น อนุมัติ/อุทธรณ์สำเร็จ ให้แสดงแค่เหตุผลรวม (decision_reason) แต่ถ้าสถานะไม่ผ่านให้ดึงเหตุผลรายตัวมาแสดงได้ด้วย #}
             {% set note = None %}
             {% if req.status in ['แก้ไข', 'ไม่อนุมัติ', 'ผลงานซ้ำซ้อน', 'ซ้ำซ้อนบางส่วน', 'รอการอุทธรณ์'] %}
-                {% set note = req.decision_reason or (req.works|selectattr('comment')|map(attribute='comment')|first) %}
+                {% set note = req.decision_reason or (req.works | selectattr('status', 'ne', 'อนุมัติ') | selectattr('comment') | map(attribute='comment') | first) %}
             {% elif 'อุทธรณ์สำเร็จ' in full_label or req.status == 'อนุมัติ' %}
                 {% set note = req.decision_reason %}
             {% endif %}
@@ -378,6 +378,9 @@
                       {% endif %}
 
                       <tr
+                        class="work-row"
+                        data-status="{{ work.status or 'รอดำเนินการ' }}"
+                        data-index="{{ loop.index0 }}"
                         style="background: {{ row_bg }}; transition: background 0.2s; border-bottom: 1px solid #edf2f7;"
                       >
                         {% if (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
@@ -394,7 +397,6 @@
                             value="{{ loop.index0 }}"
                             class="work-checkbox"
                             style="width: 20px; height: 20px; cursor: pointer; {{ 'display: none;' if is_duplicate_excluded else '' }}"
-                            {{ 'checked' if (role == 'committee' and work.status == 'อนุมัติ') else '' }}
                             {{ 'disabled' if is_duplicate_excluded else '' }}
                           />
                         </td>
@@ -412,7 +414,7 @@
 
                           {% if role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] and not is_duplicate_excluded %}
                           <div id="comment_box_{{ loop.index0 }}" 
-                               style="display: {{ 'none' if (work.status == 'อนุมัติ') else 'block' }}; margin-top: 10px; padding-left: 20px;">
+                               style="display: {{ 'block' if (work.status == 'ไม่อนุมัติ') else 'none' }}; margin-top: 10px; padding-left: 20px;">
                             <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่าน/ต้องแก้ไข:</label>
                             <input type="text" name="work_comment_{{ loop.index0 }}" 
                                    value="{{ work.comment or '' }}" 
@@ -928,23 +930,23 @@
                       border: 1px solid #d1d9e6;
                     "
                   >
-                    <label>ความเห็นภาพรวม (กรณีไม่อนุมัติ):</label>
-                    <input
-                      type="text"
-                      name="comment"
-                      placeholder="เหตุผล..."
-                      style="
-                        width: 100%;
-                        margin-bottom: 15px;
-                        padding: 12px;
-                        border: 2px solid #d1d9e6;
-                        border-radius: 8px;
-                      "
-                    />
+                    {% set undecided_count = req.works | rejectattr('status', 'in', ['อนุมัติ', 'ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']) | list | length %}
+                    <div id="global_comment_container" style="display: {{ 'none' if undecided_count == 0 and (req.works | selectattr('status', 'equalto', 'อนุมัติ') | list | length == req.works | rejectattr('status', 'equalto', 'ผลงานซ้ำซ้อน') | list | length) else 'block' }}">
+                      <label>ความเห็นภาพรวม (กรณีต้องการระบุเหตุผลเพิ่มเติมสำหรับการไม่อนุมัติ):</label>
+                      <input
+                        type="text"
+                        name="comment"
+                        placeholder="ระบุเหตุผลรวมที่นี่..."
+                        style="
+                          width: 100%;
+                          margin-bottom: 15px;
+                          padding: 12px;
+                          border: 2px solid #d1d9e6;
+                          border-radius: 8px;
+                        "
+                      />
+                    </div>
                      <div style="display: flex; flex-direction: column; gap: 15px;">
-                       <p style="margin:0; font-size: 0.9rem; color: #64748b;">
-                         <i class="fas fa-info-circle"></i> <strong>คำแนะนำ:</strong> กรุณาเลือก (ติ๊กถูก) รายรายการผลงานที่ต้องการ "อนุมัติ" ในตารางด้านบน และระบุเหตุผลหากมีการไม่อนุมัติบางส่วน
-                       </p>
                        <button
                          type="submit"
                          name="action"
@@ -1032,6 +1034,7 @@
     <script src="{{ url_for('static', filename='notifications.js') }}"></script>
     <script>
       document.addEventListener("DOMContentLoaded", function () {
+        const userRole = "{{ role }}";
         // Select All Functionality (Event Delegation for robustness)
         document.addEventListener("change", function (e) {
           if (e.target && e.target.id === "selectAll") {
@@ -1042,22 +1045,22 @@
               cb.dispatchEvent(new Event("change", { bubbles: true }));
             });
           }
-
-          // Toggle Comment Box Visibility for Committee
-          if (e.target && e.target.classList.contains("work-checkbox") && userRole === "committee") {
-             const index = e.target.value;
-             const commentBox = document.getElementById("comment_box_" + index);
-             if (commentBox) {
-                // If checked (approved), hide comment box. If unchecked (rejected), show it.
-                commentBox.style.display = e.target.checked ? "none" : "block";
-                
-                // If hiding, maybe clear the input or keep it for temporary? 
-                // User wants it as a placeholder/manual, so let's keep it if they wrote something but hide it visually.
-             }
-          }
         });
 
-        const userRole = "{{ role }}";
+        function updateGlobalCommentVisibility() {
+            const container = document.getElementById('global_comment_container');
+            if (container) {
+                const rows = document.querySelectorAll(".work-row");
+                const anyRejected = Array.from(rows).some(r => r.getAttribute("data-status") === "ไม่อนุมัติ");
+                container.style.display = anyRejected ? 'block' : 'none';
+            }
+        }
+
+
+        // Initialize state on load
+        if (userRole === "committee") {
+            updateGlobalCommentVisibility();
+        }
         if (userRole === "administration") {
           const paymentRules = getPaymentRules();
           const posData = {{ req.applicant_info.academic_position | tojson | safe }};
@@ -1156,13 +1159,47 @@
                 e.preventDefault();
                 alert("กรุณาเลือกผลงานอย่างน้อย 1 รายการ");
               }
+            } else if (action === "publish") {
+              const globalCommentField = document.querySelector('input[name="comment"]');
+              const globalComment = globalCommentField ? globalCommentField.value.trim() : "";
+              
+              let missingComments = false;
+              let anyUndecided = false;
+              
+              const rows = document.querySelectorAll(".work-row");
+              rows.forEach(row => {
+                  const status = row.getAttribute("data-status");
+                  const idx = row.getAttribute("data-index");
+                  
+                  if (status === 'รอดำเนินการ' || !status) {
+                      anyUndecided = true;
+                  } else if (status === 'ไม่อนุมัติ') {
+                      const itemCommentField = document.querySelector(`input[name="work_comment_${idx}"]`);
+                      const itemComment = itemCommentField ? itemCommentField.value.trim() : "";
+                      if (!itemComment && !globalComment) {
+                          missingComments = true;
+                      }
+                  }
+              });
+
+              if (anyUndecided) {
+                e.preventDefault();
+                alert("กรุณาพิจารณาผลงานให้ครบทุกรายการก่อนทำการเผยแพร่");
+                return;
+              }
+
+              if (missingComments) {
+                e.preventDefault();
+                alert("กรุณาระบุเหตุผลที่ไม่ผ่าน ในช่องหมายเหตุรายรายการ หรือช่อง 'ความเห็นภาพรวม'");
+                if (globalCommentField) globalCommentField.focus();
+              }
             } else if (action === "return") {
-              const comment = document
-                .querySelector('textarea[name="comment"]')
-                .value.trim();
+              const commentField = document.querySelector('input[name="comment"]');
+              const comment = commentField ? commentField.value.trim() : "";
               if (!comment) {
                 e.preventDefault();
                 alert("กรุณาระบุสิ่งที่ต้องแก้ไข ก่อนทำการส่งคืน");
+                if (commentField) commentField.focus();
               }
             }
           });

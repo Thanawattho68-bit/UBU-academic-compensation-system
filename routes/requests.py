@@ -408,10 +408,15 @@ def view_request(req_id):
                     
                     # Store decision comment
                     decision_comment = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
-                    if decision_comment:
+                    if is_approve:
+                        # Clear old rejection comment if approved
                         req_data['works'][idx]['comment'] = decision_comment
+                    else:
+                        if decision_comment:
+                            req_data['works'][idx]['comment'] = decision_comment
                     
-                    execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                    s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                    execute_db('UPDATE RequestRecord SET works_json = ?, total_score = ?, approved_amount = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
                     
                     action_label = "อนุมัติอุทธรณ์" if is_approve else "ไม่อนุมัติอุทธรณ์"
                     log_history(req_id, f"{action_label} (รายการที่ {idx+1})", decision_comment)
@@ -432,29 +437,40 @@ def view_request(req_id):
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
                         if new_status == 'ไม่อนุมัติ':
                             req_data['works'][idx]['comment'] = per_item_comment if per_item_comment else global_comment
+                        else:
+                            # Clear comment if approved
+                            req_data['works'][idx]['comment'] = ""
                 
                 # Just save the works state and stay
-                execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
+                # Recalculate and update totals so the UI stays in sync
+                s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+                execute_db('UPDATE RequestRecord SET works_json = ?, total_score = ?, approved_amount = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), s, c, req_id))
                 return redirect(url_for('requests.view_request', req_id=req_id))
 
             # Handle Final Publication (Calculates total and finishes request)
             elif action == 'publish':
-                selected_indices = request.form.getlist('selected_works')
-                selected_indices = [int(i) for i in selected_indices]
-                global_comment = request.form.get('comment', '')
+                # No longer rely on selected_works for approval.
+                # All items must have a definitive status (Approve/Reject) or be Duplicate already.
+                undecided_indices = [i + 1 for i, w in enumerate(req_data['works']) if w.get('status') not in ['อนุมัติ', 'ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']]
                 
+                if undecided_indices:
+                    flash(f"กรุณาระบุผลการพิจารณาให้ครบทุกรายการก่อนเผยแพร่ (ยังค้างรายการที่: {', '.join(map(str, undecided_indices))})")
+                    return redirect(url_for('requests.view_request', req_id=req_id))
+
+                global_comment = request.form.get('comment', '')
                 any_approved = False
                 for idx, w in enumerate(req_data['works']):
-                    if w.get('status') == 'ผลงานซ้ำซ้อน':
-                        continue
-                        
-                    if idx in selected_indices:
-                        w['status'] = 'อนุมัติ'
+                    if w.get('status') == 'อนุมัติ':
                         any_approved = True
-                    else:
-                        w['status'] = 'ไม่อนุมัติ'
+                        w['comment'] = "" # Ensure approved items have no rejection comments
+                    elif w.get('status') == 'ไม่อนุมัติ':
+                        # Try to get per-item comment first, fallback to global
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
-                        w['comment'] = per_item_comment if per_item_comment else global_comment
+                        if per_item_comment:
+                            w['comment'] = per_item_comment
+                        elif not w.get('comment'):
+                            # Only if it's currently empty, use global
+                            w['comment'] = global_comment
 
                 # Overall request status
                 final_status = 'อนุมัติ' if any_approved else 'ไม่อนุมัติ'
