@@ -24,3 +24,8 @@ instance/
 # OS-specific
 .DS_Store
 Thumbs.db
+
+# Project Config
+.python-version
+pyproject.toml
+uv.lock
