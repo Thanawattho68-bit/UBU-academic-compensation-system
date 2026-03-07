@@ -307,7 +307,13 @@ def view_request(req_id):
                 new_sum += work.get('score_calc', 0) if work.get('status') not in ['ผลงานซ้ำซ้อน', 'ไม่อนุมัติ'] else 0
             
             req_data['score'] = new_sum
-            req_data['approved_amount'] = sum(w.get('payment_calc', 0) for w in req_data['works'])
+            # Try to get amount from form (calculated by JS), otherwise fallback to current value
+            form_amount = request.form.get('amount')
+            if form_amount is not None:
+                try: req_data['approved_amount'] = float(form_amount)
+                except: req_data['approved_amount'] = sum(w.get('payment_calc', 0) for w in req_data['works'])
+            else:
+                req_data['approved_amount'] = sum(w.get('payment_calc', 0) for w in req_data['works'])
 
             if action == 'return':
                 comment = request.form.get('comment', '').strip()
@@ -330,10 +336,9 @@ def view_request(req_id):
                     flash("ไม่สามารถส่งคำขอให้คณะกรรมการได้เนื่องจากผลงานทั้งหมดถูกพบว่าซ้ำซ้อน")
                     return redirect(url_for('requests.view_request', req_id=req_id))
 
-                # Calculate compensation (skips duplicates internally)
+                # Recalculate compensation for final submission to committee
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 
-                # Update DB with ALL works and set status to 'รอการพิจารณา'
                 execute_db('''
                     UPDATE RequestRecord 
                     SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL, admin_viewer = ?
@@ -426,11 +431,10 @@ def view_request(req_id):
                         # Per-item comment (fallback to global for bulk reject)
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
                         if new_status == 'ไม่อนุมัติ':
-                            req_data['works'][idx]['comment'] = per_item_comment if per_item_comment else (global_comment or 'ไม่อนุมัติโดยคณะกรรมการ')
+                            req_data['works'][idx]['comment'] = per_item_comment if per_item_comment else global_comment
                 
                 # Just save the works state and stay
                 execute_db('UPDATE RequestRecord SET works_json = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), req_id))
-                flash(f"อัปเดตสถานะผลงานที่เลือกเป็น '{new_status}' เรียบร้อยแล้ว")
                 return redirect(url_for('requests.view_request', req_id=req_id))
 
             # Handle Final Publication (Calculates total and finishes request)
@@ -450,7 +454,7 @@ def view_request(req_id):
                     else:
                         w['status'] = 'ไม่อนุมัติ'
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
-                        w['comment'] = per_item_comment if per_item_comment else (global_comment or 'ไม่อนุมัติโดยคณะกรรมการ')
+                        w['comment'] = per_item_comment if per_item_comment else global_comment
 
                 # Overall request status
                 final_status = 'อนุมัติ' if any_approved else 'ไม่อนุมัติ'
