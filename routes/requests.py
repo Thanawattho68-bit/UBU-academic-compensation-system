@@ -238,7 +238,13 @@ def view_request(req_id):
     req_data['audit_trail'] = json.loads(req_data['history_json']) if req_data.get('history_json') else []
     req_data['applicant'] = req_data['applicant_username'] # Compatibility
     req_data['date'] = req_data['date_submitted']
-    req_data['score'] = req_data['total_score']
+    
+    # Recalculate score and amount for the current state (especially for draft mode)
+    from utils import calculate_compensation
+    s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
+    req_data['score'] = s
+    req_data['total_score'] = s
+    req_data['approved_amount'] = c
 
     # Redirect drafts to edit page instead of view summary
     if req_data.get('status') == 'แบบร่าง' and session['role'] == 'applicant':

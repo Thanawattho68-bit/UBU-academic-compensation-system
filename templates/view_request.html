@@ -188,7 +188,7 @@
         <section class="content-area">
           <!-- Status Banner -->
           {% set full_label = req | rich_status_label(role) %}
-          {% set is_partial = ('ไม่อนุญาตบางส่วน' in full_label) or (req.status == 'ซ้ำซ้อนบางส่วน') %}
+          {% set is_partial = ('ไม่อนุญาตบางส่วน' in full_label) or (req.status in ['ซ้ำซ้อนบางส่วน', 'อนุมัติบางส่วน']) %}
           <div class="status-banner status-{{ req.status }} {{ 'status-partial-warning' if is_partial }}">
             <h2>
               {% if is_partial %}<i class="fas fa-exclamation-triangle"></i>

@@ -255,7 +255,7 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         elif w_type == 'creative':
             cre_map = {'inter': 'international', 'coop': 'cooperation', 'national': 'national'}
             pt = details.get('publish_type', '')
-            found_key = next((k for k in cre_map if k in pt), 'international')
+            found_key = next((k for k in cre_map if k in pt), 'inter')
             s = qs.get('creative', {}).get(cre_map[found_key], 1.25)
         
         # 2. Weight (W)

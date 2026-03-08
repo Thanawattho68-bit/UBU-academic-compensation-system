@@ -419,7 +419,8 @@ input[type="number"] {
 
 .status-tag.status-ไม่อนุมัติ::before,
 .status-tag.status-ผลงานซ้ำซ้อน::before,
-.status-tag.status-ซ้ำซ้อนบางส่วน::before {
+.status-tag.status-ซ้ำซ้อนบางส่วน::before,
+.status-tag.status-อนุมัติบางส่วน::before {
   content: "\f00d";
   font-family: "Font Awesome 5 Free";
 }
@@ -431,12 +432,14 @@ input[type="number"] {
 .status-tag.status-รอตรวจประวัติการยื่นขอ,
 .status-tag.status-แก้ไข,
 .status-tag.pending,
+.status-tag.status-อนุมัติบางส่วน,
 .status-banner.status-รอการพิจารณา,
 .status-banner.status-รอตรวจสอบผลงาน,
 .status-banner.status-รอการอุทธรณ์,
 .status-banner.status-รอตรวจประวัติการยื่นขอ,
 .status-banner.status-แก้ไข,
 .status-banner.status-ซ้ำซ้อนบางส่วน,
+.status-banner.status-อนุมัติบางส่วน,
 .status-banner.status-partial-warning,
 .status-banner.pending {
   background-color: var(--warning-color);
