@@ -440,49 +440,142 @@
                           </div>
                           {% endif %}
 
-                          {% if role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] and not is_duplicate_excluded %}
-                          <div id="comment_box_{{ loop.index0 }}" 
-                               style="display: {{ 'block' if (work.status == 'ไม่อนุมัติ') else 'none' }}; margin-top: 10px; padding-left: 20px;">
-                            <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่าน/ต้องแก้ไข:</label>
-                            <input type="text" name="work_comment_{{ loop.index0 }}" 
-                                   value="{{ work.comment or '' }}" 
-                                   placeholder="โปรดระบุเหตุผล..."
-                                   class="work-comment-input"
-                                   style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
-                          </div>
-                          {% elif role == 'applicant' and work.status == 'ไม่อนุมัติ' and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] and not work.already_appealed %}
-                          <div style="margin-top: 10px; padding-left: 20px; background: #fffbeb; padding: 10px; border-radius: 8px; border: 1px dashed #f59e0b;">
-                             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
-                                <input type="checkbox" name="appeal_items" value="{{ loop.index0 }}" id="appeal_cb_{{ loop.index0 }}" style="width: 18px; height: 18px;">
-                                <label for="appeal_cb_{{ loop.index0 }}" style="color: #92400e; font-weight: 700; cursor: pointer;">ต้องการยื่นอุทธรณ์รายการนี้</label>
-                             </div>
-                             <textarea name="appeal_reason_{{ loop.index0 }}" placeholder="ระบุเหตุผลในการอุทธรณ์..." style="width: 100%; padding: 8px; font-size: 0.85rem; border: 1px solid #fbd38d; border-radius: 6px; min-height: 60px;"></textarea>
+                          {# 1 & 4. ส่วนสำหรับคณะกรรมการ (Committee) #}
+                          {% if role == 'committee' %}
+                              {# กรณีต้องการพิจารณาผลงานครั้งแรก (Status ยังไม่เสร็จสิ้น) #}
+                              {% if req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] and not is_duplicate_excluded and not work.appeal_comment %}
+                              <div id="comment_box_{{ loop.index0 }}" style="display: {{ 'block' if (work.status == 'ไม่อนุมัติ') else 'none' }}; margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการไม่อนุมัติ
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่าน/ต้องแก้ไข:</label>
+                                      <input type="text" name="work_comment_{{ loop.index0 }}" 
+                                             value="{{ work.comment or '' }}" 
+                                             placeholder="โปรดระบุเหตุผล..."
+                                             class="work-comment-input"
+                                             style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                  </div>
+                              </div>
+                              {% endif %}
+
+                              {# กรณีมีประวัติการอุทธรณ์ (Display Appeal History + Decision Buttons) #}
+                              {% if work.appeal_comment %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการอุทธรณ์
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      {% if work.comment %}
+                                      <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      {% endif %}
+                                      <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if (req.status == 'รอการอุทธรณ์' or work.appeal_decision_comment) else '' }}">
+                                          <strong>เหตุผลการอุทธรณ์:</strong> {{ work.appeal_comment }}
+                                      </div>
+
+                                      {% if work.appeal_decision_comment %}
+                                      <div style="margin-top: 8px; font-size: 0.9rem; color: #dc2626; font-weight: 700; background: #fff1f2; padding: 8px; border-radius: 6px; border: 1px solid #fecaca;">
+                                          <i class="fas fa-exclamation-circle"></i> ผลการอุทธรณ์: {{ work.appeal_decision_comment }}
+                                      </div>
+                                      {% endif %}
+
+
+                                      {# ปุ่มตัดสินใจการอุทธรณ์ (แสดงเฉพาะตอนสถานะ รอการอุทธรณ์) #}
+                                      {% if req.status == 'รอการอุทธรณ์' %}
+                                      <div style="margin-top: 12px;">
+                                          <div id="appeal_comment_box_{{ loop.index0 }}" style="display: none; margin-bottom: 12px;">
+                                              <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่านการอุทธรณ์:</label>
+                                              <input type="text" name="appeal_decision_comment_{{ loop.index0 }}" 
+                                                    placeholder="โปรดระบุเหตุผลที่ไม่รับอุทธรณ์..."
+                                                    style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                          </div>
+                                          <div style="display: flex; gap: 10px;">
+                                              <button type="submit" name="action" value="committee_approve_appeal_{{ loop.index0 }}" class="btn-success" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
+                                                  <i class="fas fa-check-circle"></i> รับอุทธรณ์ (อนุมัติ)
+                                              </button>
+                                              <button type="button" onclick="showAppealRejectBox({{ loop.index0 }})" id="reject_appeal_trigger_{{ loop.index0 }}" class="btn-danger" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px; background: #fee2e2; color: #dc2626; border: 1px solid #fecaca;">
+                                                  <i class="fas fa-times-circle"></i> ไม่รับอุทธรณ์
+                                              </button>
+                                              <button type="submit" name="action" value="committee_reject_appeal_{{ loop.index0 }}" id="final_reject_appeal_btn_{{ loop.index0 }}" class="btn-danger" style="display: none; padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
+                                                  ยืนยันการไม่รับอุทธรณ์
+                                              </button>
+                                          </div>
+                                      </div>
+                                      {% endif %}
+                                  </div>
+                              </div>
+                              {% endif %}
+                          {% endif %}
+
+                          {# 2 & 3. ส่วนสำหรับผู้ยื่นคำขอ (Applicant) #}
+                          {% if role == 'applicant' %}
+                              {% if work.status == 'ไม่อนุมัติ' and not work.already_appealed and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการไม่อนุมัติ
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                          <input type="checkbox" name="appeal_items" value="{{ loop.index0 }}" id="appeal_cb_{{ loop.index0 }}" style="width: 18px; height: 18px;" onchange="document.getElementById('appeal_reason_box_{{ loop.index0 }}').style.display = this.checked ? 'block' : 'none'">
+                                          <label for="appeal_cb_{{ loop.index0 }}" style="color: #64748b; font-weight: 700; cursor: pointer;">ต้องการยื่นอุทธรณ์รายการนี้</label>
+                                      </div>
+                                      <div style="font-size: 0.85rem; color: #64748b; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      
+                                      <div id="appeal_reason_box_{{ loop.index0 }}" style="display: none; margin-top: 10px;">
+                                          <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px">ระบุเหตุผลการอุทธรณ์:</label>
+                                          <textarea name="appeal_reason_{{ loop.index0 }}" placeholder="โปรดระบุรายละเอียด/เหตุผลหักล้าง..." style="width: 100%; padding: 10px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 80px; background: #fff;"></textarea>
+                                      </div>
+                                  </div>
+                              </div>
+                              {% elif work.appeal_comment %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการอุทธรณ์
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      {% if work.comment %}
+                                      <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      {% endif %}
+                                      <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_decision_comment else '' }}">
+                                          <strong>เหตุผลการอุทธรณ์:</strong> {{ work.appeal_comment }}
+                                      </div>
+
+                                      {% if work.appeal_decision_comment %}
+                                      <div style="font-size: 0.95rem; color: #dc2626; margin-bottom: 8px; margin-top: 8px;">
+                                          <strong>ผลการอุทธรณ์:</strong> {{ work.appeal_decision_comment }}
+                                      </div>
+                                      {% endif %}
+
+                                  </div>
+                              </div>
+                              {% elif work.comment and not (req.status in ['รอตรวจประวัติการยื่นขอ', 'รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                              <div style="margin-top: 8px; font-size: 0.9rem; color: #dc3545; padding-left: 10px; border-left: 3px solid #dc3545;">
+                                  <strong>เหตุผล:</strong> {{ work.comment }}
+                              </div>
+                              {% endif %}
+                          {% endif %}
+
+                          {# แสดงผลเหตุผลสำหรับ Role อื่นๆ (Admin) #}
+                          {% if role not in ['committee', 'applicant'] and work.comment %}
+                          <div style="margin-top: 8px; font-size: 0.9rem; color: #dc3545; padding-left: 10px; border-left: 3px solid #dc3545;">
+                              <strong>เหตุผล:</strong> {{ work.comment }}
                           </div>
                           {% endif %}
-                          
-                          {% if work.appeal_comment %}
-                          <div style="margin-top: 8px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
-                             <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
-                                <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
-                                   <i class="fas fa-gavel"></i> รายละเอียดการอุทธรณ์
-                                </div>
-                             </div>
-                             <div style="padding: 12px; background: white;">
-                                {% if work.comment %}
-                                <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
-                                   <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
-                                </div>
-                                {% endif %}
-                                <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5;">
-                                   <strong>เหตุผลการอุทธรณ์:</strong> {{ work.appeal_comment }}
-                                </div>
-                             </div>
-                          </div>
-                          {% elif work.comment and not (role == 'applicant' and req.status in ['รอตรวจประวัติการยื่นขอ', 'รอการพิจารณา', 'รอการอุทธรณ์']) %}
-                          <div style="margin-top: 5px; font-size: 0.9rem; color: #dc3545; padding-left: 20px;">
-                            <strong>เหตุผล:</strong> {{ work.comment }}
-                          </div>
-                          {% endif %}
+
                         </td>
                         {% if role != 'research' %}
                         <td
@@ -1024,6 +1117,20 @@
 
     <script src="{{ url_for('static', filename='notifications.js') }}"></script>
     <script>
+      // Appeal UI Helper Functions
+      window.showAppealRejectBox = function(idx) {
+          const box = document.getElementById(`appeal_comment_box_${idx}`);
+          const finalBtn = document.getElementById(`final_reject_appeal_btn_${idx}`);
+          const trigger = document.getElementById(`reject_appeal_trigger_${idx}`);
+          
+          if (box) box.style.display = 'block';
+          if (finalBtn) finalBtn.style.display = 'inline-block';
+          if (trigger) trigger.style.display = 'none';
+          
+          // Scroll into view if needed
+          box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      };
+
       document.addEventListener("DOMContentLoaded", function () {
         const userRole = "{{ role }}";
         // Select All Functionality (Event Delegation for robustness)
