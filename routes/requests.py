@@ -457,9 +457,15 @@ def view_request(req_id):
                         req_data['works'][idx]['status'] = new_status
                         # Per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
+                        appeal_decision = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
                         if new_status == 'ไม่อนุมัติ':
                             if per_item_comment:
                                 req_data['works'][idx]['comment'] = per_item_comment
+                            if req_data['status'] == 'รอการอุทธรณ์' or req_data['works'][idx].get('appeal_comment'):
+                                if appeal_decision:
+                                    req_data['works'][idx]['appeal_decision_comment'] = appeal_decision
+                                elif not req_data['works'][idx].get('appeal_decision_comment'):
+                                    req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
                         else:
                             # Clear comments if approved
                             req_data['works'][idx]['comment'] = ""
@@ -489,8 +495,15 @@ def view_request(req_id):
                     elif w.get('status') == 'ไม่อนุมัติ':
                         # Try to get per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
+                        appeal_decision = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
                         if per_item_comment:
                             w['comment'] = per_item_comment
+                        
+                        if req_data['status'] == 'รอการอุทธรณ์' or w.get('appeal_comment'):
+                            if appeal_decision:
+                                w['appeal_decision_comment'] = appeal_decision
+                            elif not w.get('appeal_decision_comment'):
+                                w['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
 
                 # Overall request status
                 non_duplicate_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']

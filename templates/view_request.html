@@ -1273,9 +1273,11 @@
                       anyUndecided = true;
                   } else if (status === 'ไม่อนุมัติ') {
                       const itemCommentField = document.querySelector(`input[name="work_comment_${idx}"]`);
-                      const itemComment = itemCommentField ? itemCommentField.value.trim() : "";
-                      if (!itemComment) {
-                          missingComments = true;
+                      if (itemCommentField) {
+                          const itemComment = itemCommentField.value.trim();
+                          if (!itemComment) {
+                              missingComments = true;
+                          }
                       }
                   }
               });
