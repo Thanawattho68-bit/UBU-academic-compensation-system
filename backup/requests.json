@@ -8,8 +8,6 @@
         "date": "23 มิ.ย. 2558 00:00:00",
         "score": 24.0,
         "approved_amount": 24000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -74,8 +72,6 @@
         "date": "2 ส.ค. 2558 00:00:00",
         "score": 18.0,
         "approved_amount": 18000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -110,8 +106,6 @@
         "date": "14 เม.ย. 2558 00:00:00",
         "score": 36.0,
         "approved_amount": 36000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -176,8 +170,6 @@
         "date": "12 พ.ค. 2558 00:00:00",
         "score": 36.0,
         "approved_amount": 36000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -242,8 +234,6 @@
         "date": "4 เม.ย. 2559 00:00:00",
         "score": 39.0,
         "approved_amount": 39000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -308,8 +298,6 @@
         "date": "22 ม.ค. 2559 00:00:00",
         "score": 8.0,
         "approved_amount": 8000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -344,8 +332,6 @@
         "date": "18 มิ.ย. 2559 00:00:00",
         "score": 24.0,
         "approved_amount": 24000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -395,8 +381,6 @@
         "date": "4 ม.ค. 2559 00:00:00",
         "score": 41.0,
         "approved_amount": 41000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -461,8 +445,6 @@
         "date": "26 เม.ย. 2560 00:00:00",
         "score": 36.0,
         "approved_amount": 36000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -512,8 +494,6 @@
         "date": "17 ก.ค. 2560 00:00:00",
         "score": 32.0,
         "approved_amount": 32000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -563,8 +543,6 @@
         "date": "14 ก.ย. 2560 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -614,8 +592,6 @@
         "date": "3 พ.ค. 2560 00:00:00",
         "score": 33.0,
         "approved_amount": 33000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -665,8 +641,6 @@
         "date": "7 ม.ค. 2561 00:00:00",
         "score": 27.0,
         "approved_amount": 27000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -716,8 +690,6 @@
         "date": "2 ม.ค. 2561 00:00:00",
         "score": 17.0,
         "approved_amount": 17000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -767,8 +739,6 @@
         "date": "15 ก.พ. 2561 00:00:00",
         "score": 39.0,
         "approved_amount": 39000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -833,8 +803,6 @@
         "date": "27 ส.ค. 2562 00:00:00",
         "score": 11.0,
         "approved_amount": 11000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -869,8 +837,6 @@
         "date": "20 มี.ค. 2562 00:00:00",
         "score": 28.0,
         "approved_amount": 28000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -920,8 +886,6 @@
         "date": "25 ก.ค. 2562 00:00:00",
         "score": 13.0,
         "approved_amount": 13000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -956,8 +920,6 @@
         "date": "8 เม.ย. 2563 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -992,8 +954,6 @@
         "date": "26 ส.ค. 2563 00:00:00",
         "score": 18.0,
         "approved_amount": 18000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -1043,8 +1003,6 @@
         "date": "10 ก.ย. 2563 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -1079,8 +1037,6 @@
         "date": "14 เม.ย. 2563 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1115,8 +1071,6 @@
         "date": "28 เม.ย. 2564 00:00:00",
         "score": 38.0,
         "approved_amount": 38000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1181,8 +1135,6 @@
         "date": "20 ก.พ. 2564 00:00:00",
         "score": 23.0,
         "approved_amount": 23000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -1232,8 +1184,6 @@
         "date": "17 ก.ค. 2564 00:00:00",
         "score": 31.0,
         "approved_amount": 31000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -1283,8 +1233,6 @@
         "date": "14 พ.ค. 2564 00:00:00",
         "score": 37.0,
         "approved_amount": 37000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1349,8 +1297,6 @@
         "date": "15 มี.ค. 2565 00:00:00",
         "score": 39.0,
         "approved_amount": 39000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1415,8 +1361,6 @@
         "date": "22 เม.ย. 2565 00:00:00",
         "score": 43.0,
         "approved_amount": 43000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -1481,8 +1425,6 @@
         "date": "19 ก.ย. 2565 00:00:00",
         "score": 5.0,
         "approved_amount": 5000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -1517,8 +1459,6 @@
         "date": "23 ก.ค. 2566 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1553,8 +1493,6 @@
         "date": "9 พ.ค. 2566 00:00:00",
         "score": 34.0,
         "approved_amount": 34000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -1604,8 +1542,6 @@
         "date": "9 ก.พ. 2566 00:00:00",
         "score": 10.0,
         "approved_amount": 10000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -1640,8 +1576,6 @@
         "date": "19 ก.ย. 2566 00:00:00",
         "score": 17.0,
         "approved_amount": 17000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1676,8 +1610,6 @@
         "date": "17 มี.ค. 2567 00:00:00",
         "score": 12.0,
         "approved_amount": 12000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",
@@ -1712,8 +1644,6 @@
         "date": "22 ก.ค. 2567 00:00:00",
         "score": 46.0,
         "approved_amount": 46000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาง",
             "academic_position": "รองศาสตราจารย์",
@@ -1778,8 +1708,6 @@
         "date": "23 มิ.ย. 2567 00:00:00",
         "score": 12.0,
         "approved_amount": 12000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ศาสตราจารย์",
@@ -1814,8 +1742,6 @@
         "date": "11 ม.ค. 2567 00:00:00",
         "score": 14.0,
         "approved_amount": 14000.0,
-        "comment": "",
-        "timeline_status": "ontime",
         "applicant_info": {
             "title_name": "นาย",
             "academic_position": "ผู้ช่วยศาสตราจารย์",

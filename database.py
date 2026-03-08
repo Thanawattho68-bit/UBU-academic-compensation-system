@@ -41,9 +41,6 @@ def init_db():
             date_submitted TEXT,
             total_score REAL DEFAULT 0.0,
             approved_amount REAL DEFAULT 0.0,
-            comments_json TEXT,
-            timeline_status TEXT,
-            batch_id TEXT,
             applicant_info_json TEXT,
             works_json TEXT,
             works_draft_json TEXT,
@@ -52,7 +49,6 @@ def init_db():
             research_viewer TEXT,
             committee_approver TEXT,
             final_approver TEXT,
-            decision_reason TEXT,
             history_json TEXT
         )
     ''')
