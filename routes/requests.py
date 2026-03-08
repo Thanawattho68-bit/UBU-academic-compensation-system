@@ -427,11 +427,15 @@ def view_request(req_id):
                     # Store decision comment
                     decision_comment = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
                     if is_approve:
-                        # Clear old rejection comment if approved
-                        req_data['works'][idx]['comment'] = decision_comment
+                        # Clear comments/appeals if approved
+                        req_data['works'][idx]['comment'] = ""
+                        req_data['works'][idx]['appeal_decision_comment'] = ""
                     else:
+                        # Store as dedicated appeal decision comment
                         if decision_comment:
-                            req_data['works'][idx]['comment'] = decision_comment
+                            req_data['works'][idx]['appeal_decision_comment'] = decision_comment
+                        else:
+                            req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
                     
                     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                     execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
@@ -440,6 +444,7 @@ def view_request(req_id):
                     log_history(req_id, f"{action_label} (รายการที่ {idx+1})", decision_comment)
                     flash(f"ดำเนินการ{action_label}เรียบร้อยแล้ว")
                     return redirect(url_for('requests.view_request', req_id=req_id))
+
 
             # Handle Bulk Actions (Updates work status but stays on page)
             if action in ['committee_bulk_approve', 'committee_bulk_reject']:
@@ -450,18 +455,21 @@ def view_request(req_id):
                     idx = int(i)
                     if idx < len(req_data['works']) and req_data['works'][idx].get('status') != 'ผลงานซ้ำซ้อน':
                         req_data['works'][idx]['status'] = new_status
-                        # Per-item comment (fallback to global for bulk reject)
+                        # Per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
                         if new_status == 'ไม่อนุมัติ':
-                            req_data['works'][idx]['comment'] = per_item_comment
+                            if per_item_comment:
+                                req_data['works'][idx]['comment'] = per_item_comment
                         else:
-                            # Clear comment if approved
+                            # Clear comments if approved
                             req_data['works'][idx]['comment'] = ""
+                            req_data['works'][idx]['appeal_decision_comment'] = ""
                 
                 # Just save the works state and stay (DRAFT only, owned by current user)
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
                 return redirect(url_for('requests.view_request', req_id=req_id))
+
 
             # Handle Final Publication (Calculates total and finishes request)
             elif action == 'publish':
