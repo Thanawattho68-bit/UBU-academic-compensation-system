@@ -200,9 +200,9 @@ def new_request():
             log_history(req_id, "ส่งคำขอ" if action == "submit" else "บันทึกแบบร่าง")
         else:
             execute_db('''
-                INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, timeline_status, applicant_info_json, works_json, works_draft_json)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, "ontime" if can_submit else "late", json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
+                INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, applicant_info_json, works_json, works_draft_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
             log_history(req_id, "สร้างคำขอใหม่" + (" (ส่ง)" if action == "submit" else " (แบบร่าง)"))
 
         if action == "submit": create_notification(f"มีคำขอใหม่ {req_id} จาก {session['name']}", recipient_role='administration', req_id=req_id)
@@ -335,8 +335,8 @@ def view_request(req_id):
             if action == 'return':
                 comment = request.form.get('comment', '').strip()
                 if not comment: flash("กรุณาระบุสิ่งที่ต้องแก้ไข"); return redirect(url_for('requests.view_request', req_id=req_id))
-                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ?, admin_viewer = ? WHERE id = ?', 
-                           ('แก้ไข', comment, session['username'], req_id))
+                execute_db('UPDATE RequestRecord SET status = ?, admin_viewer = ? WHERE id = ?', 
+                           ('แก้ไข', session['username'], req_id))
                 log_history(req_id, "ส่งคืนแก้ไข", comment)
                 create_notification(f"คำขอ {req_id} ถูกส่งคืน: {comment}", recipient_username=req_data['applicant_username'], req_id=req_id)
             elif action == 'pass':
@@ -358,7 +358,7 @@ def view_request(req_id):
                 
                 execute_db('''
                     UPDATE RequestRecord 
-                    SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, batch_id = NULL, admin_viewer = ?
+                    SET status = ?, works_json = ?, total_score = ?, approved_amount = ?, admin_viewer = ?
                     WHERE id = ?
                 ''', ('รอการพิจารณา', json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], req_id))
                 log_history(req_id, "ส่งให้คณะกรรมการพิจารณา")
@@ -366,8 +366,8 @@ def view_request(req_id):
                 flash(f"ส่งคำขอ {req_id} ให้คณะกรรมการพิจารณาเรียบร้อยแล้ว (รายการซ้ำซ้อนจะถูกซ่อนจากกรรมการแต่ยังอยู่ในระบบ)")
                 redirect_url = url_for('main.dashboard')
             elif action == 'reject':
-                execute_db('UPDATE RequestRecord SET status = ?, decision_reason = ?, admin_viewer = ? WHERE id = ?', 
-                           ('ไม่อนุมัติ', request.form.get('comment', ''), session['username'], req_id))
+                execute_db('UPDATE RequestRecord SET status = ?, admin_viewer = ? WHERE id = ?', 
+                           ('ไม่อนุมัติ', session['username'], req_id))
                 log_history(req_id, "ไม่อนุมัติ (โดยงานบุคคล)", request.form.get('comment', ''))
                 create_notification(f"คำขอ {req_id} ไม่ผ่านการอนุมัติ", recipient_username=req_data['applicant_username'], req_id=req_id)
             else: # Manual Save
@@ -445,7 +445,6 @@ def view_request(req_id):
             if action in ['committee_bulk_approve', 'committee_bulk_reject']:
                 selected_indices = request.form.getlist('selected_works')
                 new_status = 'อนุมัติ' if action == 'committee_bulk_approve' else 'ไม่อนุมัติ'
-                global_comment = request.form.get('comment', '')
                 
                 for i in selected_indices:
                     idx = int(i)
@@ -454,7 +453,7 @@ def view_request(req_id):
                         # Per-item comment (fallback to global for bulk reject)
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
                         if new_status == 'ไม่อนุมัติ':
-                            req_data['works'][idx]['comment'] = per_item_comment if per_item_comment else global_comment
+                            req_data['works'][idx]['comment'] = per_item_comment
                         else:
                             # Clear comment if approved
                             req_data['works'][idx]['comment'] = ""
@@ -474,20 +473,16 @@ def view_request(req_id):
                     flash(f"กรุณาระบุผลการพิจารณาให้ครบทุกรายการก่อนเผยแพร่ (ยังค้างรายการที่: {', '.join(map(str, undecided_indices))})")
                     return redirect(url_for('requests.view_request', req_id=req_id))
 
-                global_comment = request.form.get('comment', '')
                 any_approved = False
                 for idx, w in enumerate(req_data['works']):
                     if w.get('status') == 'อนุมัติ':
                         any_approved = True
                         w['comment'] = "" # Ensure approved items have no rejection comments
                     elif w.get('status') == 'ไม่อนุมัติ':
-                        # Try to get per-item comment first, fallback to global
+                        # Try to get per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
                         if per_item_comment:
                             w['comment'] = per_item_comment
-                        elif not w.get('comment'):
-                            # Only if it's currently empty, use global
-                            w['comment'] = global_comment
 
                 # Overall request status
                 non_duplicate_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']
@@ -504,11 +499,11 @@ def view_request(req_id):
                 s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                 
                 execute_db('''
-                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, decision_reason = ?, draft_owner = NULL
+                    UPDATE RequestRecord SET status = ?, works_json = ?, works_draft_json = ?, total_score = ?, approved_amount = ?, committee_approver = ?, final_approver = ?, draft_owner = NULL
                     WHERE id = ?
-                ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], global_comment, req_id))
+                ''', (final_status, json.dumps(req_data['works'], ensure_ascii=False), json.dumps(req_data['works'], ensure_ascii=False), s, c, session['username'], session['username'], req_id))
                 
-                log_history(req_id, f"เผยแพร่ผลพิจารณา: {final_status}", global_comment)
+                log_history(req_id, f"เผยแพร่ผลพิจารณา: {final_status}", "")
                 create_notification(f"คำขอ {req_id} ได้รับการพิจารณาแล้ว ผลคือ: {final_status}", recipient_username=req_data['applicant_username'], req_id=req_id)
                 flash(f"เผยแพร่ผลการพิจารณาคำขอ {req_id} เรียบร้อยแล้ว")
                 return redirect(url_for('main.dashboard'))
