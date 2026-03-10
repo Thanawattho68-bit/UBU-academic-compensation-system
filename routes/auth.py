@@ -7,6 +7,7 @@ routes/auth.py
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import query_db
+from utils import parse_academic_position
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -18,17 +19,9 @@ def login():
         user = query_db('SELECT * FROM Account WHERE username = ? AND password = ?', (username, password), one=True)
 
         if user:
-            # Parse academic_position from DB (it might be a JSON string or a simple string)
-            db_pos = user['academic_position']
-            positions = []
-            if db_pos:
-                try:
-                    positions = json.loads(db_pos)
-                    if not isinstance(positions, list):
-                        positions = [positions]
-                except (json.JSONDecodeError, TypeError):
-                    positions = [db_pos]
-            else:
+            # Parse academic_position from DB
+            positions = parse_academic_position(user['academic_position'])
+            if not positions:
                 # Default labels based on role
                 default_pos = {
                     'admin': 'ผู้ดูแลระบบ',

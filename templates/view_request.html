@@ -476,7 +476,7 @@
                                       </div>
                                       {% endif %}
                                       <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if (req.status == 'รอการอุทธรณ์' or work.appeal_decision_comment) else '' }}">
-                                          <strong>เหตุผลการอุทธรณ์:</strong> {{ work.appeal_comment }}
+                                          <strong>เหตุผลการอุทธรณ์จากผู้ยื่น:</strong> {{ work.appeal_comment }}
                                       </div>
 
                                       {% if work.appeal_decision_comment %}
@@ -485,15 +485,21 @@
                                       </div>
                                       {% endif %}
 
-
                                       {# ปุ่มตัดสินใจการอุทธรณ์ (แสดงเฉพาะตอนสถานะ รอการอุทธรณ์) #}
                                       {% if req.status == 'รอการอุทธรณ์' %}
                                       <div style="margin-top: 12px;">
-                                          <div id="appeal_comment_box_{{ loop.index0 }}" style="display: none; margin-bottom: 12px;">
-                                              <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่านการอุทธรณ์:</label>
-                                              <input type="text" name="appeal_decision_comment_{{ loop.index0 }}" 
-                                                    placeholder="โปรดระบุเหตุผลที่ไม่รับอุทธรณ์..."
-                                                    style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                          <div id="appeal_comment_box_{{ loop.index0 }}" 
+                                               style="display: none; margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 1px solid #fecaca;">
+                                              <div style="padding: 10px; background: #fff1f2; border-bottom: 1px solid #fecaca;">
+                                                  <div style="font-size: 0.85rem; color: #dc2626; font-weight: 700;">
+                                                      <i class="fas fa-comment-dots"></i> ระบุเหตุผลที่ไม่รับอุทธรณ์
+                                                  </div>
+                                              </div>
+                                              <div style="padding: 12px; background: white;">
+                                                  <input type="text" name="appeal_decision_comment_{{ loop.index0 }}" 
+                                                        placeholder="โปรดระบุเหตุผล..."
+                                                        style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                              </div>
                                           </div>
                                           <div style="display: flex; gap: 10px;">
                                               <button type="submit" name="action" value="committee_approve_appeal_{{ loop.index0 }}" class="btn-success" style="padding: 8px 16px; font-size: 0.85rem; border-radius: 8px;">
@@ -506,6 +512,8 @@
                                                   ยืนยันการไม่รับอุทธรณ์
                                               </button>
                                           </div>
+                                      </div>
+                                      {% endif %}
                                       </div>
                                       {% endif %}
                                   </div>
@@ -569,10 +577,39 @@
                               {% endif %}
                           {% endif %}
 
-                          {# แสดงผลเหตุผลสำหรับ Role อื่นๆ (Admin) #}
-                          {% if role not in ['committee', 'applicant'] and work.comment %}
+                          {# แสดงผลเหตุผลสำหรับ Role Administration - ยุบรวมเป็นรูปแบบเดียวกันทั้งหมด #}
+                          {% if role == 'administration' and (work.comment or work.appeal_comment) %}
+                          <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                              <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                  <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                      <i class="fas fa-gavel"></i> รายละเอียดการพิจารณา
+                                  </div>
+                              </div>
+                              <div style="padding: 12px; background: white;">
+                                  {% if work.comment %}
+                                  <div style="font-size: 0.85rem; color: #64748b; {{ 'margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_comment else '' }}">
+                                      <strong>เหตุผลการพิจารณา:</strong> {{ work.comment }}
+                                  </div>
+                                  {% endif %}
+
+                                  {% if work.appeal_comment %}
+                                  <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_decision_comment else '' }}">
+                                      <strong>เหตุผลการอุทธรณ์จากผู้ยื่น:</strong> {{ work.appeal_comment }}
+                                  </div>
+                                  {% endif %}
+
+                                  {% if work.appeal_decision_comment %}
+                                  <div style="font-size: 0.95rem; color: #dc2626; line-height: 1.5;">
+                                      <strong> ผลการพิจารณาอุทธรณ์:</strong> {{ work.appeal_decision_comment }}
+                                  </div>
+                                  {% endif %}
+                              </div>
+                          </div>
+                          {% elif role not in ['committee', 'applicant', 'administration'] and work.comment %}
                           <div style="margin-top: 8px; font-size: 0.9rem; color: #dc3545; padding-left: 10px; border-left: 3px solid #dc3545;">
                               <strong>เหตุผล:</strong> {{ work.comment }}
+                          </div>
+                          {% endif %}
                           </div>
                           {% endif %}
 
@@ -753,7 +790,7 @@
                 {% endif %}
 
                 <!-- Actions Area -->
-                <div class="form-actions" style="margin-top: 40px">
+                <div class="form-actions" style="margin-top: 40px; display: block;">
                   {% if role == 'administration' and req.status in ['ส่งแล้ว',
                   'ผลงานผ่าน', 'ผลงานซ้ำซ้อน', 'ซ้ำซ้อนบางส่วน',
                   'รอเสนอพิจารณา', 'อยู่ในรอบพิจารณา'] %}
@@ -830,8 +867,10 @@
                   </div>
                   {% endif %} {% if role == 'research' and req.status ==
                   'รอตรวจประวัติการยื่นขอ' %}
+                  <div class="research-panel" style="background: #f8f9fa; padding: 25px; border: 2px solid #dae1e7; border-radius: 12px; margin-bottom: 20px;">
                   <h3
                     style="
+                      margin-top: 0;
                       margin-bottom: 15px;
                       color: #1e293b;
                       font-size: 1.25rem;
@@ -866,7 +905,7 @@
                       border: 1px solid #ffd351;
                     "
                   >
-                    <h5 style="color: #856404; font-size: 1.1rem">
+                    <h5 style="color: #856404; font-size: 1.1rem; margin-top: 0;">
                       <i class="fas fa-history"></i> พบประวัติย้อนหลังของ {{
                       req.applicant_name }} ({{ history|length }} รายการ)
                     </h5>
@@ -958,6 +997,7 @@
                       <i class="fas fa-paper-plane"></i>
                       ส่งผลการตรวจสอบทั้งหมดไปยังงานบุคคล
                     </button>
+                  </div>
                   </div>
                   {% endif %} {% if role == 'applicant' %}
                   <div
@@ -1276,6 +1316,13 @@
                       if (itemCommentField) {
                           const itemComment = itemCommentField.value.trim();
                           if (!itemComment) {
+                              missingComments = true;
+                          }
+                      }
+                      const appealCommentField = document.querySelector(`input[name="appeal_decision_comment_${idx}"]`);
+                      if (appealCommentField) {
+                          const appealComment = appealCommentField.value.trim();
+                          if (!appealComment) {
                               missingComments = true;
                           }
                       }

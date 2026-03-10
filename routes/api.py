@@ -11,7 +11,7 @@ import json
 from datetime import datetime
 from flask import Blueprint, request, jsonify, session, send_from_directory, current_app
 from database import query_db, execute_db
-from utils import load_data, save_data, parse_thai_date
+from utils import parse_thai_date, deserialize_request, calculate_compensation
 
 api_bp = Blueprint('api', __name__)
 
@@ -30,13 +30,7 @@ def api_check_work_duplicate():
         return jsonify({"success": False, "message": "กรุณาระบุชื่อผลงาน"})
 
     all_rows = query_db('SELECT * FROM RequestRecord')
-    all_reqs = []
-    for r in all_rows:
-        req = dict(r)
-        req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
-        req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
-        req['applicant'] = req['applicant_username']
-        all_reqs.append(req)
+    all_reqs = [deserialize_request(r) for r in all_rows]
     
     self_duplicates = []
     shared_works = []
@@ -153,3 +147,34 @@ def uploaded_file(req_id, work_id, filename):
         return jsonify({"success": False, "message": "คุณไม่มีสิทธิ์เข้าถึงไฟล์นี้"}), 403
         
     return send_from_directory(os.path.join(current_app.config['UPLOAD_FOLDER'], req_id, work_id), filename)
+
+
+@api_bp.route('/api/estimate_compensation', methods=['POST'])
+def api_estimate_compensation():
+    """API endpoint สำหรับคำนวณคะแนนและค่าตอบแทน ใช้ logic เดียวกับ Backend"""
+    if 'username' not in session:
+        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
+    
+    data = request.get_json()
+    works = data.get('works', [])
+    position = data.get('position', '')
+    fiscal_year = data.get('fiscal_year', '')
+    
+    score, comp = calculate_compensation(works, position, fiscal_year)
+    
+    # Return per-work breakdown too
+    works_detail = []
+    for w in works:
+        works_detail.append({
+            'base_score': w.get('base_score', 0),
+            'weight': w.get('weight', 0),
+            'score_calc': w.get('score_calc', 0),
+            'score_breakdown': w.get('score_breakdown', ''),
+        })
+    
+    return jsonify({
+        "success": True,
+        "total_score": score,
+        "compensation": comp,
+        "works": works_detail
+    })
