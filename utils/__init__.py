@@ -16,5 +16,7 @@ from .helpers import (
     allowed_file,
     create_notification,
     calculate_compensation,
+    deserialize_request,
+    parse_academic_position,
     ALLOWED_EXTENSIONS,
 )

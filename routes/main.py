@@ -11,7 +11,7 @@ Route หน้าหลัก: index, dashboard, notifications, appeals
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
 from database import query_db, execute_db
-from utils import load_data, format_thai_date, get_current_fiscal_year
+from utils import format_thai_date, get_current_fiscal_year, deserialize_request, parse_academic_position
 
 main_bp = Blueprint('main', __name__)
 
@@ -43,12 +43,7 @@ def dashboard():
     
     display_reqs = []
     for row in rows:
-        r = dict(row)
-        r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
-        r['applicant_info'] = json.loads(r['applicant_info_json']) if r.get('applicant_info_json') else {}
-        r['applicant'] = r['applicant_username']
-        r['date'] = r['date_submitted']
-        r['score'] = r['total_score']
+        r = deserialize_request(row)
         display_reqs.append(r)
     
     # กรองรายการที่รอเสนอพิจารณา (เฉพาะสำหรับสิทธิ์ administration)
@@ -132,9 +127,7 @@ def appeals_page():
     
     appeal_reqs = []
     for row in rows:
-        r = dict(row)
-        r['works'] = json.loads(r['works_json']) if r.get('works_json') else []
-        r['applicant_info'] = json.loads(r['applicant_info_json']) if r.get('applicant_info_json') else {}
+        r = deserialize_request(row)
         appeal_reqs.append(r)
     
     return render_template('appeals.html', name=session['name'], role=session['role'], position=session.get('position',''), requests=appeal_reqs)
@@ -198,13 +191,7 @@ def summary_page():
         pos_raw = row['academic_position']
         
         # Parse positions list
-        positions = []
-        if pos_raw:
-            try:
-                positions = json.loads(pos_raw)
-                if not isinstance(positions, list): positions = [positions]
-            except:
-                positions = [pos_raw]
+        positions = parse_academic_position(pos_raw)
         
         # Categorize
         category = None

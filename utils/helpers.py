@@ -50,6 +50,35 @@ def save_data(filename, data):
 
 
 # ──────────────────────────────────────────────
+# Request Deserialization Helper
+# ──────────────────────────────────────────────
+
+def deserialize_request(row):
+    """แปลง row จาก DB (sqlite3.Row) เป็น dict พร้อม works, applicant_info, etc."""
+    req = dict(row)
+    req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
+    req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
+    req['audit_trail'] = json.loads(req['history_json']) if req.get('history_json') else []
+    req['applicant'] = req['applicant_username']  # Compatibility alias
+    req['date'] = req['date_submitted']            # Compatibility alias
+    req['score'] = req['total_score']              # Compatibility alias
+    return req
+
+
+def parse_academic_position(raw):
+    """แปลง academic_position จาก DB (str/JSON) → list[str]"""
+    if not raw:
+        return []
+    if isinstance(raw, list):
+        return raw
+    try:
+        parsed = json.loads(raw)
+        return parsed if isinstance(parsed, list) else [parsed]
+    except (json.JSONDecodeError, TypeError):
+        return [raw]
+
+
+# ──────────────────────────────────────────────
 # Date Helpers
 # ──────────────────────────────────────────────
 
@@ -212,9 +241,6 @@ def create_notification(message, recipient_role=None, recipient_username=None, r
 # ──────────────────────────────────────────────
 
 def calculate_compensation(works_list, position_str, fiscal_year_req):
-    from database import query_db
-    import json
-    
     row = query_db('SELECT * FROM Criteria WHERE fiscal_year = ?', (str(fiscal_year_req),), one=True)
     if not row: row = query_db('SELECT * FROM Criteria ORDER BY fiscal_year DESC LIMIT 1', one=True)
     
@@ -224,18 +250,10 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         pr = json.loads(row['payment_rules']) if row['payment_rules'] else {}
     else: qs, rw, pr = {}, {}, {}
     score_sum = 0
-    # Handle position_str which might be a JSON string, a list, or a plain string
-    pos_data = position_str
-    if isinstance(pos_data, str) and pos_data.startswith('[') and pos_data.endswith(']'):
-        try:
-            pos_data = json.loads(pos_data)
-        except:
-            pass
     
-    if isinstance(pos_data, list):
-        pos = " ".join(pos_data)
-    else:
-        pos = str(pos_data or "").strip()
+    # Use shared helper for position parsing
+    positions = parse_academic_position(position_str)
+    pos = " ".join(positions)
 
     pos_key = 'asst_prof' if 'ผู้ช่วยศาสตราจารย์' in pos else ('assoc_prof' if 'รองศาสตราจารย์' in pos else ('prof' if 'ศาสตราจารย์' in pos else ''))
     

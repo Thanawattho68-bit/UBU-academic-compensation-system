@@ -9,15 +9,16 @@ routes/requests.py
 
 import json
 import os
+import shutil
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from werkzeug.utils import secure_filename
 from database import query_db, execute_db
 from utils import (
-    load_data, load_config, save_data,
     to_thai_year, format_thai_date,
     is_within_timeline, get_remaining_days, get_current_fiscal_year,
     allowed_file, create_notification, calculate_compensation,
+    deserialize_request, parse_academic_position,
 )
 
 requests_bp = Blueprint('requests', __name__)
@@ -49,12 +50,7 @@ def view_work(req_id, work_index):
     row = query_db('SELECT * FROM RequestRecord WHERE id = ?', (req_id,), one=True)
     if not row:
         return "Request not found", 404
-    req = dict(row)
-    req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
-    req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
-    req['applicant'] = req['applicant_username'] # Compatibility
-    req['date'] = req['date_submitted']
-    req['score'] = req['total_score']
+    req = deserialize_request(row)
     
     if request.method == 'POST':
         if session['role'] != 'administration':
@@ -119,14 +115,8 @@ def new_request():
         criteria_list.append(d)
         
     user_profile = dict(query_db('SELECT * FROM Account WHERE username = ?', (session['username'],), one=True) or {})
-    if user_profile and user_profile.get('academic_position'):
-        try:
-            user_profile['academic_position'] = json.loads(user_profile['academic_position'])
-            if not isinstance(user_profile['academic_position'], list):
-                user_profile['academic_position'] = [user_profile['academic_position']]
-        except (json.JSONDecodeError, TypeError):
-            # If not a JSON list, handle as single string
-            pass
+    if user_profile:
+        user_profile['academic_position'] = parse_academic_position(user_profile.get('academic_position'))
 
     work_types = [dict(wt) for wt in query_db('SELECT * FROM WorkType')]
 
@@ -136,10 +126,7 @@ def new_request():
     if edit_id:
         row = query_db('SELECT * FROM RequestRecord WHERE id = ? AND applicant_username = ?', (edit_id, session['username']), one=True)
         if row:
-            edit_req = dict(row)
-            edit_req['applicant'] = edit_req['applicant_username'] # Compatibility
-            edit_req['works'] = json.loads(edit_req['works_json']) if edit_req['works_json'] else []
-            edit_req['applicant_info'] = json.loads(edit_req['applicant_info_json']) if edit_req['applicant_info_json'] else {}
+            edit_req = deserialize_request(row)
     else:
         # Enforce one submission per year rule
         existing_req = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? AND fiscal_year = ?', (session['username'], str(fiscal_year)), one=True)
@@ -240,7 +227,7 @@ def view_request(req_id):
     req_data['date'] = req_data['date_submitted']
     
     # Recalculate score and amount for the current state (especially for draft mode)
-    from utils import calculate_compensation
+    # calculate_compensation already imported at top of file
     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
     req_data['score'] = s
     req_data['total_score'] = s

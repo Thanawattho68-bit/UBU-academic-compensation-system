@@ -9,7 +9,7 @@ routes/admin.py
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import query_db, execute_db
-from utils import load_config, save_data
+from utils import load_config
 
 admin_bp = Blueprint('admin', __name__)
 
