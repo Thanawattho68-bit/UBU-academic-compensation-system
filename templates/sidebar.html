@@ -1,0 +1,103 @@
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h3><i class="fas fa-university"></i> ระบบค่าตอบแทน</h3>
+    <div style="margin-top: 20px; text-align: left; padding-left: 10px">
+      <div style="
+          font-weight: bold;
+          font-size: 1.1rem;
+          color: white;
+          margin-bottom: 2px;
+        ">
+        {{ name }}
+      </div>
+      <div style="font-size: 0.8rem; color: #bdc3c7; font-weight: 300">
+        {% if position %}
+          {% if position is string %}
+            {{ position }}
+          {% else %}
+            {{ position | join(' / ') }}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  <nav class="sidebar-nav">
+    <a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint == 'main.dashboard' %}active{% endif %}">
+      <i class="fas fa-home"></i> หน้าหลัก
+    </a>
+    {% if role not in ['applicant', 'research'] %}
+    <a href="{{ url_for('main.summary_page') }}"
+      class="{% if request.endpoint == 'main.summary_page' %}active{% endif %}">
+      <i class="fas fa-chart-bar"></i> สรุปยอด
+    </a>
+
+    {% endif %}
+
+    {% if role == 'applicant' %}
+    <a href="{{ url_for('requests.new_request') if can_submit and not has_submitted_this_year else 'javascript:void(0)' }}"
+      class="{% if request.endpoint == 'requests.new_request' %}active{% endif %}" {% if not can_submit %}
+      onclick="showTimelineAlert(event)" style="opacity: 0.6" title="ระบบปิดการรับคำขอ" {% elif has_submitted_this_year
+      %} onclick="showAlreadySubmittedAlert(event)" style="opacity: 0.6" title="คุณได้ยื่นคำขอไปแล้วในปีนี้" {% endif
+      %}>
+      <i class="fas fa-file-alt"></i> ยื่นคำขอใหม่
+    </a>
+    <a href="{{ url_for('main.appeals_page') }}"
+      class="{% if request.endpoint == 'main.appeals_page' %}active{% endif %}">
+      <i class="fas fa-gavel"></i> รายการอุทธรณ์
+    </a>
+    {% elif role == 'research' %} {% elif role == 'committee' %}
+    <a href="{{ url_for('main.appeals_page') }}"
+      class="{% if request.endpoint == 'main.appeals_page' %}active{% endif %}">
+      <i class="fas fa-gavel"></i> พิจารณาคำอุทธรณ์
+    </a>
+
+    {% elif role == 'admin' %}
+    <!-- Admin Menu Split -->
+
+    <a href="{{ url_for('admin.manage_criteria') }}"
+      class="{% if request.endpoint == 'admin.manage_criteria' %}active{% endif %}">
+      <i class="fas fa-clipboard-list"></i> ตั้งค่าเกณฑ์และคะแนน
+    </a>
+    <a href="{{ url_for('admin.manage_timeline') }}"
+      class="{% if request.endpoint == 'admin.manage_timeline' %}active{% endif %}">
+      <i class="fas fa-calendar-alt"></i> จัดการช่วงเวลายื่นคำขอ
+    </a>
+
+    {% endif %}
+    <a href="{{ url_for('main.notifications_page') }}"
+      class="{% if request.endpoint == 'main.notifications_page' %}active{% endif %}"
+      style="display: flex; align-items: center; justify-content: space-between">
+      <span><i class="fas fa-bell"></i> การแจ้งเตือน</span>
+      <span id="sidebar-notif-badge" style="
+          display: none;
+          background: #e74c3c;
+          color: white;
+          border-radius: 10px;
+          padding: 2px 8px;
+          font-size: 0.75rem;
+          font-weight: bold;
+        ">0</span>
+    </a>
+    <a href="{{ url_for('auth.logout') }}" class="logout-btn"><i class="fas fa-sign-out-alt"></i> ออกจากระบบ</a>
+  </nav>
+</aside>
+
+<script>
+
+  function showTimelineAlert(event) {
+    if (event) event.preventDefault();
+    let msg = {{ timeline_message | tojson | safe }};
+    if (!msg) {
+      const startDate = {{ (timeline.start_date if timeline else '01/10') | tojson | safe }};
+      msg = `ขออภัย! ขณะนี้ระบบปิดการรับคำขอ\nจะเปิดรับคำขออีกครั้งในวันที่ ${startDate} ของรอบปีงบประมาณถัดไป`;
+    }
+    alert(msg);
+  }
+
+
+
+  function showAlreadySubmittedAlert(event) {
+    if (event) event.preventDefault();
+    alert("คุณได้ยื่นคำขอสำหรับปีงบประมาณนี้เรียบร้อยแล้ว\nสามารถยื่นคำขอได้เพียงปีละ 1 ครั้งเท่านั้น");
+  }
+</script>

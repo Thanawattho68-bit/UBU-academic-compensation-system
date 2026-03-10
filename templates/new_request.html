@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <title>ยื่นคำขอใหม่ - {{ name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        .work-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fff;
+            position: relative;
+        }
+
+        .status-comment-box[data-visible="false"] { display: none !important; }
+        .status-comment-box[data-visible="true"] { display: block !important; }
+        .sub-group-box[data-visible="false"] { display: none !important; }
+        .sub-group-box[data-visible="true"] { display: block !important; }
+
+        .work-card h4 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+
+        .remove-work-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .sub-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 6px;
+            margin-top: 10px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Tooltip Styles */
+        .info-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 16px;
+            height: 16px;
+            background: #3498db;
+            color: white;
+            border-radius: 50%;
+            font-size: 11px;
+            font-style: italic;
+            cursor: help;
+            margin-left: 5px;
+            position: relative;
+            vertical-align: middle;
+            font-family: serif;
+        }
+
+        .info-icon:hover::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c3e50;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-style: normal;
+            width: 280px;
+            z-index: 1001;
+            white-space: normal;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            line-height: 1.4;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .info-icon:hover::before {
+            content: '';
+            position: absolute;
+            bottom: 110%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 8px solid transparent;
+            border-top-color: #2c3e50;
+            z-index: 1001;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-file-signature"></i> ยื่นคำขอใหม่
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="welcome-banner">
+                    <h2>แบบคำขอรับเงินค่าตอบแทนตำแหน่งทางวิชาการ</h2>
+                    {% if not can_submit %}
+                    <div class="alert alert-warning"
+                        style="border-left: 5px solid #ffa502; background-color: #fff9e6; color: #b37400;">
+                        <h4><i class="fas fa-exclamation-circle"></i> ขณะนี้หมดระยะเวลาการยื่นคำขอใหม่รอบปกติแล้ว</h4>
+                        <p>ท่านยังสามารถ<strong>ยื่นคำขอที่ถูกส่งกลับมาแก้ไข</strong>ได้ตามปกติ</p>
+                        <p style="margin-top: 5px; font-size: 0.9em; color: #666;">
+                            (สำหรับคำขอร่างเดิม
+                            ท่านยังสามารถแก้ไขข้อมูลและบันทึกแบบร่างเก็บไว้ได้เพื่อรอรอบการยื่นถัดไป)</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Form Container Removed -->
+                <form method="POST" id="mainForm" onsubmit="prepareData()" enctype="multipart/form-data">
+                    <!-- Header / Applicant Info -->
+                    <!-- Part 1: Applicant Info -->
+                    <div
+                        style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; font-size: 1.1rem; color: #34495e;">
+                            <i class="fas fa-user-circle" style="margin-right: 10px; color: #3498db;"></i> ส่วนที่
+                            1: ข้อมูลผู้ยื่นคำขอ
+                        </h3>
+
+                        <div
+                            style="display: flex; flex-direction: column; gap: 12px; color: #000; font-size: 1rem; line-height: 1.6;">
+                            <div>
+                                <span style="font-weight: normal; color: #555;">ชื่อ-สกุล :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.title_name }} {{
+                                    user.name }}</span>
+                            </div>
+
+                            <div style="display: flex; align-items: center;">
+                                <span style="font-weight: normal; color: #555;">ตำแหน่ง :</span>
+                                <input type="text" name="academic_position" value="{{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else user.academic_position }}"
+                                    readonly
+                                    style="border: none; background: transparent; color: #000; font-weight: normal; font-size: 1rem; padding: 0; margin-left: 8px; width: auto; flex-grow: 1; outline: none; font-family: inherit;">
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">วันที่แต่งตั้งให้ดำรงตำแหน่ง
+                                    :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.position_date }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">เลขตำแหน่งที่ :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.position_number
+                                    }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">สังกัด
+                                    (ภาควิชา/กลุ่มสาขาวิชา/กลุ่มวิชา) :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.department }}</span>
+                            </div>
+
+                            <div>
+                                <span style="font-weight: normal; color: #555;">คณะ/วิทยาลัย :</span>
+                                <span style="font-weight: normal; margin-left: 8px;">{{ user.faculty }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Part 2: Academic Work Info -->
+                    <div
+                        style="background: #fff; padding: 25px; border-radius: 8px; border: 1px solid #e0e0e0; margin-bottom: 25px; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
+                        <h3
+                            style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #eee; font-size: 1.1rem; color: #34495e;">
+                            <i class="fas fa-file-alt" style="margin-right: 10px; color: #3498db;"></i> ส่วนที่ 2:
+                            ข้อมูลผลงานทางวิชาการ
+                        </h3>
+
+                        <div style="margin-top: 10px; text-align: left; line-height: 1.6; color: #333;">
+                            ขอเสนอผลงานทางวิชาการ เพื่อประกอบการรับเงินค่าตอบแทนตามประกาศมหาวิทยาลัยอุบลราชธานี
+                            เรื่องหลักเกณฑ์การจ่ายค่าตอบแทนสำหรับพนักงานมหาวิทยาลัยที่มีตำแหน่งทางวิชาการ พ.ศ. 2567
+                            และประสงค์รับเงินค่าตอบแทนในปีงบประมาณ พ.ศ.
+                            <input type="number" name="fiscal_year_req" required value="{{ fiscal_year or '' }}"
+                                readonly
+                                style="width: 80px; border: none; border-bottom: 1px dotted #000; text-align: center; background: transparent; cursor: default;"
+                                placeholder=".......">
+                            โดยผลงานทางวิชาการที่ยื่นในครั้งนี้ มีจำนวน <span id="workCountDisplay">0</span> ผลงาน
+                            ดังมีรายชื่อต่อไปนี้
+                        </div>
+
+                        <div id="works-container" style="margin-top: 25px;">
+                            {% if edit_req and edit_req.works %}
+                                {% for work_item in edit_req.works %}
+                                    {% set work = work_item.details %}
+                                    {# Ensure work object has id and status info for the template #}
+                                    {% set _ = work.update({
+                                        'id': work_item.details.id,
+                                        'status_label': work_item.status if work_item.status else 'อยู่ในระหว่างพิจารณา',
+                                        'status_comment': work_item.comment if work_item.comment else ''
+                                    }) %}
+                                    
+                                    {% if work_item.type == 'research' %}
+                                        {% include 'work_research.html' %}
+                                    {% elif work_item.type == 'textbook' %}
+                                        {% include 'work_textbook.html' %}
+                                    {% elif work_item.type == 'creative' %}
+                                        {% include 'work_creative.html' %}
+                                    {% elif work_item.type == 'social' %}
+                                        {% include 'work_social.html' %}
+                                    {% elif work_item.type == 'industry' %}
+                                        {% include 'work_industry.html' %}
+                                    {% elif work_item.type == 'teaching' %}
+                                        {% include 'work_teaching.html' %}
+                                    {% elif work_item.type == 'policy' %}
+                                        {% include 'work_policy.html' %}
+                                    {% elif work_item.type == 'innovation' %}
+                                        {% include 'work_innovation.html' %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        </div>
+
+                        <div
+                            style="margin: 20px 0; padding: 15px; background: #f8f9fa; border: 1px dashed #ced4da; border-radius: 6px;">
+                            <p style="color: #666; font-size: 0.9em; margin: 0;">(ตัวอย่างการระบุ: ระบุชื่อผู้แต่ง
+                                ปี พ.ศ.
+                                ชื่อเรื่อง ชื่อวารสาร ปีที่ ฉบับที่ เดือน เลขหน้า เป็นต้น)</p>
+                        </div>
+
+                        <button type="button" class="btn-success" onclick="addWorkModal()"
+                            style="margin-bottom: 20px; width: 100%; padding: 12px; font-size: 1rem;">
+                            <i class="fas fa-plus-circle"></i> เพิ่มผลงานทางวิชาการ (Add Work)
+                        </button>
+
+                        <!-- Final Summary Estimator -->
+                        <div id="estimation-section"
+                            style="margin-top: 30px; border-top: 2px solid #3498db; padding-top: 20px;">
+                            <h3 style="margin-bottom: 15px; font-size: 1.1rem; color: #2c3e50;">
+                                <i class="fas fa-calculator" style="margin-right: 10px; color: #3498db;"></i>
+                                สรุปคะแนนจริงและค่าตอบแทน (ประมาณการ)
+                            </h3>
+                            <div class="table-container"
+                                style="background: #fdfdfd; border-radius: 8px; border: 1px solid #eee; overflow: hidden;">
+                                <table class="styled-table" style="margin: 0; width: 100%;">
+                                    <thead style="background: #f1f5f9;">
+                                        <tr>
+                                            <th style="padding:10px;">รายการ</th>
+                                            <th style="padding:10px; text-align:center;">ฐานคะแนน (S)</th>
+                                            <th style="padding:10px; text-align:center;">น้ำหนัก (W)</th>
+                                            <th style="padding:10px; text-align:center;">คะแนนสุทธิ</th>
+                                            <th style="padding:10px; text-align:center;">ค่าตอบแทน (ประมาณการ)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="estimation-body">
+                                        <!-- Injected by JS -->
+                                        <tr>
+                                            <td colspan="5" style="text-align: center; padding: 20px; color: #999;">
+                                                กรุณาข้อมูลผลงานเพื่อคำนวณคะแนน</td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot
+                                        style="background: #f8fafc; font-weight: bold; border-top: 2px solid #e2e8f0;">
+                                        <tr>
+                                            <td colspan="3" style="text-align: right; padding: 12px;">รวมทั้งสิ้น</td>
+                                            <td id="total-score-est"
+                                                style="text-align: center; color: #3498db; font-size: 1.1rem;">0.00</td>
+                                            <td id="total-comp-est"
+                                                style="text-align: center; color: #27ae60; font-size: 1.1rem;">0.00 ฿
+                                            </td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                            <div style="margin-top: 10px; font-size: 0.85rem; color: #666; font-style: italic;">
+                                * หมายเหตุ: การคำนวณนี้เป็นเพียงการประมาณการเบื้องต้นตามหลักเกณฑ์ปัจจุบัน
+                                ผลคะแนนและค่าตอบแทนสุดท้ายจะขึ้นอยู่กับการพิจารณาของคณะกรรมการ
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Certification -->
+                    <div class="form-group" style="margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px;">
+                        <div class="checkbox-item" style="align-items: flex-start;">
+                            <input type="checkbox" name="certify" id="certify" required style="margin-top: 5px;">
+                            <label for="certify" style="line-height: 1.6;">
+                                ข้าพเจ้าขอรับรองว่าผลงานทางวิชาการที่ยื่นขอรับเงินค่าตอบแทนในครั้งนี้
+                                ไม่เป็นผลงานที่เคยใช้ยื่นเพื่อขอรับค่าตอบแทนมาก่อน <br>
+                                รายละเอียดตามแบบคำขอขอรับเงินค่าตอบแทนสำหรับพนักงานมหาวิทยาลัยที่มีตำแหน่งวิชาการ
+                                และเอกสารสารหลักฐานของผลงานทางวิชาการตามที่แนบมาพร้อมนี้
+                            </label>
+                        </div>
+                    </div>
+
+                    <input type="hidden" name="works_data" id="works_data">
+
+                    <div class="form-actions" style="justify-content: center; gap: 20px; margin-top: 30px;">
+                        <button type="submit" name="action" value="draft" class="btn-secondary"
+                            style="min-width: 150px;">
+                            <i class="fas fa-save"></i> บันทึกแบบร่าง
+                        </button>
+                        {% set is_resubmission = (edit_req and edit_req.status == 'แก้ไข') %}
+                        <button type="submit" name="action" value="submit" class="btn-primary" style="min-width: 150px;"
+                            {{ 'disabled' if (not can_submit and not is_resubmission) else '' }}>
+                            <i class="fas fa-paper-plane"></i> ยืนยันการส่งคำขอ
+                        </button>
+                    </div>
+                </form>
+                <!-- End Form Container Removed -->
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for Selecting Work Type -->
+    <div id="workTypeModal" class="modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000;">
+        <div
+            style="background: white; width: 500px; margin: 100px auto; padding: 25px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: #2c3e50;"><i class="fas fa-layer-group"></i> เลือกประเภทผลงาน</h3>
+                <button onclick="document.getElementById('workTypeModal').style.display='none'"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #94a3b8;">&times;</button>
+            </div>
+
+            <div id="workTypeButtons"
+                style="display: grid; grid-template-columns: 1fr; gap: 12px; max-height: 400px; overflow-y: auto; padding: 5px;">
+                {% for t in work_types %}
+                <div id="type-item-{{ t.id }}" style="display: flex; align-items: stretch; gap: 5px;">
+                    <button onclick="addWork('{{ t.id }}', '{{ t.label }}')" class="btn-secondary"
+                        style="flex: 1; text-align: left; padding: 12px 20px; border: 1px solid #e2e8f0; background: #fff; color: #2c3e50; transition: all 0.2s;">
+                        {{ t.label }}
+                    </button>
+                    {% if t.is_custom %}
+                    <button onclick="deleteWorkType('{{ t.id }}')"
+                        style="background: #fff; border: 1px solid #fed7d7; color: #e53e3e; padding: 0 15px; border-radius: 6px; cursor: pointer; transition: all 0.2s;"
+                        title="ลบประเภทนี้ออกจากระบบ" onmouseover="this.style.background='#fff5f5'"
+                        onmouseout="this.style.background='#fff'">
+                    </button>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Templates for JavaScript -->
+    <div id="templates-container" style="display: none;">
+        {% set placeholder_work = {'id': 'ID_PLACEHOLDER'} %}
+        <template id="template-research">
+            {% set work = placeholder_work %}
+            {% include 'work_research.html' %}
+        </template>
+        <template id="template-textbook">
+            {% set work = placeholder_work %}
+            {% include 'work_textbook.html' %}
+        </template>
+        <template id="template-creative">
+            {% set work = placeholder_work %}
+            {% include 'work_creative.html' %}
+        </template>
+        <template id="template-social">
+            {% set work = placeholder_work %}
+            {% include 'work_social.html' %}
+        </template>
+        <template id="template-industry">
+            {% set work = placeholder_work %}
+            {% include 'work_industry.html' %}
+        </template>
+        <template id="template-teaching">
+            {% set work = placeholder_work %}
+            {% include 'work_teaching.html' %}
+        </template>
+        <template id="template-policy">
+            {% set work = placeholder_work %}
+            {% include 'work_policy.html' %}
+        </template>
+        <template id="template-innovation">
+            {% set work = placeholder_work %}
+            {% include 'work_innovation.html' %}
+        </template>
+        </template>
+    </div>
+
+    <script>
+        let works = [];
+        const ACADEMIC_POSITION = {{ user.academic_position | tojson | safe }};
+        const CRITERIA_RAW = {{ criteria | tojson | safe }};
+        const REQ_FY = "{{ fiscal_year }}";
+        const WORK_TYPE_LABELS = {
+            {% for t in work_types %}
+        '{{ t.id }}': '{{ t.label }}',
+            {% endfor %}
+        };
+
+        function addWorkModal() {
+            document.getElementById('workTypeModal').style.display = 'block';
+        }
+
+        async function deleteWorkType(typeId) {
+            if (!confirm("ต้องการลบประเภทผลงานนี้ออกจากระบบใช่หรือไม่?")) return;
+
+            try {
+                const response = await fetch("{{ url_for('api.api_delete_work_type') }}", {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: typeId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    const el = document.getElementById(`type-item-${typeId}`);
+                    if (el) el.remove();
+                    delete WORK_TYPE_LABELS[typeId];
+                } else {
+                    alert(result.message);
+                }
+            } catch (e) {
+                alert("เกิดข้อผิดพลาดในการเชื่อมต่อ");
+            }
+        }
+
+        function addWork(type, label = '') {
+            const id = Date.now();
+            const templateId = `template-${type}`;
+            const template = document.getElementById(templateId);
+            if (!template) return;
+
+            let html = template.innerHTML;
+            html = html.replace(/ID_PLACEHOLDER/g, id);
+
+            // Add to works array
+            works.push({ id: id, type: type, data: { id: id, evidence_type: 'link' } });
+
+            const container = document.getElementById('works-container');
+            const div = document.createElement('div');
+            div.innerHTML = html;
+            container.appendChild(div.firstElementChild);
+
+            document.getElementById('workTypeModal').style.display = 'none';
+            updateWorkCount();
+        }
+
+        function removeWork(btn, id) {
+            if (!confirm("ต้องการลบผลงานนี้ใช่หรือไม่?")) return;
+            works = works.filter(w => String(w.id) !== String(id));
+            const card = btn.closest('.work-card');
+            if (card) card.remove();
+            updateWorkCount();
+        }
+
+        function updateWorkCount() {
+            document.getElementById('workCountDisplay').innerText = works.length;
+            calculateEstimates();
+        }
+
+        function checkPublishDate(id, dateValue) {
+            if (dateValue) {
+                const selected = new Date(dateValue);
+                const now = new Date();
+                const diffDays = Math.floor((now - selected) / (1000 * 60 * 60 * 24));
+                if (diffDays > 730) { // 730 days = 2 years
+                    alert('⚠️ ผลงานที่เผยแพร่เกิน 2 ปีแล้ว (ผลงานชิ้นนี้เผยแพร่มาแล้ว ' + diffDays + ' วัน) ไม่สามารถนำมาขอรับค่าตอบแทนได้');
+                }
+            }
+            updateWork(id, 'date_publish', dateValue);
+        }
+
+        function updateWork(id, key, value) {
+            const work = works.find(w => String(w.id) === String(id));
+            if (work) {
+                work.data[key] = value;
+                calculateEstimates();
+            }
+        }
+
+
+        function calculateEstimates() {
+            const body = document.getElementById('estimation-body');
+            let html = '';
+            let totalScore = 0;
+            let totalComp = 0;
+
+            // Find criteria for current FY
+            let criteria = (CRITERIA_RAW && Array.isArray(CRITERIA_RAW)) ? CRITERIA_RAW.find(c => String(c.fiscal_year) === String(REQ_FY)) : null;
+            if (!criteria && CRITERIA_RAW && CRITERIA_RAW.length > 0) criteria = CRITERIA_RAW[0]; // Fallback to latest
+
+            const qs = criteria ? (criteria.quality_scores || {}) : {};
+            const rs = qs.research || {};
+            const os_score = qs.other || {};
+            const rw = criteria ? (criteria.role_weights || { main: 1.0, co: 0.5 }) : { main: 1.0, co: 0.5 };
+            const pr = criteria ? (criteria.payment_rules || {}) : {};
+
+            if (works.length === 0) {
+                body.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px; color: #999;">กรุณาข้อมูลผลงานเพื่อคำนวณคะแนน</td></tr>';
+                document.getElementById('total-score-est').innerText = '0.00';
+                document.getElementById('total-comp-est').innerText = '0.00 ฿';
+                return;
+            }
+
+            works.forEach((w, index) => {
+                let s = 0;
+                let weight = 0;
+                let workTypeName = WORK_TYPE_LABELS[w.type] || w.type;
+
+                // 1. Base Score (S)
+                if (w.type === 'research') {
+                    const db = w.data.database;
+                    if (db === 'scopus_q1_q2') { s = rs.tier1 || 1.25; }
+                    else if (db === 'scopus_other') { s = rs.non_q || 1.00; }
+                    else if (db === 'national') { s = rs.national || 0.75; }
+                } else if (w.type === 'textbook') {
+                    const ts = qs.textbook || { publisher: 1.25, general: 1.0 };
+                    if (w.data.publish_type === 'inter') { s = ts.publisher || 1.25; }
+                    else if (w.data.publish_type === 'local') { s = ts.general || 1.00; }
+                    else { s = ts.publisher || 1.25; }
+                } else if (w.type === 'creative') {
+                    const cs = qs.creative || { international: 1.25, cooperation: 1.0, national: 0.75 };
+                    const pt = w.data.publish_type || '';
+                    if (pt.includes('inter')) { s = cs.international || 1.25; }
+                    else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
+                    else if (pt.includes('national')) { s = cs.national || 0.75; }
+                    else { s = cs.international || 1.25; }
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || w.data.level) {
+                    const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
+                    const lvl = w.data.level;
+                    if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
+                    else if (lvl === 'level_a') { s = mScores.a || 1.00; }
+                    else if (lvl === 'level_b') { s = mScores.b || 0.75; }
+                    else { s = mScores.a || 1.00; }
+                }
+
+                // 2. Weight (W)
+                const role = w.data.contribution;
+                if (['first', 'corresponding', 'main'].includes(role)) {
+                    weight = rw.main || 1.0;
+                } else if (['intellectual', 'co'].includes(role)) {
+                    weight = rw.co || 0.5;
+                } else {
+                    weight = 0;
+                }
+
+                const net = s * weight;
+                totalScore += net;
+
+                html += `
+                    <tr>
+                        <td style="padding:10px;">${index + 1}. ${workTypeName}</td>
+                        <td style="text-align:center; padding:10px;">${s.toFixed(3).replace(/\.?0+$/, '') || '0.00'}</td>
+                        <td style="text-align:center; padding:10px;">${weight.toFixed(2).replace(/\.?0+$/, '') || '0.0'}</td>
+                        <td style="text-align:center; padding:10px; font-weight:bold;">${net.toFixed(3).replace(/\.?0+$/, '') || '0.00'}</td>
+                        <td style="text-align:center; padding:10px; color:#999; font-style: italic;">-</td>
+                    </tr>
+                `;
+            });
+
+            // 3. Total Compensation based on totalScore
+            const posData = ACADEMIC_POSITION || "";
+            const pos = Array.isArray(posData) ? posData.join(' ') : posData;
+            let posKey = "";
+            if (pos.includes('ผู้ช่วยศาสตราจารย์')) posKey = "asst_prof";
+            else if (pos.includes('รองศาสตราจารย์')) posKey = "assoc_prof";
+            else if (pos.includes('ศาสตราจารย์')) posKey = "prof";
+
+            if (posKey) {
+                const tiers = pr[posKey] || [];
+                if (Array.isArray(tiers)) {
+                    const applicableTiers = tiers.filter(t => totalScore >= parseFloat(t.min_score || 0));
+                    if (applicableTiers.length > 0) {
+                        applicableTiers.sort((a, b) => parseFloat(b.min_score) - parseFloat(a.min_score));
+                        totalComp = applicableTiers[0].amount || 0;
+                    }
+                } else if (typeof tiers === 'object' && tiers !== null) {
+                    // Legacy single tier
+                    if (totalScore >= (tiers.min_score || 0.75)) totalComp = tiers.amount || 0;
+                }
+            }
+
+            body.innerHTML = html;
+            document.getElementById('total-score-est').innerText = totalScore.toFixed(3);
+            document.getElementById('total-comp-est').innerText = totalComp.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' ฿';
+        }
+
+        function showSubGroup(id, groupName, selectedValue) {
+            // Hide all sub-groups in this specific card and group
+            const subGroups = document.querySelectorAll(`.sub-${groupName}-${id}`);
+            subGroups.forEach(el => {
+                el.setAttribute('data-visible', 'false');
+                
+                // Clear radio selections inside hidden groups
+                el.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+            });
+
+            // Update underlying data when switching groups
+            if (groupName === 'lvl') {
+                if (selectedValue === 'none' || selectedValue === 'national') {
+                    updateWork(id, 'database', 'national');
+                } else {
+                    updateWork(id, 'database', '');
+                }
+            } else if (groupName === 'fmt') {
+                if (selectedValue === 'none') {
+                    updateWork(id, 'chapter_details', '');
+                }
+            }
+
+            // Show the selected one
+            const target = document.getElementById(`sub-${groupName}-${selectedValue}-${id}`);
+            if (target) target.setAttribute('data-visible', 'true');
+        }
+
+        function toggleEvidenceSource(id, type) {
+            const linkContainer = document.getElementById(`evidence_link_container_${id}`);
+            const fileContainer = document.getElementById(`evidence_file_container_${id}`);
+            if (linkContainer) linkContainer.style.display = type === 'link' ? 'block' : 'none';
+            if (fileContainer) fileContainer.style.display = type === 'file' ? 'block' : 'none';
+            updateWork(id, 'evidence_type', type);
+
+            // Manage required attributes
+            const urlInput = linkContainer ? linkContainer.querySelector('.evidence-url-input') : null;
+            const fileInput = fileContainer ? fileContainer.querySelector('input[type=file]') : null;
+            if (type === 'link') {
+                if (urlInput) urlInput.required = true;
+                if (fileInput) fileInput.required = false;
+            } else {
+                if (urlInput) urlInput.required = false;
+                if (fileInput) fileInput.required = true;
+            }
+        }
+
+        function prepareData() {
+            // Map simplified works array to full structure expected by backend
+            const finalWorks = works.map(w => ({
+                type: w.type,
+                details: { ...w.data, id: w.id }, // Ensure ID is in details
+                status: w.status,
+                comment: w.comment
+            }));
+            document.getElementById('works_data').value = JSON.stringify(finalWorks);
+        }
+
+    </script>
+
+    {% if edit_req is defined and edit_req %}
+    <script type="application/json" id="req-data-works">
+    {{ edit_req.works | default([]) | tojson | safe }}
+    </script>
+    <script type="application/json" id="req-data-meta">
+    {
+        "fiscal_year": "{{ edit_req.fiscal_year }}",
+        "certify": "{{ edit_req.certify }}",
+        "id": "{{ edit_req.id }}",
+        "academic_position": "{{ edit_req.applicant_info.academic_position }}"
+    }
+    </script>
+    {% endif %}
+
+    <script>
+        // Initialize Data if Editing
+        window.onload = function () {
+            const metaScript = document.getElementById('req-data-meta');
+            if (metaScript) {
+                try {
+                    const meta = JSON.parse(metaScript.textContent);
+
+                    // Load Academic Position
+                    const positionSelect = document.querySelector('select[name="academic_position"]');
+                    if (positionSelect && meta.academic_position) {
+                        positionSelect.value = meta.academic_position;
+                    }
+
+                    // Load existing fiscal year
+                    const fiscalInput = document.querySelector('input[name="fiscal_year_req"]');
+                    if (fiscalInput) fiscalInput.value = meta.fiscal_year;
+
+                    const certifyBox = document.getElementById('certify');
+                    if (certifyBox && meta.certify == "True") {
+                        certifyBox.checked = true;
+                    }
+
+                    // Add hidden ID field
+                    const form = document.getElementById('mainForm');
+                    if (form) {
+                        const idInput = document.createElement('input');
+                        idInput.type = 'hidden';
+                        idInput.name = 'req_id';
+                        idInput.value = meta.id;
+                        form.appendChild(idInput);
+                    }
+                } catch (e) {
+                    console.error("Error parsing meta data", e);
+                }
+            }
+
+            const worksScript = document.getElementById('req-data-works');
+            if (worksScript) {
+                try {
+                    const savedWorks = JSON.parse(worksScript.textContent);
+                    if (Array.isArray(savedWorks)) {
+                        savedWorks.forEach(w => {
+                            // Populate the works array directly. The DOM is already rendered by Jinja.
+                            works.push({
+                                id: w.details.id,
+                                type: w.type,
+                                data: JSON.parse(JSON.stringify(w.details || {})),
+                                status: w.status,
+                                comment: w.comment
+                            });
+                        });
+                    }
+                } catch (e) {
+                    console.error("Error parsing works data", e);
+                }
+                // Trigger initial calculation and update count
+                updateWorkCount();
+            }
+            // Trigger initial calculation
+            calculateEstimates();
+        };
+    </script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

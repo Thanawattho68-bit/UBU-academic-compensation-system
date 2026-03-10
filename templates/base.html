@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <title>{% block title %}ระบบค่าตอบแทน{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body>
+    <div class="dashboard-wrapper">
+      {% include 'sidebar.html' %}
+
+      <main class="main-content">
+        <header
+          class="top-bar"
+          style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 40px;
+          "
+        >
+          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+            {% block top_bar_content %}
+            <i class="fas fa-home"></i> หน้าหลัก
+            {% endblock %}
+          </div>
+        </header>
+
+        <section class="content-area">
+          {% block content %}{% endblock %}
+        </section>
+      </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>
