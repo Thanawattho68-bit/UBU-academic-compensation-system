@@ -1,0 +1,31 @@
+# Python-specific
+__pycache__/
+*.py[cod]
+*$py.class
+vwen/
+env/
+.env
+.venv
+# Flask-specific
+.webassets-cache
+
+# Data files (Exclude database-like JSONs if you want to keep data local, 
+# but usually for a student project you might want to keep some templates.
+# I will exclude the main data jsons to prevent overwriting other team members' data)
+# *.json
+# Actually, for this project, let's keep criteria.json but exclude dynamic data
+notifications.json
+batches.json
+
+# Business Data (SQLite)
+instance/
+*.db
+
+# OS-specific
+.DS_Store
+Thumbs.db
+
+# Project Config
+.python-version
+pyproject.toml
+uv.lock

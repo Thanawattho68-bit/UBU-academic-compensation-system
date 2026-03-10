@@ -1,0 +1,78 @@
+<div class="work-card" data-id="{{ work.id }}">
+    <div class="work-card-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">
+        <h4 style="margin: 0; color: #2c3e50;"><i class="fas fa-file-alt"></i> บทความงานวิจัย</h4>
+        <button type="button" class="btn-danger" style="padding: 5px 10px; font-size: 0.8em;" onclick="removeWork(this, '{{ work.id }}')">
+            <i class="fas fa-trash-alt"></i> ลบผลงาน
+        </button>
+    </div>
+
+    <div id="status-display-{{ work.id }}" class="status-comment-box sub-section" data-visible="{{ 'true' if work.status_comment else 'false' }}" style="margin-bottom: 15px; border: 1px solid #ffcc00; background: #fffdf2; padding: 10px; border-radius: 4px;">
+        <strong style="color: #856404;"><i class="fas fa-comment-dots"></i> ผลการตรวจสอบ: </strong>
+        <span class="work-status-label" style="font-weight: bold;">{{ work.status_label|default('') }}</span>
+        <div class="work-comment-text" style="color: #666; font-size: 0.9em; margin-top: 5px;">{{ work.status_comment|default('') }}</div>
+    </div>
+
+    <div class="form-group">
+        <label>ชื่อบทความงานวิจัย (Title)</label>
+        <textarea required onchange="updateWork('{{ work.id }}', 'title', this.value)" rows="2" style="width:100%" class="form-control">{{ work.title|default('') }}</textarea>
+    </div>
+    
+    <div class="sub-section">
+        <h5>1. การเผยแพร่ บทความวิจัยได้รับการเผยแพร่ในวารสารทางวิชาการที่มีรายชื่ออยู่ในฐานข้อมูลที่เป็นที่ยอมรับในระดับชาติหรือระดับนานาชาติ ดังนี้</h5>
+        <div class="form-group">
+            <label>1.1 ชื่อวารสารทางวิชาการ :</label>
+            <input type="text" onchange="updateWork('{{ work.id }}', 'journal_name', this.value)" style="width:100%" class="form-control" value="{{ work.journal_name|default('') }}">
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+            <div class="form-group"><label>ปีที่ (Vol)</label><input type="text" class="form-control" onchange="updateWork('{{ work.id }}', 'vol', this.value)" value="{{ work.vol|default('') }}"></div>
+            <div class="form-group"><label>ฉบับที่ (Issue)</label><input type="text" class="form-control" onchange="updateWork('{{ work.id }}', 'issue', this.value)" value="{{ work.issue|default('') }}"></div>
+            <div class="form-group"><label>เดือน</label><input type="text" class="form-control" onchange="updateWork('{{ work.id }}', 'month', this.value)" value="{{ work.month|default('') }}"></div>
+            <div class="form-group"><label>พ.ศ.</label><input type="text" class="form-control" onchange="updateWork('{{ work.id }}', 'year_pub', this.value)" value="{{ work.year_pub|default('') }}"></div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="date" class="form-control" onchange="updateWork('{{ work.id }}', 'date_accept', this.value)" value="{{ work.date_accept|default('') }}"></div>
+            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}"></div>
+        </div>
+
+        <div class="form-group" style="margin-top:15px;">
+            <label>1.2 ฐานข้อมูล; วารสารทางวิชาการตามข้อ 1.1 มีรายชื่ออยู่ในฐานข้อมูลอย่างใดอย่างหนึ่ง ดังนี้</label>
+            <div class="checkbox-group">
+                <div>
+                    <input type="radio" name="lvl_sel_{{ work.id }}" value="inter" onchange="showSubGroup('{{ work.id }}', 'lvl', 'inter'); updateWork('{{ work.id }}', 'lvl', 'inter')" {% if work.lvl == 'inter' %}checked{% endif %}> 
+                    <strong>ระดับนานาชาติ</strong>
+                </div>
+                <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.lvl == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid var(--accent-color); background: #f0f9ff; border-radius: 4px; margin-bottom: 10px;">
+                    <div style="display: flex; flex-direction: column; gap: 5px;">
+                        <div><input type="radio" name="db_{{ work.id }}" value="scopus_q1_q2" onchange="updateWork('{{ work.id }}', 'database', this.value)" {% if work.database == 'scopus_q1_q2' %}checked{% endif %}> Scopus Q1 หรือ Q2</div>
+                        <div><input type="radio" name="db_{{ work.id }}" value="scopus_other" onchange="updateWork('{{ work.id }}', 'database', this.value)" {% if work.database == 'scopus_other' %}checked{% endif %}> ระดับนานาชาติอื่น นอกเหนือจาก Scopus Q1 หรือ Q2</div>
+                    </div>
+                </div>
+
+                <div>
+                    <input type="radio" name="lvl_sel_{{ work.id }}" value="national" onchange="showSubGroup('{{ work.id }}', 'lvl', 'none'); updateWork('{{ work.id }}', 'database', 'national'); updateWork('{{ work.id }}', 'lvl', 'national')" {% if work.lvl == 'national' or (not work.lvl and work.database == 'national') %}checked{% endif %}> 
+                    <strong>ระดับชาติ</strong> <span class="info-icon" data-tooltip="โดยเป็นวารสารที่มีการตีพิมพ์อย่างต่อเนื่องสม่ำเสมอเป็นระยะเวลาอย่างน้อย 3 ปี และมีการตรวจสอบคุณภาพของบทความโดยผู้ทรงคุณวุฒิ (peer reviewer) ซึ่งเป็นบุคคลภายนอกจากหลากหลายสถาบันอย่างน้อย 3 คน ทั้งนี้ วารสารวิชาการดังกล่าวมีกำหนดการเผยแพร่อย่างแน่นอนชัดเจน">i</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="sub-section">
+        <h5>2. การมีส่วนร่วมในผลงานทางวิชาการ; ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
+        <div class="checkbox-group">
+            <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
+            <div><input type="radio" name="contrib_{{ work.id }}" value="corresponding" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'corresponding' %}checked{% endif %}> ผู้ประพันธ์บรรณกิจ (corresponding author)</div>
+            <div><input type="radio" name="contrib_{{ work.id }}" value="main" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'main' %}checked{% endif %}> ผู้ดำเนินการหลัก (main author)</div>
+            <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+            <div><input type="radio" name="contrib_{{ work.id }}" value="co" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'co' %}checked{% endif %}> ผู้ดำเนินการร่วม (co-author)</div>
+        </div>
+    </div>
+
+    <div class="evidence-remarks" style="margin-top: 20px; padding: 15px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 6px; font-size: 0.9em; color: #495057;">
+        <strong style="display: block; margin-bottom: 8px; color: #0056b3;"><i class="fas fa-info-circle"></i> รายการหลักฐานที่ต้องแนบ</strong>
+        <ul style="margin: 0; padding-left: 20px; list-style-type: disc; line-height: 1.6;">
+            <li>หลักฐานการเผยแพร่ในวารสารวิชาการที่อยู่ในฐานข้อมูลระดับนานาชาติ (Scopus Q1, Q2 หรือฐานข้อมูลอื่น) หรือระดับชาติ (TCI)</li>
+            <li>หลักฐานการตรวจสอบคุณภาพโดยผู้ทรงคุณวุฒิ (Peer Reviewer) อย่างน้อย 3 คนที่เป็นบุคคลภายนอกจากหลากหลายสถาบัน</li>
+        </ul>
+    </div>
+    {% include 'work_evidence_footer.html' %}
+</div>

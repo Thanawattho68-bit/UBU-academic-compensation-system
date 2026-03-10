@@ -1,0 +1,158 @@
+[
+    {
+        "username": "user01",
+        "password": "123",
+        "name": "ผศ_1",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": [
+            "ผู้ช่วยศาสตราจารย์",
+            "หัวหน้าภาควิชา"
+        ],
+        "department": "วิทยาการคอมพิวเตอร์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "01/01/2560",
+        "position_number": "12345"
+    },
+    {
+        "username": "user02",
+        "password": "123",
+        "name": "รศ_1",
+        "role": "applicant",
+        "title_name": "นาง",
+        "academic_position": [
+            "รองศาสตราจารย์",
+            "รองคณบดีฝ่ายวิจัย"
+        ],
+        "department": "คณิตศาสตร์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "15/05/2558",
+        "position_number": "54321"
+    },
+    {
+        "username": "user03",
+        "password": "123",
+        "name": "ศ_1",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": [
+            "ศาสตราจารย์"
+        ],
+        "department": "ฟิสิกส์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "10/10/2555",
+        "position_number": "99887"
+    },
+    {
+        "username": "admin_work",
+        "password": "123",
+        "name": "บุคคล_1",
+        "role": "administration",
+        "title_name": "นาย",
+        "academic_position": [
+            "เจ้าหน้าที่ชำนาญการ"
+        ],
+        "department": "กองบริหารงานบุคคล",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "01/01/2560",
+        "position_number": "ADM001"
+    },
+    {
+        "username": "admin_work2",
+        "password": "123",
+        "name": "บุคคล_2",
+        "role": "administration",
+        "title_name": "นาง",
+        "academic_position": [
+            "เจ้าหน้าที่ชำนาญการ"
+        ],
+        "department": "กองบริหารงานบุคคล",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "01/01/2560",
+        "position_number": "ADM001"
+    },
+    {
+        "username": "research01",
+        "password": "123",
+        "name": "วิจัย_1",
+        "role": "research",
+        "title_name": "นาง",
+        "academic_position": [
+            "เจ้าหน้าที่วิเคราะห์นโยบายและแผน"
+        ],
+        "department": "กองวิจัยและนวัตกรรม",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "15/05/2562",
+        "position_number": "RES001"
+    },
+    {
+        "username": "research02",
+        "password": "123",
+        "name": "วิจัย_2",
+        "role": "research",
+        "title_name": "นาง",
+        "academic_position": [
+            "เจ้าหน้าที่วิเคราะห์นโยบายและแผน"
+        ],
+        "department": "กองวิจัยและนวัตกรรม",
+        "faculty": "สำนักงานอธิการบดี",
+        "position_date": "15/05/2562",
+        "position_number": "RES001"
+    },
+    {
+        "username": "board01",
+        "password": "123",
+        "name": "กรรมการ_1",
+        "role": "committee",
+        "title_name": "นาย",
+        "academic_position": [
+            "รองศาสตราจารย์"
+        ],
+        "department": "บริหารธุรกิจ",
+        "faculty": "บริหารศาสตร์",
+        "position_date": "20/08/2550",
+        "position_number": "COM001"
+    },
+    {
+        "username": "board02",
+        "password": "123",
+        "name": "กรรมการ_2",
+        "role": "committee",
+        "title_name": "นาง",
+        "academic_position": [
+            "รองศาสตราจารย์"
+        ],
+        "department": "บริหารธุรกิจ",
+        "faculty": "บริหารศาสตร์",
+        "position_date": "20/08/2550",
+        "position_number": "COM001"
+    },
+    {
+        "username": "root",
+        "password": "123",
+        "name": "แอดมิน_1",
+        "role": "admin",
+        "title_name": "นาย",
+        "academic_position": [
+            "อาจารย์"
+        ],
+        "department": "เทคโนโลยีสารสนเทศ",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "01/01/2550",
+        "position_number": "SYS001"
+    },
+    {
+        "username": "user04",
+        "password": "123",
+        "name": "ผศ_2",
+        "role": "applicant",
+        "title_name": "นาย",
+        "academic_position": [
+            "ผู้ช่วยศาสตราจารย์"
+        ],
+        "department": "วิทยาการคอมพิวเตอร์",
+        "faculty": "วิทยาศาสตร์",
+        "position_date": "12/12/2565",
+        "position_number": "APP004"
+    }
+]

@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>การแจ้งเตือน - ระบบค่าตอบแทนทางวิชาการ</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        .notif-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+        }
+
+        .notif-item.unread {
+            border-left-color: var(--danger-color);
+            background: #fff8f8;
+        }
+
+        .notif-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .notif-content {
+            flex: 1;
+        }
+
+        .notif-time {
+            color: #888;
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .notif-icon {
+            margin-right: 15px;
+            font-size: 1.2rem;
+            color: var(--accent-color);
+            margin-top: 2px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 48px 24px;
+            color: var(--text-muted);
+        }
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--neutral-color);
+            opacity: 0.6;
+            display: block;
+            margin-bottom: 16px;
+        }
+        .empty-state .empty-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--secondary-color);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="เปิดเมนู"><i class="fas fa-bars" id="sidebarToggleIcon"></i></button>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-bell"></i> การแจ้งเตือน
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="welcome-banner" style="margin-bottom: 30px;">
+                    <h2><i class="fas fa-bell"></i> การแจ้งเตือน</h2>
+                    <p>รายการแจ้งเตือนทั้งหมดของคุณ</p>
+                </div>
+
+                <div class="notifications-list">
+                    {% if notifications %}
+                    {% for n in notifications %}
+                    <div class="notif-item {{ 'unread' if not n.is_read else '' }}"
+                        onclick="markReadAndRedirect('{{ n.id }}', '{{ n.req_id }}')">
+                        <div class="notif-icon">
+                            <i class="fas fa-info-circle"></i>
+                        </div>
+                        <div class="notif-content">
+                            <div style="font-weight: 500; color: #333; margin-bottom: 4px; padding-right: 20px;">{{
+                                n.message }}
+                            </div>
+                            <div class="notif-time"><i class="far fa-clock"></i> {{ n.timestamp }}</div>
+                        </div>
+                        {% if not n.is_read %}
+                        <div
+                            style="position: absolute; top: 15px; right: 15px; width: 10px; height: 10px; background: var(--danger-color); border-radius: 50%;">
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="far fa-bell-slash"></i>
+                        <span class="empty-title">ไม่มีการแจ้งเตือน</span>
+                        <p style="margin-top: 8px; font-size: 0.9rem;">เมื่อมีการอัปเดตคุณจะเห็นการแจ้งเตือนที่นี่</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>(function(){var t=document.getElementById('sidebarToggle'),i=document.getElementById('sidebarToggleIcon'),o=document.getElementById('sidebarOverlay'),s=document.querySelector('.sidebar');if(t&&o&&s){function setIcon(open){if(i){i.className=open?'fas fa-times':'fas fa-bars';t.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');t.classList.toggle('is-open',open);}}function openNav(){s.classList.add('sidebar-open');o.classList.add('active');o.setAttribute('aria-hidden','false');setIcon(true);}function closeNav(){s.classList.remove('sidebar-open');o.classList.remove('active');o.setAttribute('aria-hidden','true');setIcon(false);}t.addEventListener('click',function(){s.classList.contains('sidebar-open')?closeNav():openNav();});o.addEventListener('click',closeNav);}})();</script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+    <script>
+        function markReadAndRedirect(notifId, reqId) {
+            // Call API to mark as read first
+            fetch("{{ url_for('main.read_notification', notif_id='NOTIF_ID') }}".replace('NOTIF_ID', notifId), { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Redirect if reqId exists, else just reload to update UI
+                        if (reqId && reqId !== 'None') {
+                            window.location.href = "{{ url_for('requests.view_request', req_id='REQ_ID') }}".replace('REQ_ID', reqId);
+                        } else {
+                            window.location.reload();
+                        }
+                    }
+                });
+        }
+    </script>
+</body>
+
+</html>

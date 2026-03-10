@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>จัดการเกณฑ์และคะแนน - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="เปิดเมนู"><i class="fas fa-bars" id="sidebarToggleIcon"></i></button>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div class="manage-criteria-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                        <h2><i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน</h2>
+                        <a href="{{ url_for('admin.edit_criteria', year='new') }}" class="btn-primary">
+                            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
+                        </a>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-info">{{ message }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="table-responsive-wrapper table-cards-mobile">
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>ปีงบประมาณ</th>
+                                <th>สถานะ</th>
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in criteria %}
+                            <tr>
+                                <td data-label="ปีงบประมาณ">{{ item.fiscal_year }}</td>
+                                <td data-label="สถานะ"><span class="badge-success">ใช้งาน</span></td>
+                                <td data-label="จัดการ" class="cell-action">
+                                    <a href="{{ url_for('admin.edit_criteria', year=item.fiscal_year) }}" class="btn-warning"
+                                        style="text-decoration: none; padding: 5px 10px; font-size: 14px; border-radius: 4px;">
+                                        <i class="fas fa-edit"></i> แก้ไข
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="empty-state-cell">
+                                    <i class="fas fa-clipboard-list empty-icon"></i>
+                                    <span class="empty-title">ไม่พบข้อมูลเกณฑ์</span>
+                                    <p class="empty-desc" style="margin-top: 8px; font-size: 0.9rem;">กดปุ่ม "เพิ่มปีงบประมาณ" เพื่อสร้างเกณฑ์ใหม่</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    <script>(function(){var t=document.getElementById('sidebarToggle'),i=document.getElementById('sidebarToggleIcon'),o=document.getElementById('sidebarOverlay'),s=document.querySelector('.sidebar');if(t&&o&&s){function setIcon(open){if(i){i.className=open?'fas fa-times':'fas fa-bars';t.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');t.classList.toggle('is-open',open);}}function openNav(){s.classList.add('sidebar-open');o.classList.add('active');o.setAttribute('aria-hidden','false');setIcon(true);}function closeNav(){s.classList.remove('sidebar-open');o.classList.remove('active');o.setAttribute('aria-hidden','true');setIcon(false);}t.addEventListener('click',function(){s.classList.contains('sidebar-open')?closeNav():openNav();});o.addEventListener('click',closeNav);}})();</script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>

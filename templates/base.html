@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>{% block title %}ระบบค่าตอบแทน{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    {% block extra_head %}{% endblock %}
+  </head>
+
+  <body>
+    <a href="#main-content" class="skip-link">ข้ามไปยังเนื้อหาหลัก</a>
+    <div class="dashboard-wrapper">
+      <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="เปิดเมนู">
+        <i class="fas fa-bars" id="sidebarToggleIcon"></i>
+      </button>
+      <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+      {% include 'sidebar.html' %}
+
+      <main class="main-content">
+        <header
+          class="top-bar"
+          style="
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 0 40px;
+          "
+        >
+          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+            {% block top_bar_content %}
+            <i class="fas fa-home"></i> หน้าหลัก
+            {% endblock %}
+          </div>
+        </header>
+
+        <section class="content-area" id="main-content">
+          {% block content %}{% endblock %}
+        </section>
+      </main>
+    </div>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+    <script>
+      (function() {
+        var toggle = document.getElementById('sidebarToggle');
+        var icon = document.getElementById('sidebarToggleIcon');
+        var overlay = document.getElementById('sidebarOverlay');
+        var sidebar = document.querySelector('.sidebar');
+        if (toggle && overlay && sidebar) {
+          function setIcon(isOpen) {
+            if (icon) {
+              icon.className = isOpen ? 'fas fa-times' : 'fas fa-bars';
+              toggle.setAttribute('aria-label', isOpen ? 'ปิดเมนู' : 'เปิดเมนู');
+              toggle.classList.toggle('is-open', isOpen);
+            }
+          }
+          function openSidebar() {
+            sidebar.classList.add('sidebar-open');
+            overlay.classList.add('active');
+            overlay.setAttribute('aria-hidden', 'false');
+            setIcon(true);
+          }
+          function closeSidebar() {
+            sidebar.classList.remove('sidebar-open');
+            overlay.classList.remove('active');
+            overlay.setAttribute('aria-hidden', 'true');
+            setIcon(false);
+          }
+          toggle.addEventListener('click', function() {
+            sidebar.classList.contains('sidebar-open') ? closeSidebar() : openSidebar();
+          });
+          overlay.addEventListener('click', closeSidebar);
+        }
+      })();
+    </script>
+    {% block extra_scripts %}{% endblock %}
+  </body>
+</html>

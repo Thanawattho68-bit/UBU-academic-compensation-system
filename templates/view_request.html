@@ -1,0 +1,1485 @@
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>รายละเอียดคำขอ - {{ req.id }}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+      .th-radius { border-top-left-radius: 12px; }
+      .amount-display { font-weight: 700; font-size: var(--text-amount); }
+      .amount-approved { color: var(--success-color); }
+      .amount-rejected { color: var(--neutral-color); }
+      .amount-danger { color: var(--danger-color); }
+      .total-score-display { font-weight: 700; font-size: var(--text-number); color: var(--primary-color); }
+
+      .status-banner {
+        text-align: left;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        width: 100%;
+      }
+      .status-banner h2 {
+        margin: 0;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        font-size: var(--text-xl);
+      }
+      .banner-note {
+        margin-top: 12px;
+        background: rgba(255, 255, 255, 0.2);
+        border-left: 4px solid white;
+        padding: 10px 20px;
+        border-radius: 0 8px 8px 0;
+        color: white;
+      }
+
+      .work-table-container {
+        overflow-x: auto;
+        border: 1px solid #e0e6ed;
+        border-radius: 12px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.02);
+      }
+      .work-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+      .work-table th {
+        padding: 14px 16px;
+        font-weight: 600;
+        font-size: var(--text-sm);
+        border-bottom: 2px solid #edf2f7;
+      }
+      .work-table td {
+        padding: 14px 16px;
+        font-size: var(--text-base);
+        border-bottom: 1px solid #edf2f7;
+        vertical-align: middle;
+      }
+      .work-table .cell-score { font-size: var(--text-number); font-weight: 600; }
+
+      .appeal-container {
+        margin-top: 40px;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      }
+      .appeal-header-active {
+        background: #fbbf24;
+        color: white;
+        padding: 12px 24px;
+        font-weight: 700;
+        font-size: var(--text-base);
+      }
+      .appeal-header-inactive {
+        background: #e2e8f0;
+        color: #475569;
+        padding: 12px 24px;
+        font-weight: 700;
+        font-size: var(--text-base);
+      }
+      .appeal-body {
+        background: #fffcf0;
+        padding: 30px;
+        border: 2px solid #e2e8f0;
+        border-top: none;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+      }
+      .badge-status {
+        display: inline-block;
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-size: 0.95rem;
+        font-weight: 800;
+        color: white;
+      }
+      .badge-success { background: var(--success-color); }
+      .badge-danger { background: var(--danger-color); }
+      .badge-warning { background: var(--warning-color); }
+      .badge-neutral { background: var(--neutral-color); }
+
+      .table-footer {
+        background: #f1f5f9;
+        border-top: 2px solid #e2e8f0;
+      }
+      .table-footer td {
+        padding: 16px;
+        font-size: var(--text-base);
+        border-left: 1px solid #e2e8f0;
+      }
+      .section-title { font-size: var(--text-2xl); font-weight: 700; }
+      .section-subtitle { font-size: var(--text-base); }
+
+      /* Work Row Backgrounds */
+      .work-row[data-status="ไม่อนุมัติ"], 
+      .work-row[data-status="ผลงานซ้ำซ้อน"] {
+          background-color: rgba(239, 68, 68, 0.05) !important;
+      }
+      .work-row[data-status="รอการอุทธรณ์"] {
+          background-color: rgba(245, 158, 11, 0.05) !important;
+      }
+      .work-row:hover {
+          background-color: #f8fafc !important;
+      }
+
+      /* Responsive: view_request */
+      .view-request-info { display: flex; gap: 40px; margin-bottom: 40px; flex-wrap: wrap; }
+      .view-request-info .info-col { flex: 1; min-width: 200px; }
+      .view-request-form-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+      @media (max-width: 768px) {
+        .view-request-info { flex-direction: column; gap: 20px; }
+        .view-request-form-actions { flex-direction: column; align-items: stretch; }
+        .view-request-form-actions .btn-primary,
+        .view-request-form-actions .btn-danger,
+        .view-request-form-actions .btn-success,
+        .view-request-form-actions > div { width: 100%; justify-content: center; }
+        .view-request-form-actions > div { flex-direction: column; }
+        .status-banner { padding: 16px 20px !important; margin-bottom: 20px !important; }
+        .view-request-form-container { padding: 20px 16px !important; }
+        .work-table-container { overflow-x: auto; -webkit-overflow-scrolling: touch; max-width: 100%; }
+        .work-table { min-width: 600px; }
+        header.top-bar { padding: 0 16px !important; flex-wrap: wrap; gap: 10px; }
+        header.top-bar > div { font-size: 0.9rem !important; }
+        .view-request-content h2 { font-size: var(--text-2xl) !important; }
+        .view-request-content .amount-display { font-size: var(--text-xl) !important; }
+      }
+      /* ใช้ความกว้างเต็ม - ไม่ทิ้งพื้นที่ว่างขวา */
+      .view-request-content { width: 100%; }
+      .view-request-form-container,
+      .view-request-content .form-container { width: 100%; }
+    </style>
+  </head>
+
+  <body>
+    <div class="dashboard-wrapper">
+      <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="เปิดเมนู"><i class="fas fa-bars" id="sidebarToggleIcon"></i></button>
+      <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+      {% include 'sidebar.html' %}
+
+      <main class="main-content">
+        <!-- Header -->
+        <header
+          class="top-bar"
+          style="
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 40px;
+            background: white;
+            border-bottom: 1px solid #eee;
+          "
+        >
+          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+            {% if request.args.get('year') and role not in ['applicant', 'research'] %}
+            <a href="{{ url_for('main.summary_page', year=request.args.get('year') or req.fiscal_year) }}" class="btn-back">
+              <i class="fas fa-arrow-left"></i> สรุปยอด
+            </a>
+            {% else %}
+            <a href="{{ url_for('main.dashboard') }}" class="btn-back">
+              <i class="fas fa-arrow-left"></i> หน้าหลัก
+            </a>
+            {% endif %}
+          </div>
+          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+            <i class="fas fa-file-alt"></i> เลขที่คำขอ:
+            <strong style="color: #1a252f">{{ req.id }}</strong>
+          </div>
+        </header>
+
+        <section class="content-area view-request-content">
+          <nav class="breadcrumb" aria-label="breadcrumb">
+            <a href="{{ url_for('main.dashboard') }}"><i class="fas fa-home"></i> หน้าหลัก</a>
+            <span class="sep">/</span>
+            {% if request.args.get('year') and role not in ['applicant', 'research'] %}
+            <a href="{{ url_for('main.summary_page', year=request.args.get('year') or req.fiscal_year) }}">สรุปยอด</a>
+            <span class="sep">/</span>
+            {% endif %}
+            <span class="current">คำขอ {{ req.id }}</span>
+          </nav>
+          <!-- Status Banner -->
+          {% set full_label = req | rich_status_label(role) %}
+          {% set is_partial = ('ไม่อนุญาตบางส่วน' in full_label) or (req.status in ['ซ้ำซ้อนบางส่วน', 'อนุมัติบางส่วน']) %}
+          <div class="status-banner status-{{ req.status }} {{ 'status-partial-warning' if is_partial }}">
+            <h2>
+              {% if is_partial %}<i class="fas fa-exclamation-triangle"></i>
+              {% elif req.status == 'อนุมัติ' %}<i class="fas fa-check-circle"></i>
+              {% elif req.status == 'ไม่อนุมัติ' %}<i class="fas fa-times-circle"></i>
+              {% else %}<i class="fas fa-info-circle"></i>{% endif %}
+              สถานะ: {{ full_label }}
+            </h2>
+            {% set note = None %}
+            {% if req.status == 'แก้ไข' %}
+                {% set last_return = (req.audit_trail | selectattr('action', 'equalto', 'ส่งคืนแก้ไข') | list | last) %}
+                {% set note = last_return.comment if last_return else None %}
+            {% elif req.status in ['ไม่อนุมัติ', 'รอการอุทธรณ์'] %}
+                {% set note = (req.works | selectattr('status', 'ne', 'อนุมัติ') | selectattr('comment', 'defined') | selectattr('comment') | map(attribute='comment') | first) %}
+            {% elif 'อุทธรณ์สำเร็จ' in full_label or req.status == 'อนุมัติ' %}
+                {# สำหรับการอนุมัติ อาจจะเก็บเหตุผลที่งานบุคคลระบุตอนจบเรื่องใน history แทนถ้าต้องการ #}
+            {% endif %}
+
+            {% if note %}
+            <div class="banner-note">
+              <strong><i class="fas fa-comment-dots"></i> หมายเหตุ/เหตุผล:</strong> {{ note }}
+            </div>
+            {% endif %}
+            {% if role == 'applicant' and edit_remaining is not none and req.status == 'แก้ไข' %}
+            <div class="banner-note">
+              {% if edit_remaining >= 0 %}
+              <i class="fas fa-clock"></i> ท่านมีเวลาดำเนินการอีก <strong>{{ edit_remaining }}</strong> วัน (จำกัด 7 วัน)
+              {% else %}
+              <i class="fas fa-exclamation-triangle"></i> <strong>เกินกำหนดเวลา</strong> การส่งคืนแก้ไข (จำกัด 7 วัน) — กรุณาติดต่อผู้ดูแลระบบ
+              {% endif %}
+            </div>
+            {% endif %}
+            {% if role == 'applicant' and appeal_remaining is not none and req.status in ['ไม่อนุมัติ', 'อนุมัติบางส่วน'] %}
+            <div class="banner-note">
+              {% if appeal_remaining >= 0 %}
+              <i class="fas fa-clock"></i> ท่านมีเวลายื่นอุทธรณ์อีก <strong>{{ appeal_remaining }}</strong> วัน (จำกัด 7 วัน)
+              {% else %}
+              <i class="fas fa-exclamation-triangle"></i> <strong>เกินกำหนดเวลา</strong> การยื่นอุทธรณ์ (จำกัด 7 วัน)
+              {% endif %}
+            </div>
+            {% endif %}
+          </div>
+          
+          <!-- Draft Ownership Indicator -->
+          {% if role in ['research', 'committee'] %}
+              {% if req.draft_owner and req.draft_owner != session['username'] %}
+              <div style="background: #fff7ed; border: 1px solid #ffedd5; padding: 15px 25px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; gap: 15px;">
+                  <div style="width: 40px; height: 40px; background: #fb923c; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                      <i class="fas fa-lock"></i>
+                  </div>
+                  <div style="flex: 1;">
+                      <h4 style="margin: 0; color: #9a3412; font-weight: 700;">ระบบกำลังถูกใช้งานโดยผู้อื่น</h4>
+                      <p style="margin: 2px 0 0 0; color: #c2410c; font-size: 0.95rem;">คุณ <strong>{{ req.draft_owner }}</strong> กำลังจัดทำร่างรายการนี้อยู่ ข้อมูลที่คุณเห็นคือข้อมูลตั้งต้น (ข้อมูลในร่างคนอื่นจะไม่แสดงให้คุณเห็น)</p>
+                  </div>
+              </div>
+              {% elif req.draft_owner == session['username'] %}
+              <div style="background: #f0fdf4; border: 1px solid #dcfce7; padding: 12px 20px; border-radius: 12px; margin-bottom: 25px; display: flex; align-items: center; gap: 12px;">
+                  <span style="background: #22c55e; color: white; padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 800; text-transform: uppercase;">Draft Mode</span>
+                  <span style="color: #166534; font-size: 0.95rem;">คุณกำลังแก้ไข <strong>"ฉบับร่างของคุณเอง"</strong> (คนอื่นจะยังไม่เห็นจนกว่าคุณจะกดส่งผล)</span>
+              </div>
+              {% endif %}
+          {% endif %}
+
+          <div
+            class="form-container view-request-form-container"
+            style="
+              background: white;
+              border-radius: 20px;
+              padding: 40px;
+              box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+              max-width: 100%;
+            "
+          >
+            {% with messages = get_flashed_messages(with_categories=true) %} {%
+            if messages %} {% for category, message in messages %}
+            <div
+              class="alert alert-{{ category if category != 'message' else 'info' }}"
+              style="margin-bottom: 30px"
+            >
+              <i class="fas fa-info-circle"></i> {{ message }}
+            </div>
+            {% endfor %} {% endif %} {% endwith %}
+
+            <!-- Main Content Section -->
+            <div style="margin-bottom: 24px">
+              <h2 class="section-title" style="margin-bottom: 8px">
+                ข้อมูลคำขอ
+              </h2>
+              <div class="section-subtitle"
+                style="
+                  color: var(--text-muted);
+                  border-bottom: 1px solid #eee;
+                  padding-bottom: 15px;
+                  margin-bottom: 25px;
+                "
+              >
+                ข้อมูลผู้ยื่น
+              </div>
+
+              <div class="view-request-info">
+                <div class="info-col">
+                  <p style="margin-bottom: 10px">
+                    <strong>ผู้ยื่น:</strong> {{ req.applicant_name }} ({{
+                    req.applicant_info.academic_position | join(' / ') if
+                    req.applicant_info.academic_position is iterable and
+                    req.applicant_info.academic_position is not string else
+                    (req.applicant_info.academic_position or '-') }})
+                  </p>
+                  <p style="margin-bottom: 10px">
+                    <strong>สังกัด:</strong> {{ req.applicant_info.faculty }} /
+                    {{ req.applicant_info.department }}
+                  </p>
+                </div>
+                <div class="info-col">
+                  <p style="margin-bottom: 10px">
+                    <strong>ปีงบประมาณ:</strong> {{ req.fiscal_year }}
+                  </p>
+                  <p style="margin-bottom: 10px">
+                    <strong>วันที่ยื่น:</strong> {{ req.date | date_table }}
+                  </p>
+                </div>
+              </div>
+
+              <form method="POST">
+                <div class="view-request-form-actions" style="justify-content: space-between; align-items: center; margin-bottom: 20px;"
+                >
+                  <h3 class="section-subtitle" style="font-weight: 700; margin: 0; font-size: var(--text-lg);">รายการผลงาน</h3>
+                  {% if role == 'administration' and req.status in ['ส่งแล้ว',
+                  'ผลงานผ่าน', 'ผลงานซ้ำซ้อน', 'ซ้ำซ้อนบางส่วน',
+                  'รอเสนอพิจารณา', 'อยู่ในรอบพิจารณา'] %}
+                  <button
+                    type="submit"
+                    name="action"
+                    value="save"
+                    class="btn-primary"
+                    style="background: #2c3e50; padding: 8px 16px"
+                  >
+                    <i class="fas fa-save"></i> บันทึกคะแนน/ค่าตอบแทน
+                  </button>
+                  {% endif %} 
+
+                  {% if role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] %}
+                  <div style="display: flex; gap: 10px">
+                    <button
+                      type="submit"
+                      name="action"
+                      value="committee_bulk_reject"
+                      class="btn-danger"
+                      style="background: #ef4444; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      ไม่อนุมัติ (รายการที่เลือก)
+                    </button>
+                    <button
+                      type="submit"
+                      name="action"
+                      value="committee_bulk_approve"
+                      class="btn-success"
+                      style="background: #22c55e; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      อนุมัติ (รายการที่เลือก)
+                    </button>
+                  </div>
+                  {% elif role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ' %}
+                  <div style="display: flex; gap: 10px">
+                    <button
+                      type="submit"
+                      name="action"
+                      value="research_bulk_duplicate"
+                      class="btn-danger"
+                      style="background: #ef4444; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      เคยใช้แล้ว (รายการที่เลือก)
+                    </button>
+                    <button
+                      type="submit"
+                      name="action"
+                      value="research_bulk_verify"
+                      class="btn-success"
+                      style="background: #22c55e; padding: 8px 15px; border-radius: 8px; font-weight: 700; border: none; font-size: 0.9rem;"
+                    >
+                      ไม่เคยใช้ (รายการที่เลือก)
+                    </button>
+                  </div>
+                  {% endif %}
+                </div>
+
+                <div class="work-table-container">
+                  {% set has_check = (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                  <table class="work-table">
+                    <thead>
+                      <tr style="background: #f8f9fb">
+                        {% if (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                        <th style="text-align: center; color: #4b5563; border-top-left-radius: 12px; width: 60px; border-right: 1px solid #edf2f7;" title="เลือกเพื่ออนุมัติ / ไม่เลือกเพื่อไม่อนุมัติ">
+                          <div style="font-size: 0.75rem; margin-bottom: 3px;"></div>
+                          <input type="checkbox" id="selectAll" style="width: 20px; height: 20px; cursor: pointer" />
+                        </th>
+                        {% endif %}
+                        <th style="text-align: left; color: #4b5563;" class="{{ 'th-radius' if not ((role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'])) else '' }}">
+                          รายการผลงาน
+                        </th>
+                        {% if role != 'research' %}
+                        <th style="text-align: center; color: var(--primary-color); border-left: 1px solid #edf2f7; width: 120px;">
+                          คะแนน
+                        </th>
+                        {% endif %}
+                        {% set status_width = '180px' if role == 'research' else '220px' %}
+                        <th style="text-align: center; color: var(--primary-color); border-left: 1px solid #edf2f7; width: {{ status_width }};">
+                          สถานะ
+                        </th>
+                        <th style="text-align: center; color: var(--primary-color); border-left: 1px solid #edf2f7; border-top-right-radius: 12px; width: 150px;">
+                          รายละเอียด
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for work in req.works %}
+                      {% set is_duplicate_excluded = (role == 'committee' and work.status == 'ผลงานซ้ำซ้อน') %}
+                      {% set badge_class = 'badge-neutral' %}
+                      {% if work.status == 'อนุมัติ' %}
+                          {% set badge_class = 'badge-success' %}
+                      {% elif work.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] %}
+                          {% set badge_class = 'badge-danger' %}
+                      {% elif work.status == 'รอการอุทธรณ์' %}
+                          {% set badge_class = 'badge-warning' %}
+                      {% endif %}
+
+                      <tr
+                        class="work-row"
+                        data-status="{{ work.status or 'รอดำเนินการ' }}"
+                        data-index="{{ loop.index0 }}"
+                        style="transition: background 0.2s; border-bottom: 1px solid #edf2f7;"
+                      >
+                        {% if (role == 'research' and req.status == 'รอตรวจประวัติการยื่นขอ') or (role == 'committee' and req.status in ['รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                        <td
+                          style="
+                            padding: 20px;
+                            text-align: center;
+                            border-right: 1px solid #edf2f7;
+                          "
+                        >
+                          <input
+                            type="checkbox"
+                            name="selected_works"
+                            value="{{ loop.index0 }}"
+                            class="work-checkbox"
+                            style="width: 20px; height: 20px; cursor: pointer; {{ 'display: none;' if is_duplicate_excluded else '' }}"
+                            {{ 'disabled' if is_duplicate_excluded else '' }}
+                          />
+                        </td>
+                        {% endif %}
+                        <td style="padding: 20px; border-bottom: 1px solid #edf2f7; vertical-align: middle;">
+                          <span style="font-weight: 600; font-size: var(--text-base); color: var(--primary-color); display: flex; align-items: center; gap: 8px;">
+                            <span style="color: #64748b">•</span> {{ work.type | translate_work_type }}
+                          </span>
+                          
+                          {% if is_duplicate_excluded %}
+                          <div style="margin-top: 5px; color: #94a3b8; font-size: 0.9rem; font-style: italic;">
+                             <i class="fas fa-ban"></i> รายการนี้ถูกคัดออกเนื่องจากตรวจพบความซ้ำซ้อนโดยงานวิจัย
+                          </div>
+                          {% endif %}
+
+                          {# 1 & 4. ส่วนสำหรับคณะกรรมการ (Committee) #}
+                          {% if role == 'committee' %}
+                              {# กรณีต้องการพิจารณาผลงานครั้งแรก (Status ยังไม่เสร็จสิ้น) #}
+                              {% if req.status in ['รอการพิจารณา', 'รอการอุทธรณ์'] and not is_duplicate_excluded and not work.appeal_comment %}
+                              <div id="comment_box_{{ loop.index0 }}" style="display: {{ 'block' if (work.status == 'ไม่อนุมัติ') else 'none' }}; margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการไม่อนุมัติ
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px;">เหตุผลที่ไม่ผ่าน/ต้องแก้ไข:</label>
+                                      <input type="text" name="work_comment_{{ loop.index0 }}" 
+                                             value="{{ work.comment or '' }}" 
+                                             placeholder="โปรดระบุเหตุผล..."
+                                             class="work-comment-input"
+                                             style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                  </div>
+                              </div>
+                              {% endif %}
+
+                              {# กรณีมีประวัติการอุทธรณ์ (Display Appeal History + Decision Buttons) #}
+                              {% if work.appeal_comment %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการอุทธรณ์
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      {% if work.comment %}
+                                      <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      {% endif %}
+
+                                      {% if work.appeal_comment %}
+                                      <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เหตุผลการอุทธรณ์จากผู้ยื่น:</strong> {{ work.appeal_comment }}
+                                      </div>
+                                      {% endif %}
+
+                                      {% if work.appeal_decision_comment %}
+                                      <div style="font-size: 0.95rem; color: #dc2626; line-height: 1.5; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong> ผลการพิจารณาอุทธรณ์: {{ work.appeal_decision_comment }}
+                                      </div>
+                                      {% endif %}
+
+                                      {# ปุ่มตัดสินใจการอุทธรณ์ (แสดงเฉพาะตอนสถานะ รอการอุทธรณ์) #}
+                                      {% if role == 'committee' and req.status == 'รอการอุทธรณ์' %}
+                                      <div style="margin-top: 12px;">
+                                          <div id="appeal_comment_box_{{ loop.index0 }}" 
+                                               class="appeal-box-container"
+                                               style="margin-bottom: 12px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd; {{ 'display: block;' if work.status == 'ไม่อนุมัติ' else 'display: none;' }}">
+                                              <div style="padding: 10px; background: #fff1f2; border-bottom: 1px solid #fecaca;">
+                                                  <div style="font-size: 0.85rem; color: #dc2626; font-weight: 700;">
+                                                      <i class="fas fa-comment-dots"></i> ระบุเหตุผลที่ไม่รับอุทธรณ์
+                                                  </div>
+                                              </div>
+                                              <div style="padding: 12px; background: white;">
+                                                  <input type="text" name="appeal_decision_comment_{{ loop.index0 }}" 
+                                                        value="{{ work.appeal_decision_comment or '' }}" 
+                                                        placeholder="ระบุเหตุผลที่ไม่รับการอุทธรณ์..."
+                                                        style="width: 100%; padding: 8px 12px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; background: #fff;">
+                                              </div>
+                                          </div>
+
+                                      </div>
+                                      {% endif %}
+                                  </div>
+                              </div>
+                              {% endif %}
+                          {% endif %}
+
+                          {# 2 & 3. ส่วนสำหรับผู้ยื่นคำขอ (Applicant) #}
+                          {% if role == 'applicant' %}
+                              {% if work.status == 'ไม่อนุมัติ' and not work.already_appealed and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการไม่อนุมัติ
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
+                                          <input type="checkbox" name="appeal_items" value="{{ loop.index0 }}" id="appeal_cb_{{ loop.index0 }}" style="width: 18px; height: 18px;" onchange="document.getElementById('appeal_reason_box_{{ loop.index0 }}').style.display = this.checked ? 'block' : 'none'">
+                                          <label for="appeal_cb_{{ loop.index0 }}" style="color: #64748b; font-weight: 700; cursor: pointer;">ต้องการยื่นอุทธรณ์รายการนี้</label>
+                                      </div>
+                                      <div style="font-size: 0.85rem; color: #64748b; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      
+                                      <div id="appeal_reason_box_{{ loop.index0 }}" style="display: none; margin-top: 10px;">
+                                          <label style="font-size: 0.8rem; color: #64748b; display: block; margin-bottom: 4px">ระบุเหตุผลการอุทธรณ์:</label>
+                                          <textarea name="appeal_reason_{{ loop.index0 }}" placeholder="โปรดระบุรายละเอียด/เหตุผลหักล้าง..." style="width: 100%; padding: 10px; font-size: 0.9rem; border: 1px solid #cbd5e1; border-radius: 6px; min-height: 80px; background: #fff;"></textarea>
+                                      </div>
+                                  </div>
+                              </div>
+                              {% elif work.appeal_comment %}
+                              <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                                  <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                      <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                          <i class="fas fa-gavel"></i> รายละเอียดการอุทธรณ์
+                                      </div>
+                                  </div>
+                                  <div style="padding: 12px; background: white;">
+                                      {% if work.comment %}
+                                      <div style="font-size: 0.85rem; color: #64748b; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;">
+                                          <strong>เดิมไม่อนุมัติเนื่องจาก:</strong> {{ work.comment }}
+                                      </div>
+                                      {% endif %}
+                                      <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_decision_comment else '' }}">
+                                          <strong>เหตุผลการอุทธรณ์:</strong> {{ work.appeal_comment }}
+                                      </div>
+
+                                      {% if work.appeal_decision_comment %}
+                                      <div style="font-size: 0.95rem; color: #dc2626; margin-bottom: 8px; margin-top: 8px;">
+                                          <strong>ผลการอุทธรณ์:</strong> {{ work.appeal_decision_comment }}
+                                      </div>
+                                      {% endif %}
+
+                                  </div>
+                              </div>
+                              {% elif work.comment and not (req.status in ['รอตรวจประวัติการยื่นขอ', 'รอการพิจารณา', 'รอการอุทธรณ์']) %}
+                              <div style="margin-top: 8px; font-size: 0.9rem; color: #dc3545; padding-left: 10px; border-left: 3px solid #dc3545;">
+                                  <strong>เหตุผล:</strong> {{ work.comment }}
+                              </div>
+                              {% endif %}
+                          {% endif %}
+
+                          {# แสดงผลเหตุผลสำหรับ Role Administration - ยุบรวมเป็นรูปแบบเดียวกันทั้งหมด #}
+                          {% if role == 'administration' and (work.comment or work.appeal_comment) %}
+                          <div style="margin-top: 10px; border-radius: 8px; overflow: hidden; border: 1px solid #bae6fd;">
+                              <div style="padding: 10px; background: #f0f9ff; border-bottom: 1px solid #bae6fd;">
+                                  <div style="font-size: 0.85rem; color: #0369a1; font-weight: 700; display: flex; align-items: center; gap: 5px;">
+                                      <i class="fas fa-gavel"></i> รายละเอียดการพิจารณา
+                                  </div>
+                              </div>
+                              <div style="padding: 12px; background: white;">
+                                  {% if work.comment %}
+                                  <div style="font-size: 0.85rem; color: #64748b; {{ 'margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_comment else '' }}">
+                                      <strong>เหตุผลการพิจารณา:</strong> {{ work.comment }}
+                                  </div>
+                                  {% endif %}
+
+                                  {% if work.appeal_comment %}
+                                  <div style="font-size: 0.95rem; color: #1e3a8a; line-height: 1.5; {{ 'margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px dashed #e2e8f0;' if work.appeal_decision_comment else '' }}">
+                                      <strong>เหตุผลการอุทธรณ์จากผู้ยื่น:</strong> {{ work.appeal_comment }}
+                                  </div>
+                                  {% endif %}
+
+                                  {% if work.appeal_decision_comment %}
+                                  <div style="font-size: 0.95rem; color: #dc2626; line-height: 1.5;">
+                                      <strong> ผลการพิจารณาอุทธรณ์:</strong> {{ work.appeal_decision_comment }}
+                                  </div>
+                                  {% endif %}
+                              </div>
+                          </div>
+                          {% endif %}
+
+                        </td>
+                        {% if role != 'research' %}
+                        <td
+                          style="
+                            padding: 20px;
+                            text-align: center;
+                            border-bottom: 1px solid #edf2f7;
+                            border-left: 1px solid #edf2f7;
+                          "
+                        >
+                          {% if work.status in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน'] %}
+                          <span style="color: #cbd5e1; font-weight: 400"
+                            >-</span
+                          >
+                          {% elif role == 'administration' and req.status in
+                          ['ส่งแล้ว', 'ผลงานผ่าน', 'ผลงานซ้ำซ้อน',
+                          'ซ้ำซ้อนบางส่วน', 'รอเสนอพิจารณา', 'อยู่ในรอบพิจารณา']
+                          %}
+                          <input
+                            type="number"
+                            step="0.001"
+                            name="score_{{ loop.index0 }}"
+                            value="{{ work.score_calc }}"
+                            class="work-score-input"
+                            data-status="{{ work.status }}"
+                            style="
+                              width: 80px;
+                              text-align: center;
+                              border: 1px solid #d1d5db;
+                              padding: 6px;
+                              border-radius: 6px;
+                              font-weight: 600;
+                              font-size: var(--text-base);
+                            "
+                          />
+                          {% else %}
+                          <span class="cell-score" style="color: var(--primary-color);">
+                              {{ work.score_calc|format_score }}
+                          </span>
+                          {% endif %}
+                        </td>
+                        {% endif %}
+                        <td
+                          style="
+                            padding: 20px;
+                            text-align: center;
+                            border-bottom: 1px solid #edf2f7;
+                            border-left: 1px solid #edf2f7;
+                            vertical-align: middle;
+                          "
+                        >
+                          {% if role == 'research' %}
+                            {% if work.status == 'ผลงานซ้ำซ้อน' %}
+                              <span class="badge-status badge-danger">เคยใช้แล้ว</span>
+                            {% elif work.status == 'ผลงานผ่าน' %}
+                              <span class="badge-status badge-success">ไม่เคยใช้</span>
+                            {% else %}
+                              <span class="badge-status badge-neutral" style="background:#fff; color:var(--neutral-color); border:1px solid var(--neutral-color);">รอตรวจสอบ</span>
+                            {% endif %}
+                          {% else %}
+                            <span class="badge-status {{ badge_class }}">
+                              {{ work.status | role_status_label(role) if work.status else 'รอดำเนินการ' }}
+                            </span>
+                          {% endif %}
+                        </td>
+                        <td
+                          style="
+                            padding: 20px;
+                            text-align: center;
+                            border-bottom: 1px solid #edf2f7;
+                            border-left: 1px solid #edf2f7;
+                          "
+                        >
+                          <div
+                            style="
+                              display: flex;
+                              justify-content: center;
+                              align-items: center;
+                              gap: 12px;
+                            "
+                          >
+                            <a
+                              href="{{ url_for('requests.view_work', req_id=req.id, work_index=loop.index0, year=request.args.get('year')) }}"
+                              style="
+                                color: var(--text-muted);
+                                font-size: var(--text-base);
+                                transition: color 0.2s;
+                              "
+                              onmouseover="this.style.color = '#3b82f6'"
+                              onmouseout="this.style.color = '#64748b'"
+                            >
+                              <i class="fas fa-eye"></i>
+                            </a>
+                            {% if role == 'research' and req.status ==
+                            'รอตรวจประวัติการยื่นขอ' %}
+                            <button
+                              type="button"
+                              data-title="{{ work.details.title | default('') | e }}"
+                              data-date="{{ work.details.date_publish | default('') | e }}"
+                              data-reqid="{{ req.id }}"
+                              onclick="checkDuplicate(this)"
+                              class="exclude-check"
+                              style="
+                                border: none;
+                                background: transparent;
+                                color: var(--warning-color);
+                                font-size: var(--text-base);
+                                cursor: pointer;
+                                padding: 0;
+                              "
+                            >
+                              <i
+                                class="fas fa-search-plus"
+                                title="ตรวจสอบความซ้ำซ้อน/อายุ"
+                              ></i>
+                            </button>
+                            {% endif %}
+                          </div>
+                        </td>
+                      </tr>
+                      {% endfor %}
+                    </tbody>
+                    {% if role != 'research' %}
+                    <tfoot>
+                      <tr class="table-footer">
+                        {% set total_cols = 2 if has_check else 1 %}
+                        <td colspan="{{ total_cols }}" style="text-align: right; font-weight: 600; color: var(--primary-color); font-size: var(--text-base); border-bottom-left-radius: 12px; border-left: none;">
+                          คะแนนรวมสุทธิ และ ยอดรวมเงินค่าตอบแทนสิทธิ
+                        </td>
+
+                        <td style="text-align: center; width: 120px;">
+                            {% set total_score = req.works | rejectattr('status', 'in', ['ผลงานซ้ำซ้อน', 'ไม่อนุมัติ']) | map(attribute='score_calc') | map('float') | sum %}
+                            <span class="total-score-display">
+                              {{ total_score|format_score }}
+                            </span>
+                        </td>
+
+                        <td style="text-align: center; width: {{ status_width }};">
+                            {% set amt = (req.approved_amount)|float %}
+                            <span id="total_amount_display" class="amount-display {{ 'amount-danger' if (amt == 0 or req.status in ['ไม่อนุมัติ', 'ยกเลิก']) else 'amount-approved' }}">
+                              ฿{{ "{:,.0f}".format(amt) if amt % 1 == 0 else "{:,.2f}".format(amt) }}
+                            </span>
+                            <input type="hidden" name="amount" id="total_amount_hidden" value="{{ req.approved_amount }}" />
+                        </td>
+                        <td style="border-bottom-right-radius: 12px; width: 150px;"></td>
+                      </tr>
+                    </tfoot>
+                    {% endif %}
+                  </table>
+                </div>
+
+                <!-- Appeals Management Section -->
+                {% set appealable_works = [] %}
+                {% if role == 'applicant' %}
+                  {% for w in req.works %}
+                    {% if w.status == 'ไม่อนุมัติ' and req.status in ['อนุมัติ', 'อนุมัติบางส่วน', 'ไม่อนุมัติ', 'ประกาศผลแล้ว', 'รอการอุทธรณ์'] and not w.already_appealed %}
+                      {% set _ = appealable_works.append(w) %}
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}                 {% if role == 'applicant' and appealable_works|length > 0 and (appeal_remaining is none or appeal_remaining >= 0) %}
+                <div style="margin-top: 20px; text-align: right;">
+                    <button type="submit" name="action" value="submit_appeal" class="btn-warning" style="padding: 12px 30px; font-weight: 700; font-size: 1.1rem; box-shadow: 0 4px 10px rgba(245, 158, 11, 0.3);">
+                      <i class="fas fa-paper-plane"></i> ส่งคำอุทธรณ์ (สำหรับรายการที่เลือก)
+                    </button>
+                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 8px;">
+                      <i class="fas fa-info-circle"></i> ท่านสามารถเลือกอุทธรณ์เป็นรายรายการได้ในตารางผลงานด้านบน
+                    </p>
+                </div>
+                {% endif %}
+
+                <!-- Actions Area -->
+                <div class="form-actions" style="margin-top: 40px; display: block;">
+                  {% if role == 'administration' and req.status in ['ส่งแล้ว',
+                  'ผลงานผ่าน', 'ผลงานซ้ำซ้อน', 'ซ้ำซ้อนบางส่วน',
+                  'รอเสนอพิจารณา', 'อยู่ในรอบพิจารณา'] %}
+                  <div
+                    class="admin-panel"
+                    style="
+                      background: #f8f9fa;
+                      padding: 25px;
+                      border: 2px solid #dae1e7;
+                      border-radius: 12px;
+                      margin-bottom: 20px;
+                    "
+                  >
+                    <h3 style="margin-top: 0; color: #2c3e50">
+                      <i class="fas fa-tools"></i> ส่วนจัดการ (Admin)
+                    </h3>
+                    <div class="form-group">
+                      <label>สิ่งที่ต้องแก้ไข:</label>
+                      <input
+                        type="text"
+                        name="comment"
+                        placeholder="ระบุข้อความ..."
+                        style="
+                          width: 100%;
+                          padding: 12px;
+                          border: 1px solid #d1d5db;
+                          border-radius: 8px;
+                        "
+                      />
+                    </div>
+                    <div
+                      style="
+                        display: flex;
+                        gap: 10px;
+                        flex-wrap: wrap;
+                        margin-top: 15px;
+                      "
+                    >
+
+                      <button
+                        type="submit"
+                        name="action"
+                        value="return"
+                        class="btn-danger"
+                        style="padding: 12px 25px;"
+                      >
+                        <i class="fas fa-reply"></i> ส่งคืนแก้ไข
+                      </button>
+                      {% if req.status == 'ส่งแล้ว' %} {% set already_researched
+                      = req.works | selectattr('status', 'equalto', 'ผลงานผ่าน')
+                      | list or req.works | selectattr('status', 'equalto',
+                      'ผลงานซ้ำซ้อน') | list %} {% if not already_researched %}
+                      <button
+                        type="submit"
+                        name="action"
+                        value="pass"
+                        class="btn-success"
+                      >
+                        <i class="fas fa-share"></i> ส่งพิจารณา (งานวิจัย)
+                      </button>
+                      {% endif %} {% endif %} {% if req.status in ['ผลงานผ่าน',
+                      'ผลงานซ้ำซ้อน', 'ซ้ำซ้อนบางส่วน'] or (req.status ==
+                      'ส่งแล้ว' and already_researched) %}
+                      <button
+                        type="submit"
+                        name="action"
+                        value="mark_ready"
+                        class="btn-success"
+                      >
+                        <i class="fas fa-share"></i> ส่งให้คณะกรรมการพิจารณา
+                      </button>
+                      {% endif %}
+                    </div>
+                  </div>
+                  {% endif %} {% if role == 'research' and req.status ==
+                  'รอตรวจประวัติการยื่นขอ' %}
+                  <div class="research-panel" style="background: #f8f9fa; padding: 25px; border: 2px solid #dae1e7; border-radius: 12px; margin-bottom: 20px;">
+                  <h3
+                    style="
+                      margin-top: 0;
+                      margin-bottom: 15px;
+                      color: #1e293b;
+                      font-size: 1.25rem;
+                    "
+                  >
+                    <i class="fas fa-search"></i> ส่วนตรวจสอบ (Research)
+                  </h3>
+                  <div
+                    style="
+                      margin-bottom: 15px;
+                      background: #e0f2fe;
+                      padding: 12px;
+                      border-radius: 8px;
+                      border-left: 4px solid #0284c7;
+                    "
+                  >
+                    <p style="margin: 0; font-size: 0.95rem; color: #0369a1">
+                      <i class="fas fa-info-circle"></i>
+                      โปรดตรวจสอบความซ้ำซ้อนของผลงานแต่ละรายการในตารางด้านบน
+                      และกดปุ่ม
+                      <strong>"ส่งผลการตรวจสอบทั้งหมด"</strong>
+                      เมื่อดำเนินการครบทุกรายการ
+                    </p>
+                  </div>
+
+                  {% if history %}
+                  <div
+                    style="
+                      background: #fffcf0;
+                      padding: 20px;
+                      border-radius: 10px;
+                      border: 1px solid #ffd351;
+                    "
+                  >
+                    <h5 style="color: #856404; font-size: 1.1rem; margin-top: 0;">
+                      <i class="fas fa-history"></i> พบประวัติย้อนหลังของ {{
+                      req.applicant_name }} ({{ history|length }} รายการ)
+                    </h5>
+                    <div style="margin-top: 15px; overflow-x: auto">
+                      <table
+                        style="
+                          width: 100%;
+                          font-size: 0.95rem;
+                          border-collapse: collapse;
+                        "
+                      >
+                        <thead>
+                          <tr style="border-bottom: 1px solid #ffd351">
+                            <th style="padding: 10px; text-align: left">
+                              เลขที่คำขอ
+                            </th>
+                            <th style="padding: 10px; text-align: left">
+                              วันที่
+                            </th>
+                            <th style="padding: 10px; text-align: center">
+                              สถานะ
+                            </th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for h in history | reverse %}
+                          <tr
+                            style="
+                              border-bottom: 1px solid rgba(255, 211, 81, 0.3);
+                            "
+                          >
+                            <td style="padding: 10px; font-weight: 700">
+                              {{ h.id }}
+                            </td>
+                            <td style="padding: 10px">{{ h.date }}</td>
+                            <td style="padding: 10px; text-align: center">
+                              <span
+                                style="
+                                  display: inline-block;
+                                  padding: 4px 10px;
+                                  border-radius: 15px;
+                                  background: white;
+                                  border: 1px solid #ffd351;
+                                  font-size: 0.85rem;
+                                  font-weight: 600;
+                                "
+                                >{{ h.status }}</span
+                              >
+                            </td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  {% else %}
+                  <div
+                    style="
+                      background: #f1f5f9;
+                      padding: 30px;
+                      border-radius: 10px;
+                      text-align: center;
+                      color: #64748b;
+                      border: 2px dashed #cbd5e1;
+                      font-weight: 600;
+                      font-size: 1.1rem;
+                    "
+                  >
+                    <i
+                      class="fas fa-user-clock"
+                      style="
+                        font-size: 2rem;
+                        display: block;
+                        margin-bottom: 10px;
+                        opacity: 0.5;
+                      "
+                    ></i>
+                    {{ req.applicant_name }} ยังไม่เคยส่งคำขอ
+                  </div>
+                  {% endif %}
+                  <div style="margin-top: 20px">
+                    <button
+                      type="submit"
+                      name="action"
+                      value="finalize_research"
+                      class="btn-primary"
+                      style="width: 100%; padding: 15px; font-weight: 700"
+                    >
+                      <i class="fas fa-paper-plane"></i>
+                      ส่งผลการตรวจสอบทั้งหมดไปยังงานบุคคล
+                    </button>
+                  </div>
+                  </div>
+                  {% endif %} {% if role == 'applicant' %}
+                  <div
+                    style="
+                      display: flex;
+                      gap: 15px;
+                      flex-wrap: wrap;
+                      align-items: center;
+                      margin-bottom: 20px;
+                    "
+                  >
+                    {% if req.status in ['แบบร่าง', 'แก้ไข'] %}
+                    <div
+                      style="
+                        display: flex;
+                        gap: 10px;
+                        padding: 10px 20px;
+                        background: #fff8e1;
+                        border-radius: 12px;
+                        border: 1px solid #ffeeba;
+                      "
+                    >
+                      <a
+                        href="{{ url_for('requests.new_request', edit_id=req.id) }}"
+                        class="btn-edit-draft"
+                        style="text-decoration: none; padding: 10px 20px; border-radius: 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px;"
+                        ><i class="fas fa-edit"></i> แก้ไขข้อมูล</a
+                      >
+                      <button
+                        type="submit"
+                        name="action"
+                        value="submit"
+                        class="btn-primary"
+                        {{ 'disabled' if req.status == 'แก้ไข' and edit_remaining is not none and edit_remaining < 0 else '' }}
+                      >
+                        ส่งคำขอ
+                      </button>
+                    </div>
+                    {% endif %} {% if req.status in ['แบบร่าง', 'ส่งแล้ว',
+                    'แก้ไข', 'รอตรวจประวัติการยื่นขอ', 'ผลงานผ่าน',
+                    'รอเสนอพิจารณา'] %}
+                    <div
+                      style="
+                        flex-grow: 1;
+                        display: flex;
+                        justify-content: flex-end;
+                      "
+                    >
+                      <button
+                        type="submit"
+                        name="action"
+                        value="cancel"
+                        class="btn-danger"
+                        style="
+                          background: #fff;
+                          color: #dc3545;
+                          border: 1px solid #dc3545;
+                          padding: 8px 20px;
+                        "
+                        onclick="var f=this.closest('form'),btn=this;event.preventDefault();Swal.fire({title:'ยืนยัน',text:'คุณแน่ใจหรือไม่ว่าต้องการยกเลิกคำขอนี้?',icon:'warning',showCancelButton:true,confirmButtonText:'ยืนยัน',cancelButtonText:'ยกเลิก'}).then(function(r){if(r.isConfirmed){var h=document.createElement('input');h.type='hidden';h.name='action';h.value=btn.value;f.appendChild(h);f.submit();}});return false"
+                      >
+                        <i class="fas fa-times-circle"></i> ยกเลิกคำขอ
+                      </button>
+                    </div>
+                    {% endif %}
+                  </div>
+                  {% endif %} {% if role == 'committee' and req.status in
+                  ['รอการพิจารณา', 'รอการอุทธรณ์'] %}
+
+                     <div style="display: flex; flex-direction: column; gap: 15px;">
+                       <button
+                         type="submit"
+                         name="action"
+                         value="publish"
+                         class="btn-primary"
+                         style="width: 100%; padding: 15px; font-size: 1.1rem; letter-spacing: 1px;"
+                         onclick="var f=this.closest('form'),btn=this;event.preventDefault();Swal.fire({title:'ยืนยัน',text:'คุณแน่ใจหรือไม่ว่าต้องการเผยแพร่ผลการพิจารณานี้?',icon:'question',showCancelButton:true,confirmButtonText:'ยืนยัน',cancelButtonText:'ยกเลิก'}).then(function(r){if(r.isConfirmed){var h=document.createElement('input');h.type='hidden';h.name='action';h.value=btn.value;f.appendChild(h);f.submit();}});return false"
+                       >
+                         <i class="fas fa-paper-plane"></i> เผยแพร่ผลพิจารณา
+                       </button>
+                     </div>
+
+                  {% endif %}
+                </div>
+              </form>
+            </div>
+          </div>
+          <!-- End form-container -->
+
+          {% if role not in ['applicant', 'research'] %}
+          <!-- Section: Request History (Audit Trail) -->
+          <div
+            id="history"
+            class="form-container view-request-form-container"
+            style="
+              margin-top: 30px;
+              background: white;
+              border-radius: 20px;
+              padding: 40px;
+              box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            "
+          >
+            <h2 class="section-title" style="margin-bottom: 20px">
+              <i class="fas fa-history"></i> ประวัติการดำเนินการของคำขอนี้
+            </h2>
+            <div class="table-responsive-wrapper">
+              <table class="styled-table no-margin" style="width: 100%">
+                <thead>
+                  <tr>
+                    <th style="width: 200px">วัน/เวลา</th>
+                    <th style="width: 150px">โดย (ชื่อ/บทบาท)</th>
+                    <th>การดำเนินการ</th>
+                    <th>หมายเหตุ/ความคิดเห็น</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% if req.audit_trail %} {% for h in req.audit_trail | reverse
+                  %}
+                  <tr>
+                    <td style="font-size: 0.9rem">{{ h.timestamp }}</td>
+                    <td>
+                      <strong>{{ h.name }}</strong><br />
+                      <small style="color: #64748b">({{ h.role }})</small>
+                    </td>
+                    <td>
+                      <span style="font-weight: 700; color: #2c3e50"
+                        >{{ h.action }}</span
+                      >
+                    </td>
+                    <td style="color: #475569; font-style: italic">
+                      {{ h.comment or '-' }}
+                    </td>
+                  </tr>
+                  {% endfor %} {% else %}
+                  <tr>
+                    <td
+                      colspan="4"
+                      style="text-align: center; padding: 30px; color: #94a3b8"
+                    >
+                      ยังไม่มีประวัติการดำเนินการบันทึกไว้
+                    </td>
+                  </tr>
+                  {% endif %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          {% endif %}
+        </section>
+      </main>
+    </div>
+
+    <script>(function(){var t=document.getElementById('sidebarToggle'),i=document.getElementById('sidebarToggleIcon'),o=document.getElementById('sidebarOverlay'),s=document.querySelector('.sidebar');if(t&&o&&s){function setIcon(open){if(i){i.className=open?'fas fa-times':'fas fa-bars';t.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');t.classList.toggle('is-open',open);}}function openNav(){s.classList.add('sidebar-open');o.classList.add('active');o.setAttribute('aria-hidden','false');setIcon(true);}function closeNav(){s.classList.remove('sidebar-open');o.classList.remove('active');o.setAttribute('aria-hidden','true');setIcon(false);}t.addEventListener('click',function(){s.classList.contains('sidebar-open')?closeNav():openNav();});o.addEventListener('click',closeNav);}})();</script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+    <script>
+
+
+      document.addEventListener("DOMContentLoaded", function () {
+        const userRole = "{{ role }}";
+        // Select All Functionality (Event Delegation for robustness)
+        document.addEventListener("change", function (e) {
+          if (e.target && e.target.id === "selectAll") {
+            const checkboxes = document.querySelectorAll(".work-checkbox:not(:disabled)");
+            checkboxes.forEach((cb) => {
+              cb.checked = e.target.checked;
+              // Trigger change event for sub-checkboxes
+              cb.dispatchEvent(new Event("change", { bubbles: true }));
+            });
+          }
+        });
+
+        function updateGlobalCommentVisibility() {
+            const container = document.getElementById('global_comment_container');
+            if (container) {
+                const rows = document.querySelectorAll(".work-row");
+                const anyRejected = Array.from(rows).some(r => r.getAttribute("data-status") === "ไม่อนุมัติ");
+                container.style.display = anyRejected ? 'block' : 'none';
+            }
+        }
+
+
+        // Initialize state on load
+        if (userRole === "committee") {
+            updateGlobalCommentVisibility();
+        }
+        if (userRole === "administration") {
+          const paymentRules = getPaymentRules();
+          const posData = {{ req.applicant_info.academic_position | tojson | safe }};
+          const applicantPos = Array.isArray(posData)
+            ? posData.join(" ")
+            : posData || "";
+
+          let posKey = "";
+          if (applicantPos.includes("ผู้ช่วยศาสตราจารย์")) posKey = "asst_prof";
+          else if (applicantPos.includes("รองศาสตราจารย์"))
+            posKey = "assoc_prof";
+          else if (applicantPos.includes("ศาสตราจารย์")) posKey = "prof";
+
+          if (document.getElementById("total_amount_display")) {
+            const scoreInputs = document.querySelectorAll(".work-score-input");
+            const totalDisplay = document.getElementById("total_amount_display");
+            const sumScoreDisplay = document.querySelector(
+              'tfoot .total-score-display',
+            );
+            const totalHidden = document.getElementById("total_amount_hidden");
+
+            const recalculate = () => {
+              if (scoreInputs.length === 0) return;
+              let totalScore = 0;
+              scoreInputs.forEach((inp) => {
+                const status = inp.getAttribute("data-status");
+                // Don't count scores for rejected or duplicate items
+                if (status !== "ผลงานซ้ำซ้อน" && status !== "ไม่อนุมัติ") {
+                  totalScore += parseFloat(inp.value) || 0;
+                }
+              });
+
+              if (sumScoreDisplay) {
+                sumScoreDisplay.innerText = totalScore.toFixed(3);
+              }
+
+              let compAmount = 0;
+              if (posKey && paymentRules[posKey]) {
+                const tiers = paymentRules[posKey];
+                if (Array.isArray(tiers)) {
+                  const applicable = tiers
+                    .filter((t) => totalScore >= parseFloat(t.min_score || 0))
+                    .sort(
+                      (a, b) =>
+                        parseFloat(b.min_score) - parseFloat(a.min_score),
+                    );
+                  if (applicable.length > 0) {
+                    compAmount = parseFloat(applicable[0].amount || 0);
+                  }
+                } else if (typeof tiers === "object") {
+                  if (totalScore >= parseFloat(tiers.min_score || 0)) {
+                    compAmount = parseFloat(tiers.amount || 0);
+                  }
+                }
+              }
+
+              totalDisplay.innerText =
+                "฿" +
+                compAmount.toLocaleString(undefined, {
+                  minimumFractionDigits: compAmount % 1 === 0 ? 0 : 2,
+                  maximumFractionDigits: 2,
+                });
+
+              if (compAmount > 0) {
+                totalDisplay.classList.remove("amount-danger");
+                totalDisplay.classList.add("amount-approved");
+              } else {
+                totalDisplay.classList.add("amount-danger");
+                totalDisplay.classList.remove("amount-approved");
+              }
+
+              if (totalHidden) totalHidden.value = compAmount;
+            };
+
+            scoreInputs.forEach((input) => {
+              input.addEventListener("input", recalculate);
+            });
+            recalculate();
+          }
+        }
+
+        const viewForm = document.querySelector("form");
+        if (viewForm) {
+          viewForm.addEventListener("submit", function (e) {
+            const action = e.submitter ? e.submitter.value : "";
+            if (
+              action === "research_bulk_duplicate" ||
+              action === "research_bulk_verify" ||
+              action === "committee_bulk_approve" ||
+              action === "committee_bulk_reject"
+            ) {
+              const selected = document.querySelectorAll(
+                'input[name="selected_works"]:checked'
+              );
+              if (selected.length === 0) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาเลือกผลงานอย่างน้อย 1 รายการ' });
+              }
+            } else if (action === "publish") {
+              const globalCommentField = document.querySelector('input[name="comment"]');
+              const globalComment = globalCommentField ? globalCommentField.value.trim() : "";
+              
+              let missingComments = false;
+              let anyUndecided = false;
+              
+              const rows = document.querySelectorAll(".work-row");
+              rows.forEach(row => {
+                  const status = row.getAttribute("data-status");
+                  const idx = row.getAttribute("data-index");
+                  
+                  if (status === 'รอดำเนินการ' || !status) {
+                      anyUndecided = true;
+                  } else if (status === 'ไม่อนุมัติ') {
+                      const itemCommentField = document.querySelector(`input[name="work_comment_${idx}"]`);
+                      const appealCommentField = document.querySelector(`input[name="appeal_decision_comment_${idx}"]`);
+                      
+                      let hasComment = false;
+                      if (itemCommentField && itemCommentField.value.trim()) hasComment = true;
+                      if (appealCommentField && appealCommentField.value.trim()) hasComment = true;
+                      
+                      // ถ้าเป็นงานที่อุทธรณ์มา ต้องมี appealCommentField
+                      if (appealCommentField) {
+                         if (!appealCommentField.value.trim()) {
+                             missingComments = true;
+                         }
+                      } else if (itemCommentField) {
+                         if (!itemCommentField.value.trim()) {
+                             missingComments = true;
+                         }
+                      }
+                  }
+              });
+
+              if (anyUndecided) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาพิจารณาผลงานให้ครบทุกรายการก่อนทำการเผยแพร่' });
+                return;
+              }
+
+              if (missingComments) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุเหตุผลที่ไม่ผ่าน ในช่องหมายเหตุรายรายการของผลงานนั้นๆ' });
+              }
+            } else if (action === "return") {
+              const commentField = document.querySelector('input[name="comment"]');
+              const comment = commentField ? commentField.value.trim() : "";
+              if (!comment) {
+                e.preventDefault();
+                Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'กรุณาระบุสิ่งที่ต้องแก้ไข ก่อนทำการส่งคืน' });
+                if (commentField) commentField.focus();
+              }
+            }
+          });
+        }
+      });
+
+      // Use a function to safely inject data from server
+      function getPaymentRules() {
+        try {
+          return {{ criteria.get("payment_rules", {}) | tojson | safe }};
+        } catch (e) {
+          console.error("Rules parsing failed", e);
+          return {};
+        }
+      }
+      function checkDuplicate(btn) {
+        const title = btn.getAttribute("data-title");
+        const dateVal = btn.getAttribute("data-date");
+        const reqId = btn.getAttribute("data-reqid");
+
+        if (!title) {
+          Swal.fire({ icon: 'warning', title: 'แจ้งเตือน', text: 'ไม่มีชื่อผลงาน' });
+          return;
+        }
+
+        // Show loading state
+        const icon = btn.querySelector("i");
+        const originalClass = icon.className;
+        icon.className = "fas fa-spinner fa-spin";
+
+        fetch("{{ url_for('api.api_check_work_duplicate') }}", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            title: title,
+            date_publish: dateVal,
+            req_id: reqId,
+          }),
+        })
+          .then((res) => res.json())
+          .then((data) => {
+            icon.className = originalClass; // Restore icon
+
+            let msg = "ผลการตรวจสอบ:\n----------------\n";
+            let hasStrictIssue = false;
+            let hasInfo = false;
+
+            // 1. Check Age
+            if (data.is_old) {
+              msg +=
+                "⚠️ ผลงานนี้เผยแพร่เกิน 2 ปีแล้ว (" + data.age_years + " ปี)\n";
+              hasStrictIssue = true;
+            } else if (data.age_years > 0) {
+              msg +=
+                "✅ ผลงานนี้เผยแพร่มาแล้ว " +
+                data.age_years +
+                " ปี (ยังไม่เกิน 2 ปี)\n";
+            } else if (!data.checked_date) {
+              msg += "⚠️ ไม่พบข้อมูลวันที่เผยแพร่\n";
+            }
+
+            msg += "\n----------------\n";
+
+            // 2. Check Self Duplicates (Critical)
+            if (
+              data.is_duplicate &&
+              data.self_duplicate_details &&
+              data.self_duplicate_details.length > 0
+            ) {
+              msg +=
+                "⛔ พบการขอซ้ำซ้อนด้วยตนเอง (Self-Duplicate) " +
+                data.self_duplicate_details.length +
+                " รายการ:\n";
+              data.self_duplicate_details.forEach((d) => {
+                msg +=
+                  "- โดย: " +
+                  d.applicant +
+                  " (สถานะ: " +
+                  d.status +
+                  ", ปี: " +
+                  d.fiscal_year +
+                  ")\n";
+              });
+              hasStrictIssue = true;
+            }
+
+            // 3. Check Shared Work (Info)
+            if (data.shared_details && data.shared_details.length > 0) {
+              msg +=
+                "ℹ️ พบการใช้งานร่วมโดยผู้อื่น (Shared Work) " +
+                data.shared_details.length +
+                " รายการ:\n";
+              data.shared_details.forEach((d) => {
+                msg +=
+                  "- โดย: " +
+                  d.applicant +
+                  " (สถานะ: " +
+                  d.status +
+                  ", ปี: " +
+                  d.fiscal_year +
+                  ")\n";
+              });
+              msg += "(ตรวจสอบว่าเป็นผู้ดำเนินการร่วมหรือไม่)\n";
+              hasInfo = true;
+            }
+
+            if (!hasStrictIssue && !hasInfo) {
+              msg += "✅ ไม่พบประวัติการใช้งานซ้ำในระบบ";
+            }
+
+            Swal.fire({ icon: hasStrictIssue ? 'error' : (hasInfo ? 'warning' : 'success'), title: 'ผลการตรวจสอบ', text: msg });
+
+            // Visual Indicator
+            if (hasStrictIssue) {
+              if (btn) btn.style.color = "#ef4444"; // Red (Block)
+            } else if (hasInfo) {
+              if (btn) btn.style.color = "#f59e0b"; // Orange (Warning/Check)
+            } else {
+              if (btn) btn.style.color = "#22c55e"; // Green (OK)
+            }
+          })
+          .catch((err) => {
+            console.error(err);
+            if (icon) icon.className = originalClass;
+            Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'เกิดข้อผิดพลาดในการตรวจสอบ' });
+          });
+      }
+    </script>
+  </body>
+</html>

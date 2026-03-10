@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>จัดการช่วงเวลายื่นคำขอ - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
+<body>
+    <div class="dashboard-wrapper">
+        <button type="button" class="sidebar-toggle" id="sidebarToggle" aria-label="เปิดเมนู"><i class="fas fa-bars" id="sidebarToggleIcon"></i></button>
+        <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+        {% include 'sidebar.html' %}
+
+        <main class="main-content">
+            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
+                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
+                    <i class="fas fa-calendar-alt"></i> จัดการรอบการพิจารณา
+                </div>
+            </header>
+
+            <section class="content-area">
+                <div class="form-container">
+                    <div class="manage-timeline-header"
+                        style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 12px;">
+                        <h2 style="display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-calendar-check" style="color: var(--primary-color);"></i>
+                            จัดการช่วงเวลายื่นคำขอ
+                        </h2>
+                        <a href="{{ url_for('admin.edit_timeline', year='new') }}" class="btn-primary">
+                            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
+                        </a>
+                    </div>
+
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-success" style="margin-bottom: 20px;">
+                        <i class="fas fa-check-circle"></i> {{ message }}
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
+
+                    <div class="table-responsive-wrapper table-cards-mobile">
+                    <table class="styled-table">
+                        <thead>
+                            <tr>
+                                <th>ปีงบประมาณ</th>
+                                <th>กำหนดการรับคำขอ</th>
+                                <th>สถานะปัจจุบัน</th>
+                                <th style="text-align: center;">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in timelines %}
+                            <tr>
+                                <td data-label="ปีงบประมาณ" style="font-weight: bold;">{{ item.fiscal_year }}</td>
+                                <td data-label="กำหนดการรับคำขอ">
+                                    <div><strong>รอบปีงบประมาณ:</strong> {{ item.start_date }} ถึง {{ item.end_date }}
+                                    </div>
+                                    {% if item.rounds %}
+                                    <div style="margin-top: 5px; font-size: 0.85em; color: #666;">
+                                        {% for r in item.rounds %}
+                                        <div><i class="fas fa-dot-circle"
+                                                style="font-size: 0.6em; vertical-align: middle;"></i> {{ r.name }} ({{
+                                            r.type }}): {{ r.start_date }} - {{ r.end_date }}</div>
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </td>
+                                <td data-label="สถานะปัจจุบัน">
+                                    <!-- Simple check for active year based on month/day logic -->
+                                    {% set today = 0 %} {# simplified flag #}
+                                    <span class="badge-success">ตั้งค่าแล้ว</span>
+                                </td>
+                                <td data-label="จัดการ" class="cell-action" style="text-align: center;">
+                                    <a href="{{ url_for('admin.edit_timeline', year=item.fiscal_year) }}" class="btn-warning"
+                                        style="padding: 6px 15px; font-size: 0.85rem; text-decoration: none; border-radius: 4px;">
+                                        <i class="fas fa-edit"></i> แก้ไข
+                                    </a>
+                                </td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="4" class="empty-state-cell">
+                                    <i class="fas fa-calendar-times empty-icon"></i>
+                                    <span class="empty-title">ยังไม่มีข้อมูลช่วงเวลายื่นคำขอ</span>
+                                    <p class="empty-desc" style="margin-top: 8px; font-size: 0.9rem;">กดปุ่ม "เพิ่มปีงบประมาณ" เพื่อกำหนดช่วงเวลา</p>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; color: #64748b; font-size: 0.9rem; padding: 0 10px;">
+                    <i class="fas fa-info-circle"></i>
+                    ระบบจะตรวจสอบสิทธิ์การยื่นคำขอโดยอ้างอิงจากปีงบประมาณปัจจบุันและช่วงเวลาที่ท่านกำหนดในหน้าจัดการนี้
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>(function(){var t=document.getElementById('sidebarToggle'),i=document.getElementById('sidebarToggleIcon'),o=document.getElementById('sidebarOverlay'),s=document.querySelector('.sidebar');if(t&&o&&s){function setIcon(open){if(i){i.className=open?'fas fa-times':'fas fa-bars';t.setAttribute('aria-label',open?'ปิดเมนู':'เปิดเมนู');t.classList.toggle('is-open',open);}}function openNav(){s.classList.add('sidebar-open');o.classList.add('active');o.setAttribute('aria-hidden','false');setIcon(true);}function closeNav(){s.classList.remove('sidebar-open');o.classList.remove('active');o.setAttribute('aria-hidden','true');setIcon(false);}t.addEventListener('click',function(){s.classList.contains('sidebar-open')?closeNav():openNav();});o.addEventListener('click',closeNav);}})();</script>
+    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
+</body>
+
+</html>
