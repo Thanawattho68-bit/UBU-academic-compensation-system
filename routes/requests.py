@@ -414,15 +414,13 @@ def view_request(req_id):
                     # Store decision comment
                     decision_comment = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
                     if is_approve:
-                        # Clear comments/appeals if approved
-                        req_data['works'][idx]['comment'] = ""
                         req_data['works'][idx]['appeal_decision_comment'] = ""
                     else:
                         # Store as dedicated appeal decision comment
                         if decision_comment:
                             req_data['works'][idx]['appeal_decision_comment'] = decision_comment
                         else:
-                            req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                            req_data['works'][idx]['appeal_decision_comment'] = "" # Removed default value
                     
                     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                     execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
@@ -452,10 +450,9 @@ def view_request(req_id):
                                 if appeal_decision:
                                     req_data['works'][idx]['appeal_decision_comment'] = appeal_decision
                                 elif not req_data['works'][idx].get('appeal_decision_comment'):
-                                    req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                                    req_data['works'][idx]['appeal_decision_comment'] = "" # Changed from "ไม่รับอุทธรณ์"
                         else:
-                            # Clear comments if approved
-                            req_data['works'][idx]['comment'] = ""
+                            # Clear only appeal decision comment if approved
                             req_data['works'][idx]['appeal_decision_comment'] = ""
                 
                 # Just save the works state and stay (DRAFT only, owned by current user)
@@ -478,7 +475,7 @@ def view_request(req_id):
                 for idx, w in enumerate(req_data['works']):
                     if w.get('status') == 'อนุมัติ':
                         any_approved = True
-                        w['comment'] = "" # Ensure approved items have no rejection comments
+                        w['appeal_decision_comment'] = "" # Clear appeal decision if approved
                     elif w.get('status') == 'ไม่อนุมัติ':
                         # Try to get per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
@@ -490,7 +487,7 @@ def view_request(req_id):
                             if appeal_decision:
                                 w['appeal_decision_comment'] = appeal_decision
                             elif not w.get('appeal_decision_comment'):
-                                w['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                                w['appeal_decision_comment'] = ""
 
                 # Overall request status
                 non_duplicate_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']
