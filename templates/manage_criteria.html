@@ -1,74 +1,53 @@
-<!DOCTYPE html>
-<html lang="th">
+{% extends 'base.html' %}
+{% block title %}จัดการเกณฑ์และคะแนน - Admin{% endblock %}
 
-<head>
-    <meta charset="UTF-8">
-    <title>จัดการเกณฑ์และคะแนน - Admin</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-</head>
+{% block top_bar_content %}
+  <i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน
+{% endblock %}
 
-<body>
-    <div class="dashboard-wrapper">
-        {% include 'sidebar.html' %}
-
-        <main class="main-content">
-            <header class="top-bar" style="display: flex; justify-content: flex-end; align-items: center; padding: 0 40px;">
-                <div style="font-size: 1.1rem; color: #64748b; font-weight: 500;">
-                    <i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน
-                </div>
-            </header>
-
-            <section class="content-area">
-                <div class="form-container">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2><i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน</h2>
-                        <a href="{{ url_for('admin.edit_criteria', year='new') }}" class="btn-primary">
-                            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
-                        </a>
-                    </div>
-
-                    {% with messages = get_flashed_messages() %}
-                    {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-info">{{ message }}</div>
-                    {% endfor %}
-                    {% endif %}
-                    {% endwith %}
-
-                    <table class="styled-table">
-                        <thead>
-                            <tr>
-                                <th>ปีงบประมาณ</th>
-                                <th>สถานะ</th>
-                                <th>จัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for item in criteria %}
-                            <tr>
-                                <td>{{ item.fiscal_year }}</td>
-                                <td><span class="badge-success">ใช้งาน</span></td>
-                                <td>
-                                    <a href="{{ url_for('admin.edit_criteria', year=item.fiscal_year) }}" class="btn-warning"
-                                        style="text-decoration: none; padding: 5px 10px; font-size: 14px; border-radius: 4px;">
-                                        <i class="fas fa-edit"></i> แก้ไข
-                                    </a>
-                                </td>
-                            </tr>
-                            {% else %}
-                            <tr>
-                                <td colspan="3" style="text-align: center;">ไม่พบข้อมูลเกณฑ์</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
+{% block content %}
+<div class="form-container">
+    <div class="flex justify-between items-center mb-[20px]">
+        <h2 class="text-xl font-bold m-0"><i class="fas fa-clipboard-list"></i> จัดการเกณฑ์และคะแนน</h2>
+        <a href="{{ url_for('admin.edit_criteria', year='new') }}" class="btn-primary no-underline">
+            <i class="fas fa-plus"></i> เพิ่มปีงบประมาณ
+        </a>
     </div>
-    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
-</body>
 
-</html>
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    {% for message in messages %}
+    <div class="p-[15px] mb-[20px] rounded-md border border-[#b8daff] bg-[#cce5ff] text-[#004085]">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+
+    <table class="styled-table">
+        <thead>
+            <tr>
+                <th>ปีงบประมาณ</th>
+                <th>สถานะ</th>
+                <th>จัดการ</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in criteria %}
+            <tr>
+                <td>{{ item.fiscal_year }}</td>
+                <td><span class="status-tag status-อนุมัติ border border-green-200">ใช้งาน</span></td>
+                <td>
+                    <a href="{{ url_for('admin.edit_criteria', year=item.fiscal_year) }}" class="btn-view"
+                        style="text-decoration: none; padding: 5px 10px; font-size: 14px; border-radius: 4px;">
+                        <i class="fas fa-edit"></i> แก้ไข
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3" class="text-center p-[30px] text-[#999]">ไม่พบข้อมูลเกณฑ์</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

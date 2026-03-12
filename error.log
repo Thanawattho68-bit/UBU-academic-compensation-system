@@ -1,0 +1,880 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+CssSyntaxError: D:\STUDY\Code\project y1\UBU-academic-compensation-system\static\input.css:371:1: Unexpected }
+    at Input.error (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\input.js:135:16)
+    at Parser.unexpectedClose (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\parser.js:587:22)
+    at Parser.end (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\parser.js:330:12)
+    at Parser.parse (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\parser.js:456:16)
+    at parse (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\parse.js:11:12)
+    at new LazyResult (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\lazy-result.js:165:16)
+    at Processor.process (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\processor.js:53:14)
+    at D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\cli\build\plugin.js:290:50
+    at async build (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\cli\build\index.js:49:9) {
+  reason: 'Unexpected }',
+  file: 'D:\\STUDY\\Code\\project y1\\UBU-academic-compensation-system\\static\\input.css',
+  source: '@tailwind base;\r\n' +
+    '@tailwind components;\r\n' +
+    '@tailwind utilities;\r\n' +
+    '/* Global Styles & Variables */\r\n' +
+    ':root {\r\n' +
+    '  /* Brand Colors */\r\n' +
+    '  --primary-color: #1e293b;\r\n' +
+    '  --secondary-color: #475569;\r\n' +
+    '  --accent-color: #3b82f6;\r\n' +
+    '  --accent-hover: #2563eb;\r\n' +
+    '\r\n' +
+    '  /* Semantic Colors - Consolidated */\r\n' +
+    '  --success-color: #10b981; /* Green */\r\n' +
+    '  --warning-color: #f59e0b; /* Amber/Orange */\r\n' +
+    '  --danger-color: #ef4444; /* Red */\r\n' +
+    '  --neutral-color: #94a3b8; /* Gray */\r\n' +
+    '  --info-color: #3b82f6; /* Blue */\r\n' +
+    '\r\n' +
+    '  /* UI Surface Colors */\r\n' +
+    '  --text-color: #1e293b;\r\n' +
+    '  --bg-color: #f8fafc;\r\n' +
+    '  --card-bg: #ffffff;\r\n' +
+    '  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);\r\n' +
+    '  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\r\n' +
+    '  --font-heading: "Sarabun", sans-serif;\r\n' +
+    '  --font-body: "Sarabun", sans-serif;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '* {\r\n' +
+    '  margin: 0;\r\n' +
+    '  padding: 0;\r\n' +
+    '  box-sizing: border-box;\r\n' +
+    '  font-family: var(--font-body);\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    'body {\r\n' +
+    '  background-color: var(--bg-color);\r\n' +
+    '  color: var(--text-color);\r\n' +
+    '  line-height: 1.6;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '/* Hide Number Input Spinners */\r\n' +
+    'input::-webkit-outer-spin-button,\r\n' +
+    'input::-webkit-inner-spin-button {\r\n' +
+    '  -webkit-appearance: none;\r\n' +
+    '  appearance: none;\r\n' +
+    '  margin: 0;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    'input[type="number"] {\r\n' +
+    '  -moz-appearance: textfield;\r\n' +
+    '  appearance: textfield;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '/* Layout */\r\n' +
+    '.dashboard-wrapper {\r\n' +
+    '  display: flex;\r\n' +
+    '  min-height: 100vh;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '\r\n' +
+    '/* Main Content Styles */\r\n' +
+    '.main-content {\r\n' +
+    '  flex: 1;\r\n' +
+    '  margin-left: 260px;\r\n' +
+    '  display: flex;\r\n' +
+    '  flex-direction: column;\r\n' +
+    '  min-width: 0;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '.top-bar {\r\n' +
+    '  background-color: var(--card-bg);\r\n' +
+    '  height: 70px;\r\n' +
+    '  display: flex;\r\n' +
+    '  align-items: center;\r\n' +
+    '  justify-content: flex-end;\r\n' +
+    '  padding: 0 40px;\r\n' +
+    '  box-shadow: var(--shadow-sm);\r\n' +
+    '  z-index: 10;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '.user-profile {\r\n' +
+    '  display: flex;\r\n' +
+    '  align-items: center;\r\n' +
+    '  gap: 10px;\r\n' +
+    '  font-size: 0.95rem;\r\n' +
+    '  color: var(--secondary-color);\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '.user-profile i {\r\n' +
+    '  font-size: 1.5rem;\r\n' +
+    '  color: #95a5a6;\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '.content-area {\r\n' +
+    '  padding: 30px 40px;\r\n' +
+    '  flex: 1;\r\n' +
+    '  background-color: #e0e0e0;\r\n' +
+    '  min-height: calc(100vh - 70px);\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer components {\r\n' +
+    '  /* Containers & Cards */\r\n' +
+    '  .form-container,\r\n' +
+    '  .table-container,\r\n' +
+    '  .welcome-card,\r\n' +
+    '  .welcome-banner,\r\n' +
+    '  .status-banner {\r\n' +
+    '    @apply bg-ubu-card p-[25px] rounded-xl shadow-sm mb-[25px] border border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .welcome-banner {\r\n' +
+    '    @apply bg-gradient-to-br from-white to-[#f8f9fa];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .welcome-banner h2 {\r\n' +
+    '    @apply text-ubu-primary mb-[5px] font-bold;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .welcome-banner p {\r\n' +
+    '    @apply text-[#7f8c8d];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Table Styles */\r\n' +
+    '  .styled-table {\r\n' +
+    '    @apply w-full border-separate border-spacing-0;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table th,\r\n' +
+    '  .styled-table td {\r\n' +
+    '    @apply p-[16px_20px] text-left border-b border-[#eee] align-top;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table th {\r\n' +
+    '    @apply bg-[#f8f9fa] text-[#5d6d7e] font-semibold text-[0.9rem] uppercase tracking-[0.5px] border-t border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table th:first-child {\r\n' +
+    '    @apply rounded-tl-lg border-l border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table th:last-child {\r\n' +
+    '    @apply rounded-tr-lg border-r border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table td:first-child {\r\n' +
+    '    @apply border-l border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table td:last-child {\r\n' +
+    '    @apply border-r border-[#eee];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table tbody tr {\r\n' +
+    '    @apply transition-colors duration-200;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table tbody tr:hover {\r\n' +
+    '    @apply bg-[#f1f8ff];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .styled-table tbody tr:nth-of-type(even) {\r\n' +
+    '    @apply bg-[#fafbfd];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .table-item-list {\r\n' +
+    '    @apply pl-[20px] m-0 list-disc;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .table-item-list li {\r\n' +
+    '    @apply mb-2 leading-snug font-medium;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .table-item-list.score-list li {\r\n' +
+    '    @apply font-bold list-none;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '\r\n' +
+    '  /* Buttons Base & Modifiers */\r\n' +
+    '  .btn-primary,\r\n' +
+    '  .btn-secondary,\r\n' +
+    '  .btn-success,\r\n' +
+    '  .btn-danger,\r\n' +
+    '  .btn-warning,\r\n' +
+    '  .btn-view {\r\n' +
+    '    @apply px-[20px] py-[10px] border-none rounded-md cursor-pointer font-semibold text-[0.9rem] transition-all duration-200 no-underline inline-flex items-center justify-center gap-2 shadow-sm;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-primary {\r\n' +
+    '    @apply bg-ubu-accent text-white hover:bg-ubu-accent-hover hover:-translate-y-[1px] hover:shadow-md;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-secondary {\r\n' +
+    '    @apply bg-ubu-neutral text-white hover:bg-ubu-secondary hover:-translate-y-[1px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-success {\r\n' +
+    '    @apply bg-ubu-success text-white hover:bg-[#059669] hover:-translate-y-[1px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-danger {\r\n' +
+    '    @apply bg-ubu-danger text-white hover:bg-[#dc2626] hover:-translate-y-[1px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-warning {\r\n' +
+    '    @apply bg-ubu-warning text-white hover:bg-[#d97706] hover:-translate-y-[1px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .btn-view {\r\n' +
+    '    @apply bg-white text-ubu-secondary border border-[#dcdcdc] px-[10px] py-[6px] min-w-[36px] h-[34px] hover:bg-ubu-accent hover:text-white hover:border-ubu-accent;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Status Tags & Semantic Styling */\r\n' +
+    '  .status-tag {\r\n' +
+    '    @apply px-[14px] py-[6px] rounded-full text-[0.75rem] font-bold whitespace-nowrap inline-flex items-center gap-[5px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Success Group */\r\n' +
+    '  .status-tag.status-อนุมัติ,\r\n' +
+    '  .status-tag.status-ผลงานผ่าน,\r\n' +
+    '  .status-tag.status-ผ่าน,\r\n' +
+    '  .status-tag.pass,\r\n' +
+    '  .status-banner.status-อนุมัติ,\r\n' +
+    '  .status-banner.status-ผลงานผ่าน,\r\n' +
+    '  .status-banner.status-ผ่าน,\r\n' +
+    '  .status-banner.pass {\r\n' +
+    '    @apply bg-ubu-success text-white border border-ubu-success;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-tag.status-อนุมัติ::before {\r\n' +
+    '    content: "\\f00c";\r\n' +
+    '    font-family: "Font Awesome 5 Free";\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Danger Group */\r\n' +
+    '  .status-tag.status-ไม่อนุมัติ,\r\n' +
+    '  .status-tag.status-ผลงานซ้ำซ้อน,\r\n' +
+    '  .status-tag.status-ซ้ำซ้อนบางส่วน,\r\n' +
+    '  .status-tag.fail,\r\n' +
+    '  .status-tag.status-ยกเลิก,\r\n' +
+    '  .status-banner.status-ไม่อนุมัติ,\r\n' +
+    '  .status-banner.status-ผลงานซ้ำซ้อน,\r\n' +
+    '  .status-banner.fail,\r\n' +
+    '  .status-banner.status-ยกเลิก {\r\n' +
+    '    @apply bg-ubu-danger text-white border border-ubu-danger;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-tag.status-ไม่อนุมัติ::before,\r\n' +
+    '  .status-tag.status-ผลงานซ้ำซ้อน::before,\r\n' +
+    '  .status-tag.status-ซ้ำซ้อนบางส่วน::before,\r\n' +
+    '  .status-tag.status-อนุมัติบางส่วน::before {\r\n' +
+    '    content: "\\f00d";\r\n' +
+    '    font-family: "Font Awesome 5 Free";\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Warning Group */\r\n' +
+    '  .status-tag.status-รอตรวจสอบผลงาน,\r\n' +
+    '  .status-tag.status-รอการพิจารณา,\r\n' +
+    '  .status-tag.status-รอการอุทธรณ์,\r\n' +
+    '  .status-tag.status-รอตรวจประวัติการยื่นขอ,\r\n' +
+    '  .status-tag.status-แก้ไข,\r\n' +
+    '  .status-tag.pending,\r\n' +
+    '  .status-tag.status-อนุมัติบางส่วน,\r\n' +
+    '  .status-banner.status-รอการพิจารณา,\r\n' +
+    '  .status-banner.status-รอตรวจสอบผลงาน,\r\n' +
+    '  .status-banner.status-รอการอุทธรณ์,\r\n' +
+    '  .status-banner.status-รอตรวจประวัติการยื่นขอ,\r\n' +
+    '  .status-banner.status-แก้ไข,\r\n' +
+    '  .status-banner.status-ซ้ำซ้อนบางส่วน,\r\n' +
+    '  .status-banner.status-อนุมัติบางส่วน,\r\n' +
+    '  .status-banner.status-partial-warning,\r\n' +
+    '  .status-banner.pending {\r\n' +
+    '    @apply bg-ubu-warning text-white border border-ubu-warning;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Neutral Group (Submitted & Draft) */\r\n' +
+    '  .status-tag.status-ส่งแล้ว,\r\n' +
+    '  .status-tag.status-แบบร่าง,\r\n' +
+    '  .status-banner.status-ส่งแล้ว,\r\n' +
+    '  .status-banner.status-แบบร่าง {\r\n' +
+    '    @apply bg-ubu-neutral text-white border border-ubu-neutral;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-tag.status-แบบร่าง {\r\n' +
+    '    @apply italic opacity-80;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-tag.status-ยกเลิก {\r\n' +
+    '    @apply line-through;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Form Styles */\r\n' +
+    '  .form-group {\r\n' +
+    '    @apply mb-[20px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .form-group label {\r\n' +
+    '    @apply block mb-[8px] font-semibold text-[#2c3e50];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .form-group input:not([type="checkbox"]):not([type="radio"]),\r\n' +
+    '  .form-group select,\r\n' +
+    '  .form-group textarea {\r\n' +
+    '    @apply w-full p-[12px] border border-[#ddd] rounded-md text-[1rem] transition-colors focus:border-ubu-accent focus:outline-none focus:ring-[3px] focus:ring-[#3498db]/10;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .checkbox-group div,\r\n' +
+    '  .checkbox-item {\r\n' +
+    '    @apply flex items-start gap-[10px] mb-[8px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .checkbox-group input[type="checkbox"],\r\n' +
+    '  .checkbox-group input[type="radio"],\r\n' +
+    '  .checkbox-item input[type="checkbox"],\r\n' +
+    '  .checkbox-item input[type="radio"] {\r\n' +
+    '    @apply w-auto mt-[5px] shrink-0;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .checkbox-group label,\r\n' +
+    '  .checkbox-item label {\r\n' +
+    '    @apply inline font-normal;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Modals & Alerts */\r\n' +
+    '  .modal-content {\r\n' +
+    '    @apply bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .alert {\r\n' +
+    '    @apply p-[15px] rounded-lg mb-[20px] border border-transparent;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .alert-info {\r\n' +
+    '    @apply bg-ubu-accent text-white border-ubu-accent-hover;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .alert-success {\r\n' +
+    '    @apply bg-ubu-success text-white border-ubu-success;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .alert-danger {\r\n' +
+    '    @apply bg-ubu-danger text-white border-ubu-danger;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .alert-warning {\r\n' +
+    '    @apply bg-ubu-warning text-ubu-primary border-ubu-warning;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  input[readonly],\r\n' +
+    '  select[disabled] {\r\n' +
+    '    @apply bg-[#f8f9fa] cursor-not-allowed text-[#7f8c8d];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  /* Status Banners Detail */\r\n' +
+    '  .status-banner {\r\n' +
+    '    @apply text-center text-white drop-shadow-sm;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-banner h2 {\r\n' +
+    '    @apply m-0 text-white;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .status-banner.status-edit {\r\n' +
+    '    @apply bg-[#e67e22];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .no-margin {\r\n' +
+    '    @apply !m-0;\r\n' +
+    '  }\r\n' +
+    '} /* End of top @layer components */\r\n' +
+    '\r\n' +
+    '@layer utilities {\r\n' +
+    '  .flex-center {\r\n' +
+    '    @apply flex items-center justify-center;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .flex-between {\r\n' +
+    '    @apply flex justify-between items-center;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .flex-end {\r\n' +
+    '    @apply flex justify-end items-center;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .gap-sm { @apply gap-2; }\r\n' +
+    '  .gap-md { @apply gap-4; }\r\n' +
+    '  .gap-lg { @apply gap-5; }\r\n' +
+    '\r\n' +
+    '  .text-center { @apply text-center; }\r\n' +
+    '  .text-muted { @apply text-[#64748b]; }\r\n' +
+    '  .text-sm { @apply text-[0.85rem]; }\r\n' +
+    '  .font-bold { @apply font-bold; }\r\n' +
+    '\r\n' +
+    '  .filtered-hidden {\r\n' +
+    '    @apply !hidden;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .hidden {\r\n' +
+    '    @apply hidden;\r\n' +
+    '  }\r\n' +
+    '}\r\n' +
+    '\r\n' +
+    '@layer components {\r\n' +
+    '  /* ──────────────────── Filter Bar ──────────────────── */\r\n' +
+    '  .filter-bar {\r\n' +
+    '    @apply mb-[20px] flex gap-[15px] flex-wrap items-end;\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .filter-bar label {\r\n' +
+    '    @apply block text-[0.85rem] text-[#64748b] mb-[5px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .filter-input {\r\n' +
+    '    @apply py-[8px] px-[10px] border border-[#e2e8f0] rounded-md text-[0.9rem];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .filter-input-search {\r\n' +
+    '    @apply py-[8px] px-[10px] pl-[35px] w-[200px];\r\n' +
+    '  }\r\n' +
+    '\r\n' +
+    '  .filter-select {\r\n' +
+    '    @apply p-[8px] border border-[#e2e8f0] rounded-md min-w-[150px] text-[0.9rem];\r\n' +
+    '  }\r\n' +
+    '\r\n'... 3552 more characters,
+  line: 371,
+  column: 1,
+  endLine: 371,
+  endColumn: 2,
+  input: {
+    column: 1,
+    endColumn: 2,
+    endLine: 371,
+    endOffset: 8834,
+    line: 371,
+    offset: 8833,
+    source: '@tailwind base;\r\n' +
+      '@tailwind components;\r\n' +
+      '@tailwind utilities;\r\n' +
+      '/* Global Styles & Variables */\r\n' +
+      ':root {\r\n' +
+      '  /* Brand Colors */\r\n' +
+      '  --primary-color: #1e293b;\r\n' +
+      '  --secondary-color: #475569;\r\n' +
+      '  --accent-color: #3b82f6;\r\n' +
+      '  --accent-hover: #2563eb;\r\n' +
+      '\r\n' +
+      '  /* Semantic Colors - Consolidated */\r\n' +
+      '  --success-color: #10b981; /* Green */\r\n' +
+      '  --warning-color: #f59e0b; /* Amber/Orange */\r\n' +
+      '  --danger-color: #ef4444; /* Red */\r\n' +
+      '  --neutral-color: #94a3b8; /* Gray */\r\n' +
+      '  --info-color: #3b82f6; /* Blue */\r\n' +
+      '\r\n' +
+      '  /* UI Surface Colors */\r\n' +
+      '  --text-color: #1e293b;\r\n' +
+      '  --bg-color: #f8fafc;\r\n' +
+      '  --card-bg: #ffffff;\r\n' +
+      '  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);\r\n' +
+      '  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);\r\n' +
+      '  --font-heading: "Sarabun", sans-serif;\r\n' +
+      '  --font-body: "Sarabun", sans-serif;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '* {\r\n' +
+      '  margin: 0;\r\n' +
+      '  padding: 0;\r\n' +
+      '  box-sizing: border-box;\r\n' +
+      '  font-family: var(--font-body);\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      'body {\r\n' +
+      '  background-color: var(--bg-color);\r\n' +
+      '  color: var(--text-color);\r\n' +
+      '  line-height: 1.6;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '/* Hide Number Input Spinners */\r\n' +
+      'input::-webkit-outer-spin-button,\r\n' +
+      'input::-webkit-inner-spin-button {\r\n' +
+      '  -webkit-appearance: none;\r\n' +
+      '  appearance: none;\r\n' +
+      '  margin: 0;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      'input[type="number"] {\r\n' +
+      '  -moz-appearance: textfield;\r\n' +
+      '  appearance: textfield;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '/* Layout */\r\n' +
+      '.dashboard-wrapper {\r\n' +
+      '  display: flex;\r\n' +
+      '  min-height: 100vh;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '\r\n' +
+      '/* Main Content Styles */\r\n' +
+      '.main-content {\r\n' +
+      '  flex: 1;\r\n' +
+      '  margin-left: 260px;\r\n' +
+      '  display: flex;\r\n' +
+      '  flex-direction: column;\r\n' +
+      '  min-width: 0;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '.top-bar {\r\n' +
+      '  background-color: var(--card-bg);\r\n' +
+      '  height: 70px;\r\n' +
+      '  display: flex;\r\n' +
+      '  align-items: center;\r\n' +
+      '  justify-content: flex-end;\r\n' +
+      '  padding: 0 40px;\r\n' +
+      '  box-shadow: var(--shadow-sm);\r\n' +
+      '  z-index: 10;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '.user-profile {\r\n' +
+      '  display: flex;\r\n' +
+      '  align-items: center;\r\n' +
+      '  gap: 10px;\r\n' +
+      '  font-size: 0.95rem;\r\n' +
+      '  color: var(--secondary-color);\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '.user-profile i {\r\n' +
+      '  font-size: 1.5rem;\r\n' +
+      '  color: #95a5a6;\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '.content-area {\r\n' +
+      '  padding: 30px 40px;\r\n' +
+      '  flex: 1;\r\n' +
+      '  background-color: #e0e0e0;\r\n' +
+      '  min-height: calc(100vh - 70px);\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '@layer components {\r\n' +
+      '  /* Containers & Cards */\r\n' +
+      '  .form-container,\r\n' +
+      '  .table-container,\r\n' +
+      '  .welcome-card,\r\n' +
+      '  .welcome-banner,\r\n' +
+      '  .status-banner {\r\n' +
+      '    @apply bg-ubu-card p-[25px] rounded-xl shadow-sm mb-[25px] border border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .welcome-banner {\r\n' +
+      '    @apply bg-gradient-to-br from-white to-[#f8f9fa];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .welcome-banner h2 {\r\n' +
+      '    @apply text-ubu-primary mb-[5px] font-bold;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .welcome-banner p {\r\n' +
+      '    @apply text-[#7f8c8d];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Table Styles */\r\n' +
+      '  .styled-table {\r\n' +
+      '    @apply w-full border-separate border-spacing-0;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table th,\r\n' +
+      '  .styled-table td {\r\n' +
+      '    @apply p-[16px_20px] text-left border-b border-[#eee] align-top;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table th {\r\n' +
+      '    @apply bg-[#f8f9fa] text-[#5d6d7e] font-semibold text-[0.9rem] uppercase tracking-[0.5px] border-t border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table th:first-child {\r\n' +
+      '    @apply rounded-tl-lg border-l border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table th:last-child {\r\n' +
+      '    @apply rounded-tr-lg border-r border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table td:first-child {\r\n' +
+      '    @apply border-l border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table td:last-child {\r\n' +
+      '    @apply border-r border-[#eee];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table tbody tr {\r\n' +
+      '    @apply transition-colors duration-200;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table tbody tr:hover {\r\n' +
+      '    @apply bg-[#f1f8ff];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .styled-table tbody tr:nth-of-type(even) {\r\n' +
+      '    @apply bg-[#fafbfd];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .table-item-list {\r\n' +
+      '    @apply pl-[20px] m-0 list-disc;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .table-item-list li {\r\n' +
+      '    @apply mb-2 leading-snug font-medium;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .table-item-list.score-list li {\r\n' +
+      '    @apply font-bold list-none;\r\n' +
+      '  }\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '\r\n' +
+      '  /* Buttons Base & Modifiers */\r\n' +
+      '  .btn-primary,\r\n' +
+      '  .btn-secondary,\r\n' +
+      '  .btn-success,\r\n' +
+      '  .btn-danger,\r\n' +
+      '  .btn-warning,\r\n' +
+      '  .btn-view {\r\n' +
+      '    @apply px-[20px] py-[10px] border-none rounded-md cursor-pointer font-semibold text-[0.9rem] transition-all duration-200 no-underline inline-flex items-center justify-center gap-2 shadow-sm;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-primary {\r\n' +
+      '    @apply bg-ubu-accent text-white hover:bg-ubu-accent-hover hover:-translate-y-[1px] hover:shadow-md;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-secondary {\r\n' +
+      '    @apply bg-ubu-neutral text-white hover:bg-ubu-secondary hover:-translate-y-[1px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-success {\r\n' +
+      '    @apply bg-ubu-success text-white hover:bg-[#059669] hover:-translate-y-[1px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-danger {\r\n' +
+      '    @apply bg-ubu-danger text-white hover:bg-[#dc2626] hover:-translate-y-[1px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-warning {\r\n' +
+      '    @apply bg-ubu-warning text-white hover:bg-[#d97706] hover:-translate-y-[1px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .btn-view {\r\n' +
+      '    @apply bg-white text-ubu-secondary border border-[#dcdcdc] px-[10px] py-[6px] min-w-[36px] h-[34px] hover:bg-ubu-accent hover:text-white hover:border-ubu-accent;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Status Tags & Semantic Styling */\r\n' +
+      '  .status-tag {\r\n' +
+      '    @apply px-[14px] py-[6px] rounded-full text-[0.75rem] font-bold whitespace-nowrap inline-flex items-center gap-[5px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Success Group */\r\n' +
+      '  .status-tag.status-อนุมัติ,\r\n' +
+      '  .status-tag.status-ผลงานผ่าน,\r\n' +
+      '  .status-tag.status-ผ่าน,\r\n' +
+      '  .status-tag.pass,\r\n' +
+      '  .status-banner.status-อนุมัติ,\r\n' +
+      '  .status-banner.status-ผลงานผ่าน,\r\n' +
+      '  .status-banner.status-ผ่าน,\r\n' +
+      '  .status-banner.pass {\r\n' +
+      '    @apply bg-ubu-success text-white border border-ubu-success;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-tag.status-อนุมัติ::before {\r\n' +
+      '    content: "\\f00c";\r\n' +
+      '    font-family: "Font Awesome 5 Free";\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Danger Group */\r\n' +
+      '  .status-tag.status-ไม่อนุมัติ,\r\n' +
+      '  .status-tag.status-ผลงานซ้ำซ้อน,\r\n' +
+      '  .status-tag.status-ซ้ำซ้อนบางส่วน,\r\n' +
+      '  .status-tag.fail,\r\n' +
+      '  .status-tag.status-ยกเลิก,\r\n' +
+      '  .status-banner.status-ไม่อนุมัติ,\r\n' +
+      '  .status-banner.status-ผลงานซ้ำซ้อน,\r\n' +
+      '  .status-banner.fail,\r\n' +
+      '  .status-banner.status-ยกเลิก {\r\n' +
+      '    @apply bg-ubu-danger text-white border border-ubu-danger;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-tag.status-ไม่อนุมัติ::before,\r\n' +
+      '  .status-tag.status-ผลงานซ้ำซ้อน::before,\r\n' +
+      '  .status-tag.status-ซ้ำซ้อนบางส่วน::before,\r\n' +
+      '  .status-tag.status-อนุมัติบางส่วน::before {\r\n' +
+      '    content: "\\f00d";\r\n' +
+      '    font-family: "Font Awesome 5 Free";\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Warning Group */\r\n' +
+      '  .status-tag.status-รอตรวจสอบผลงาน,\r\n' +
+      '  .status-tag.status-รอการพิจารณา,\r\n' +
+      '  .status-tag.status-รอการอุทธรณ์,\r\n' +
+      '  .status-tag.status-รอตรวจประวัติการยื่นขอ,\r\n' +
+      '  .status-tag.status-แก้ไข,\r\n' +
+      '  .status-tag.pending,\r\n' +
+      '  .status-tag.status-อนุมัติบางส่วน,\r\n' +
+      '  .status-banner.status-รอการพิจารณา,\r\n' +
+      '  .status-banner.status-รอตรวจสอบผลงาน,\r\n' +
+      '  .status-banner.status-รอการอุทธรณ์,\r\n' +
+      '  .status-banner.status-รอตรวจประวัติการยื่นขอ,\r\n' +
+      '  .status-banner.status-แก้ไข,\r\n' +
+      '  .status-banner.status-ซ้ำซ้อนบางส่วน,\r\n' +
+      '  .status-banner.status-อนุมัติบางส่วน,\r\n' +
+      '  .status-banner.status-partial-warning,\r\n' +
+      '  .status-banner.pending {\r\n' +
+      '    @apply bg-ubu-warning text-white border border-ubu-warning;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Neutral Group (Submitted & Draft) */\r\n' +
+      '  .status-tag.status-ส่งแล้ว,\r\n' +
+      '  .status-tag.status-แบบร่าง,\r\n' +
+      '  .status-banner.status-ส่งแล้ว,\r\n' +
+      '  .status-banner.status-แบบร่าง {\r\n' +
+      '    @apply bg-ubu-neutral text-white border border-ubu-neutral;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-tag.status-แบบร่าง {\r\n' +
+      '    @apply italic opacity-80;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-tag.status-ยกเลิก {\r\n' +
+      '    @apply line-through;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Form Styles */\r\n' +
+      '  .form-group {\r\n' +
+      '    @apply mb-[20px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .form-group label {\r\n' +
+      '    @apply block mb-[8px] font-semibold text-[#2c3e50];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .form-group input:not([type="checkbox"]):not([type="radio"]),\r\n' +
+      '  .form-group select,\r\n' +
+      '  .form-group textarea {\r\n' +
+      '    @apply w-full p-[12px] border border-[#ddd] rounded-md text-[1rem] transition-colors focus:border-ubu-accent focus:outline-none focus:ring-[3px] focus:ring-[#3498db]/10;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .checkbox-group div,\r\n' +
+      '  .checkbox-item {\r\n' +
+      '    @apply flex items-start gap-[10px] mb-[8px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .checkbox-group input[type="checkbox"],\r\n' +
+      '  .checkbox-group input[type="radio"],\r\n' +
+      '  .checkbox-item input[type="checkbox"],\r\n' +
+      '  .checkbox-item input[type="radio"] {\r\n' +
+      '    @apply w-auto mt-[5px] shrink-0;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .checkbox-group label,\r\n' +
+      '  .checkbox-item label {\r\n' +
+      '    @apply inline font-normal;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Modals & Alerts */\r\n' +
+      '  .modal-content {\r\n' +
+      '    @apply bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .alert {\r\n' +
+      '    @apply p-[15px] rounded-lg mb-[20px] border border-transparent;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .alert-info {\r\n' +
+      '    @apply bg-ubu-accent text-white border-ubu-accent-hover;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .alert-success {\r\n' +
+      '    @apply bg-ubu-success text-white border-ubu-success;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .alert-danger {\r\n' +
+      '    @apply bg-ubu-danger text-white border-ubu-danger;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .alert-warning {\r\n' +
+      '    @apply bg-ubu-warning text-ubu-primary border-ubu-warning;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  input[readonly],\r\n' +
+      '  select[disabled] {\r\n' +
+      '    @apply bg-[#f8f9fa] cursor-not-allowed text-[#7f8c8d];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  /* Status Banners Detail */\r\n' +
+      '  .status-banner {\r\n' +
+      '    @apply text-center text-white drop-shadow-sm;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-banner h2 {\r\n' +
+      '    @apply m-0 text-white;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .status-banner.status-edit {\r\n' +
+      '    @apply bg-[#e67e22];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .no-margin {\r\n' +
+      '    @apply !m-0;\r\n' +
+      '  }\r\n' +
+      '} /* End of top @layer components */\r\n' +
+      '\r\n' +
+      '@layer utilities {\r\n' +
+      '  .flex-center {\r\n' +
+      '    @apply flex items-center justify-center;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .flex-between {\r\n' +
+      '    @apply flex justify-between items-center;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .flex-end {\r\n' +
+      '    @apply flex justify-end items-center;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .gap-sm { @apply gap-2; }\r\n' +
+      '  .gap-md { @apply gap-4; }\r\n' +
+      '  .gap-lg { @apply gap-5; }\r\n' +
+      '\r\n' +
+      '  .text-center { @apply text-center; }\r\n' +
+      '  .text-muted { @apply text-[#64748b]; }\r\n' +
+      '  .text-sm { @apply text-[0.85rem]; }\r\n' +
+      '  .font-bold { @apply font-bold; }\r\n' +
+      '\r\n' +
+      '  .filtered-hidden {\r\n' +
+      '    @apply !hidden;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .hidden {\r\n' +
+      '    @apply hidden;\r\n' +
+      '  }\r\n' +
+      '}\r\n' +
+      '\r\n' +
+      '@layer components {\r\n' +
+      '  /* ──────────────────── Filter Bar ──────────────────── */\r\n' +
+      '  .filter-bar {\r\n' +
+      '    @apply mb-[20px] flex gap-[15px] flex-wrap items-end;\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .filter-bar label {\r\n' +
+      '    @apply block text-[0.85rem] text-[#64748b] mb-[5px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .filter-input {\r\n' +
+      '    @apply py-[8px] px-[10px] border border-[#e2e8f0] rounded-md text-[0.9rem];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .filter-input-search {\r\n' +
+      '    @apply py-[8px] px-[10px] pl-[35px] w-[200px];\r\n' +
+      '  }\r\n' +
+      '\r\n' +
+      '  .filter-select {\r\n' +
+      '    @apply p-[8px] border border-[#e2e8f0] rounded-md min-w-[150px] text-[0.9rem];\r\n' +
+      '  }\r\n' +
+      '\r\n'... 3552 more characters,
+    url: 'file:///D:/STUDY/Code/project%20y1/UBU-academic-compensation-system/static/input.css',
+    file: 'D:\\STUDY\\Code\\project y1\\UBU-academic-compensation-system\\static\\input.css'
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "name": "ubu-academic-compensation-system",
+  "version": "1.0.0",
+  "description": "ระบบสำหรับยื่นคำขอและพิจารณาค่าตอบแทนสำหรับผลงานทางวิชาการของบุคลากรในมหาวิทยาลัยอุบลราชธานี",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Thanawattho68-bit/UBU-academic-compensation-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Thanawattho68-bit/UBU-academic-compensation-system/issues"
+  },
+  "homepage": "https://github.com/Thanawattho68-bit/UBU-academic-compensation-system#readme",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

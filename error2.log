@@ -1,0 +1,16 @@
+Browserslist: caniuse-lite is outdated. Please run:
+  npx update-browserslist-db@latest
+  Why you should do it regularly: https://github.com/browserslist/update-db#readme
+
+Rebuilding...
+CssSyntaxError: tailwindcss: <css input>: You cannot `@apply` the `text-center` utility here because it creates a circular dependency.
+    at Rule.error (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\node.js:153:12)
+    at processApply (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:443:32)
+    at D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\lib\expandApplyAtRules.js:551:9
+    at D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\processTailwindFeatures.js:55:50
+    at async Object.Once (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\cli\build\plugin.js:248:17)
+    at async LazyResult.runAsync (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\postcss\lib\lazy-result.js:293:11)
+    at async build (D:\STUDY\Code\project y1\UBU-academic-compensation-system\node_modules\tailwindcss\lib\cli\build\index.js:49:9) {
+  reason: 'You cannot `@apply` the `text-center` utility here because it creates a circular dependency.',
+  plugin: 'tailwindcss'
+}

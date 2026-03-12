@@ -3,21 +3,19 @@
 {% block content %}
           {% if role == 'admin' %}
           <div class="table-container">
-            <h2 style="margin-bottom: 20px">
+            <h2 class="mb-[20px] text-xl font-semibold">
               <i class="fas fa-users-cog"></i> รายชื่อผู้ใช้ทั้งหมดในระบบ
             </h2>
-            <div style="margin-bottom: 15px; display: flex; gap: 10px">
+            <div class="mb-[15px] flex gap-[10px]">
               <button
                 onclick="toggleAllGroups(true)"
-                class="btn-secondary"
-                style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"
+                class="btn-view px-[12px] py-[5px] text-[0.85rem] bg-white border border-[#cbd5e1] text-[#64748b] hover:bg-gray-100"
               >
                 <i class="fas fa-expand-alt"></i> เปิดทั้งหมด
               </button>
               <button
                 onclick="toggleAllGroups(false)"
-                class="btn-secondary"
-                style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"
+                class="btn-view px-[12px] py-[5px] text-[0.85rem] bg-white border border-[#cbd5e1] text-[#64748b] hover:bg-gray-100"
               >
                 <i class="fas fa-compress-alt"></i> ปิดทั้งหมด
               </button>
@@ -44,24 +42,24 @@
                   {% if role_users %}
                   <tr
                     onclick="toggleUserGroup('group-{{ role_key }}')"
-                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
+                    class="bg-[#f1f5f9] cursor-pointer select-none"
                     title="คลิกเพื่อ ย่อ/ขยาย"
                   >
-                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
-                      <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down" style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
+                    <td colspan="5" class="p-[12px_15px] font-bold text-[#475569]">
+                      <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down mr-[10px] transition-transform duration-200 -rotate-90"></i>
                       สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
                     </td>
                   </tr>
                   {% for user in role_users %}
-                  <tr class="group-{{ role_key }}" style="display: none">
+                  <tr class="group-{{ role_key }} hidden">
                     <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
                     <td>{{ user.username }}</td>
                     <td>
                       {{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else (user.academic_position or '-') }}
                     </td>
                     <td>{{ user.faculty or '-' }}</td>
-                    <td style="text-align: center">
-                      <span class="status-tag" style="background: var(--bg-color); color: var(--secondary-color); border: 1px solid var(--neutral-color);">
+                    <td class="text-center">
+                      <span class="status-tag bg-ubu-bg text-ubu-secondary border border-ubu-neutral">
                         {{ user.role }}
                       </span>
                     </td>
@@ -84,76 +82,30 @@
           
           {% if role != 'admin' %}
           <div class="table-container">
-            <h2 style="margin-bottom: 20px">
+            <h2 class="mb-[20px] text-xl font-semibold">
               <i class="fas fa-file-alt"></i> คำขอ
             </h2>
-            <div
-              class="filter-bar-container"
-              style="
-                margin-bottom: 20px;
-                display: flex;
-                gap: 15px;
-                flex-wrap: wrap;
-                align-items: flex-end;
-              "
-            >
+            <div class="filter-bar">
               <div class="filter-group">
-                <label
-                  style="
-                    display: block;
-                    font-size: 0.85rem;
-                    color: #64748b;
-                    margin-bottom: 5px;
-                  "
-                  >ค้นหา</label
-                >
-                <div class="input-with-icon" style="position: relative">
-                  <i
-                    class="fas fa-search"
-                    style="
-                      position: absolute;
-                      left: 10px;
-                      top: 50%;
-                      transform: translateY(-50%);
-                      color: #94a3b8;
-                    "
-                  ></i>
+                <label>ค้นหา</label>
+                <div class="relative">
+                  <i class="fas fa-search absolute left-[10px] top-1/2 -translate-y-1/2 text-[#94a3b8]"></i>
                   <input
                     type="text"
                     id="searchInput"
                     onkeyup="filterTable()"
                     placeholder="ชื่อผู้ส่ง, คณะ..."
-                    style="
-                      padding: 8px 10px 8px 35px;
-                      border: 1px solid #e2e8f0;
-                      border-radius: 6px;
-                      width: 200px;
-                      font-size: 0.9rem;
-                    "
+                    class="filter-input-search border border-[#e2e8f0] rounded-md outline-none focus:border-ubu-accent focus:ring-2 focus:ring-[#3498db]/10 transition-colors"
                   />
                 </div>
               </div>
 
               <div class="filter-group">
-                <label
-                  style="
-                    display: block;
-                    font-size: 0.85rem;
-                    color: #64748b;
-                    margin-bottom: 5px;
-                  "
-                  >สถานะ</label
-                >
+                <label>สถานะ</label>
                 <select
                   id="statusFilter"
                   onchange="filterTable()"
-                  style="
-                    padding: 8px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    min-width: 150px;
-                    font-size: 0.9rem;
-                  "
+                  class="filter-select border border-[#e2e8f0] rounded-md outline-none focus:border-ubu-accent focus:ring-2 focus:ring-[#3498db]/10 transition-colors"
                 >
                   <option value="">ทั้งหมด</option>
                   {% if role == 'administration' %}
@@ -208,25 +160,11 @@
               </div>
 
               <div class="filter-group">
-                <label
-                  style="
-                    display: block;
-                    font-size: 0.85rem;
-                    color: #64748b;
-                    margin-bottom: 5px;
-                  "
-                  >ประเภทผลงาน</label
-                >
+                <label>ประเภทผลงาน</label>
                 <select
                   id="typeFilter"
                   onchange="filterTable()"
-                  style="
-                    padding: 8px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    min-width: 160px;
-                    font-size: 0.9rem;
-                  "
+                  class="filter-select border border-[#e2e8f0] rounded-md outline-none focus:border-ubu-accent focus:ring-2 focus:ring-[#3498db]/10 transition-colors"
                 >
                   <option value="">ทั้งหมด</option>
                   <option value="research">บทความงานวิจัย</option>
@@ -241,27 +179,13 @@
               </div>
 
               <div class="filter-group">
-                <label
-                  style="
-                    display: block;
-                    font-size: 0.85rem;
-                    color: #64748b;
-                    margin-bottom: 5px;
-                  "
-                  >ปีงบประมาณ</label
-                >
+                <label>ปีงบประมาณ</label>
                 <input
                   type="text"
                   id="fiscalFilter"
                   onkeyup="filterTable()"
                   placeholder="เช่น 2568"
-                  style="
-                    padding: 8px 10px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    width: 120px;
-                    font-size: 0.9rem;
-                  "
+                  class="filter-input w-[120px] outline-none focus:border-ubu-accent focus:ring-2 focus:ring-[#3498db]/10 transition-colors"
                 />
               </div>
             </div>
@@ -282,12 +206,12 @@
                   {% endif %} {% if role != 'research' %}
                   <th>ค่าตอบแทน</th>
                   {% endif %}
-                  <th onclick="sortTableByFiscal()" style="cursor: pointer">
+                  <th class="cursor-pointer" onclick="sortTableByFiscal()">
                     ปีงบประมาณ <i class="fas fa-sort"></i>
                   </th>
                   <th>วันที่ยื่น</th>
                   <th>สถานะ</th>
-                  <th style="text-align: center; width: 80px">จัดการ</th>
+                  <th class="text-center w-[80px]">จัดการ</th>
                 </tr>
               </thead>
               <tbody id="tableBody">
@@ -316,12 +240,11 @@
                   </td>
                   {% if role in ['applicant', 'administration'] %}
                   <td>
-                    {% if req.works %} {% set scoreColor = 'var(--danger-color)'
+                    {% if req.works %} {% set scoreColor = 'text-ubu-danger'
                     if req.status in ['ไม่อนุมัติ','รอการอุทธรณ์'] else
-                    'inherit' %}
+                    '' %}
                     <ul
-                      class="table-item-list score-list"
-                      style="color: {{ scoreColor if scoreColor else 'inherit' }};"
+                      class="table-item-list score-list {{ scoreColor }}"
                     >
                       {% for w in req.works %}
                       <li>
@@ -336,10 +259,10 @@
                   <td>
                     {% if req.approved_amount %} {% set amt =
                     (req.approved_amount)|float %} {% set color =
-                    'var(--danger-color)' if req.status in
-                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'var(--success-color)' %}
+                    'text-ubu-danger' if req.status in
+                    ['ไม่อนุมัติ','รอการอุทธรณ์'] else 'text-ubu-success' %}
                     <span
-                      style="color: {{ color if color else 'inherit' }}; font-weight: bold;"
+                      class="{{ color }} font-bold"
                     >
                       {{ "{:,.0f}".format(amt) if amt % 1 == 0 else
                       "{:,.2f}".format(amt) }} ฿</span
@@ -354,15 +277,8 @@
                       {{ req | rich_status_label(role) }}
                     </span>
                   </td>
-                  <td style="text-align: center">
-                    <div
-                      style="
-                        display: flex;
-                        gap: 8px;
-                        justify-content: center;
-                        align-items: center;
-                      "
-                    >
+                  <td class="text-center">
+                    <div class="flex gap-2 justify-center items-center">
                       {% if req.status == 'แบบร่าง' %}
                       <a
                         href="{{ url_for('requests.new_request', edit_id=req.id) }}"
@@ -391,13 +307,8 @@
                         <input type="hidden" name="action" value="cancel" />
                         <button
                           type="submit"
-                          class="btn-view"
+                          class="btn-view !text-[#dc3545] !border-[#fecaca] !bg-[#fff5f5] hover:!bg-[#fecaca]"
                           title="ยกเลิกคำขอ"
-                          style="
-                            color: #dc3545;
-                            border-color: #fecaca;
-                            background: #fff5f5;
-                          "
                           onclick="
                             return confirm(
                               'ยืนยันการยกเลิกคำขอนี้? (คุณสามารถยกเลิกได้ก่อนคำขอจะถูกส่งเข้าชุดพิจารณา)',
@@ -415,16 +326,10 @@
                 <tr id="noDataRow">
                   <td
                     colspan="{{ 7 if role == 'applicant' else (9 if role == 'administration' else 8) }}"
-                    style="text-align: center; padding: 30px"
+                    class="text-center p-[30px]"
                   >
                     <i
-                      class="fas fa-folder-open"
-                      style="
-                        font-size: 2rem;
-                        color: #ddd;
-                        display: block;
-                        margin-bottom: 10px;
-                      "
+                      class="fas fa-folder-open text-[2rem] text-[#ddd] block mb-[10px]"
                     ></i>
                     ไม่พบข้อมูลที่แสดงผลได้ในขณะนี้
                   </td>
@@ -432,36 +337,19 @@
                 {% endfor %}
               </tbody>
             </table>
-            <div
-              style="
-                margin-top: 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-              "
-            >
+            <div class="mt-[20px] flex justify-between items-center">
               <div id="paginationControls">
                 <!-- Buttons injected by JS -->
               </div>
-              <div style="display: flex; align-items: center; gap: 10px">
-                <label style="font-size: 0.85rem; color: #64748b"
-                  >แสดงผล:</label
-                >
+              <div class="flex items-center gap-[10px]">
+                <label class="text-[0.85rem] text-[#64748b]">แสดงผล:</label>
                 <select
                   id="rowsPerPage"
                   onchange="
                     currentPage = 1;
                     applyPagination();
                   "
-                  style="
-                    padding: 6px 12px;
-                    border: 1px solid #e2e8f0;
-                    border-radius: 6px;
-                    width: 130px;
-                    font-size: 0.9rem;
-                    background: white;
-                    cursor: pointer;
-                  "
+                  class="px-[12px] py-[6px] border border-[#e2e8f0] rounded-md w-[130px] text-[0.9rem] bg-white cursor-pointer outline-none focus:border-ubu-accent focus:ring-2 focus:ring-[#3498db]/10 transition-colors"
                 >
                   <option value="10">10 รายการ</option>
                   <option value="20">20 รายการ</option>

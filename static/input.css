@@ -1,0 +1,488 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/* Global Styles & Variables */
+:root {
+  /* Brand Colors */
+  --primary-color: #1e293b;
+  --secondary-color: #475569;
+  --accent-color: #3b82f6;
+  --accent-hover: #2563eb;
+
+  /* Semantic Colors - Consolidated */
+  --success-color: #10b981; /* Green */
+  --warning-color: #f59e0b; /* Amber/Orange */
+  --danger-color: #ef4444; /* Red */
+  --neutral-color: #94a3b8; /* Gray */
+  --info-color: #3b82f6; /* Blue */
+
+  /* UI Surface Colors */
+  --text-color: #1e293b;
+  --bg-color: #f8fafc;
+  --card-bg: #ffffff;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --font-heading: "Sarabun", sans-serif;
+  --font-body: "Sarabun", sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: var(--font-body);
+}
+
+body {
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  line-height: 1.6;
+}
+
+/* Hide Number Input Spinners */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+
+
+@layer components {
+  /* Containers & Cards */
+  .form-container,
+  .table-container,
+  .welcome-card,
+  .welcome-banner,
+  .status-banner {
+    @apply bg-ubu-card p-[25px] rounded-xl shadow-sm mb-[25px] border border-[#eee];
+  }
+
+  .welcome-banner {
+    @apply bg-gradient-to-br from-white to-[#f8f9fa];
+  }
+
+  .welcome-banner h2 {
+    @apply text-ubu-primary mb-[5px] font-bold;
+  }
+
+  .welcome-banner p {
+    @apply text-[#7f8c8d];
+  }
+
+  /* Table Styles */
+  .styled-table {
+    @apply w-full border-separate border-spacing-0;
+  }
+
+  .styled-table th,
+  .styled-table td {
+    @apply p-[16px_20px] text-left border-b border-[#eee] align-top;
+  }
+
+  .styled-table th {
+    @apply bg-[#f8f9fa] text-[#5d6d7e] font-semibold text-[0.9rem] uppercase tracking-[0.5px] border-t border-[#eee];
+  }
+
+  .styled-table th:first-child {
+    @apply rounded-tl-lg border-l border-[#eee];
+  }
+
+  .styled-table th:last-child {
+    @apply rounded-tr-lg border-r border-[#eee];
+  }
+
+  .styled-table td:first-child {
+    @apply border-l border-[#eee];
+  }
+
+  .styled-table td:last-child {
+    @apply border-r border-[#eee];
+  }
+
+  .styled-table tbody tr {
+    @apply transition-colors duration-200;
+  }
+
+  .styled-table tbody tr:hover {
+    @apply bg-[#f1f8ff];
+  }
+
+  .styled-table tbody tr:nth-of-type(even) {
+    @apply bg-[#fafbfd];
+  }
+
+  .table-item-list {
+    @apply pl-[20px] m-0 list-disc;
+  }
+
+  .table-item-list li {
+    @apply mb-2 leading-snug font-medium;
+  }
+
+  .table-item-list.score-list li {
+    @apply font-bold list-none;
+  }
+
+
+  /* Buttons Base & Modifiers */
+  .btn-primary,
+  .btn-secondary,
+  .btn-success,
+  .btn-danger,
+  .btn-warning,
+  .btn-view {
+    @apply px-[20px] py-[10px] border-none rounded-md cursor-pointer font-semibold text-[0.9rem] transition-all duration-200 no-underline inline-flex items-center justify-center gap-2 shadow-sm;
+  }
+
+  .btn-primary {
+    @apply bg-ubu-accent text-white hover:bg-ubu-accent-hover hover:-translate-y-[1px] hover:shadow-md;
+  }
+
+  .btn-secondary {
+    @apply bg-ubu-neutral text-white hover:bg-ubu-secondary hover:-translate-y-[1px];
+  }
+
+  .btn-success {
+    @apply bg-ubu-success text-white hover:bg-[#059669] hover:-translate-y-[1px];
+  }
+
+  .btn-danger {
+    @apply bg-ubu-danger text-white hover:bg-[#dc2626] hover:-translate-y-[1px];
+  }
+
+  .btn-warning {
+    @apply bg-ubu-warning text-white hover:bg-[#d97706] hover:-translate-y-[1px];
+  }
+
+  .btn-view {
+    @apply bg-white text-ubu-secondary border border-[#dcdcdc] px-[10px] py-[6px] min-w-[36px] h-[34px] hover:bg-ubu-accent hover:text-white hover:border-ubu-accent;
+  }
+
+  /* Status Tags & Semantic Styling */
+  .status-tag {
+    @apply px-[14px] py-[6px] rounded-full text-[0.75rem] font-bold whitespace-nowrap inline-flex items-center gap-[5px];
+  }
+
+  /* Success Group */
+  .status-tag.status-อนุมัติ,
+  .status-tag.status-ผลงานผ่าน,
+  .status-tag.status-ผ่าน,
+  .status-tag.pass,
+  .status-banner.status-อนุมัติ,
+  .status-banner.status-ผลงานผ่าน,
+  .status-banner.status-ผ่าน,
+  .status-banner.pass {
+    @apply bg-ubu-success text-white border border-ubu-success;
+  }
+
+  .status-tag.status-อนุมัติ::before {
+    content: "\f00c";
+    font-family: "Font Awesome 5 Free";
+  }
+
+  /* Danger Group */
+  .status-tag.status-ไม่อนุมัติ,
+  .status-tag.status-ผลงานซ้ำซ้อน,
+  .status-tag.status-ซ้ำซ้อนบางส่วน,
+  .status-tag.fail,
+  .status-tag.status-ยกเลิก,
+  .status-banner.status-ไม่อนุมัติ,
+  .status-banner.status-ผลงานซ้ำซ้อน,
+  .status-banner.fail,
+  .status-banner.status-ยกเลิก {
+    @apply bg-ubu-danger text-white border border-ubu-danger;
+  }
+
+  .status-tag.status-ไม่อนุมัติ::before,
+  .status-tag.status-ผลงานซ้ำซ้อน::before,
+  .status-tag.status-ซ้ำซ้อนบางส่วน::before,
+  .status-tag.status-อนุมัติบางส่วน::before {
+    content: "\f00d";
+    font-family: "Font Awesome 5 Free";
+  }
+
+  /* Warning Group */
+  .status-tag.status-รอตรวจสอบผลงาน,
+  .status-tag.status-รอการพิจารณา,
+  .status-tag.status-รอการอุทธรณ์,
+  .status-tag.status-รอตรวจประวัติการยื่นขอ,
+  .status-tag.status-แก้ไข,
+  .status-tag.pending,
+  .status-tag.status-อนุมัติบางส่วน,
+  .status-banner.status-รอการพิจารณา,
+  .status-banner.status-รอตรวจสอบผลงาน,
+  .status-banner.status-รอการอุทธรณ์,
+  .status-banner.status-รอตรวจประวัติการยื่นขอ,
+  .status-banner.status-แก้ไข,
+  .status-banner.status-ซ้ำซ้อนบางส่วน,
+  .status-banner.status-อนุมัติบางส่วน,
+  .status-banner.status-partial-warning,
+  .status-banner.pending {
+    @apply bg-ubu-warning text-white border border-ubu-warning;
+  }
+
+  /* Neutral Group (Submitted & Draft) */
+  .status-tag.status-ส่งแล้ว,
+  .status-tag.status-แบบร่าง,
+  .status-banner.status-ส่งแล้ว,
+  .status-banner.status-แบบร่าง {
+    @apply bg-ubu-neutral text-white border border-ubu-neutral;
+  }
+
+  .status-tag.status-แบบร่าง {
+    @apply italic opacity-80;
+  }
+
+  .status-tag.status-ยกเลิก {
+    @apply line-through;
+  }
+
+  /* Form Styles */
+  .form-group {
+    @apply mb-[20px];
+  }
+
+  .form-group label {
+    @apply block mb-[8px] font-semibold text-[#2c3e50];
+  }
+
+  .form-group input:not([type="checkbox"]):not([type="radio"]),
+  .form-group select,
+  .form-group textarea {
+    @apply w-full p-[12px] border border-[#ddd] rounded-md text-[1rem] transition-colors focus:border-ubu-accent focus:outline-none focus:ring-[3px] focus:ring-[#3498db]/10;
+  }
+
+  .checkbox-group div,
+  .checkbox-item {
+    @apply flex items-start gap-[10px] mb-[8px];
+  }
+
+  .checkbox-group input[type="checkbox"],
+  .checkbox-group input[type="radio"],
+  .checkbox-item input[type="checkbox"],
+  .checkbox-item input[type="radio"] {
+    @apply w-auto mt-[5px] shrink-0;
+  }
+
+  .checkbox-group label,
+  .checkbox-item label {
+    @apply inline font-normal;
+  }
+
+  /* Modals & Alerts */
+  .modal-content {
+    @apply bg-white rounded-xl shadow-[0_10px_30px_rgba(0,0,0,0.2)];
+  }
+
+  .alert {
+    @apply p-[15px] rounded-lg mb-[20px] border border-transparent;
+  }
+
+  .alert-info {
+    @apply bg-ubu-accent text-white border-ubu-accent-hover;
+  }
+
+  .alert-success {
+    @apply bg-ubu-success text-white border-ubu-success;
+  }
+
+  .alert-danger {
+    @apply bg-ubu-danger text-white border-ubu-danger;
+  }
+
+  .alert-warning {
+    @apply bg-ubu-warning text-ubu-primary border-ubu-warning;
+  }
+
+  input[readonly],
+  select[disabled] {
+    @apply bg-[#f8f9fa] cursor-not-allowed text-[#7f8c8d];
+  }
+
+  /* Status Banners Detail */
+  .status-banner {
+    @apply text-center text-white drop-shadow-sm;
+  }
+
+  .status-banner h2 {
+    @apply m-0 text-white;
+  }
+
+  .status-banner.status-edit {
+    @apply bg-[#e67e22];
+  }
+
+  .no-margin {
+    @apply !m-0;
+  }
+} /* End of top @layer components */
+
+@layer utilities {
+  .flex-center {
+    @apply flex items-center justify-center;
+  }
+
+  .flex-between {
+    @apply flex justify-between items-center;
+  }
+
+  .flex-end {
+    @apply flex justify-end items-center;
+  }
+
+  .gap-sm { @apply gap-2; }
+  .gap-md { @apply gap-4; }
+  .gap-lg { @apply gap-5; }
+
+  .text-muted { @apply text-[#64748b]; }
+
+  .filtered-hidden {
+    @apply !hidden;
+  }
+}
+
+
+@layer components {
+  /* ──────────────────── Filter Bar ──────────────────── */
+  .filter-bar {
+    @apply mb-[20px] flex gap-[15px] flex-wrap items-end;
+  }
+
+  .filter-bar label {
+    @apply block text-[0.85rem] text-[#64748b] mb-[5px];
+  }
+
+  .filter-input {
+    @apply py-[8px] px-[10px] border border-[#e2e8f0] rounded-md text-[0.9rem];
+  }
+
+  .filter-input-search {
+    @apply py-[8px] px-[10px] pl-[35px] w-[200px];
+  }
+
+  .filter-select {
+    @apply p-[8px] border border-[#e2e8f0] rounded-md min-w-[150px] text-[0.9rem];
+  }
+
+  /* ──────────────────── Form Actions ──────────────────── */
+  .form-actions {
+    @apply flex justify-center gap-[20px] mt-[30px];
+  }
+
+  /* ──────────────────── Section Headers ──────────────────── */
+  .section-header {
+    @apply mb-[20px] pb-[15px] border-b border-[#eee] text-[1.1rem] text-[#34495e];
+  }
+
+  .section-header i {
+    @apply mr-[10px] text-[#3498db];
+  }
+
+  /* ──────────────────── Draft Ownership Banners ──────────────────── */
+  .draft-banner-locked {
+    @apply bg-[#fff7ed] border border-[#ffedd5] p-[15px_25px] rounded-xl mb-[25px] flex items-center gap-[15px];
+  }
+
+  .draft-banner-active {
+    @apply bg-[#f0fdf4] border border-[#dcfce7] p-[15px_25px] rounded-xl mb-[25px] flex items-center gap-[15px];
+  }
+
+  .draft-icon {
+    @apply w-[40px] h-[40px] rounded-full flex items-center justify-center text-[1.2rem] text-white shrink-0;
+  }
+
+  .draft-icon-locked { @apply bg-[#fb923c]; }
+  .draft-icon-active { @apply bg-[#22c55e]; }
+
+  /* ──────────────────── Info/Appeal Boxes ──────────────────── */
+  .info-box {
+    @apply rounded-lg overflow-hidden mb-[15px];
+  }
+
+  .info-box-header {
+    @apply p-[10px_15px] font-semibold text-[0.9rem];
+  }
+
+  .info-box-body {
+    @apply p-[12px_15px] bg-white;
+  }
+
+  .info-box-blue {
+    @apply border border-[#bae6fd];
+  }
+
+  .info-box-blue .info-box-header {
+    @apply bg-[#f0f9ff] border-b border-[#bae6fd] text-[#0369a1];
+  }
+
+  .info-box-red {
+    @apply border border-[#fecaca];
+  }
+
+  .info-box-red .info-box-header {
+    @apply bg-[#fef2f2] border-b border-[#fecaca] text-[#b91c1c];
+  }
+
+  /* ──────────────────── Pagination ──────────────────── */
+  .pagination-wrapper {
+    @apply mt-[20px] flex justify-between items-center;
+  }
+
+  .pagination-select {
+    @apply p-[6px_12px] border border-[#e2e8f0] rounded-md w-[130px] text-[0.9rem] bg-white cursor-pointer;
+  }
+
+  /* ──────────────────── Table Responsive ──────────────────── */
+  .table-responsive-wrapper {
+    @apply overflow-x-auto;
+  }
+
+  /* ──────────────────── new_request.html Styles ──────────────────── */
+  .work-card {
+    @apply border border-[#ddd] rounded-lg p-[20px] mb-[20px] bg-white relative;
+  }
+
+  .status-comment-box[data-visible="false"] { @apply !hidden; }
+  .status-comment-box[data-visible="true"] { @apply !block; }
+  .sub-group-box[data-visible="false"] { @apply !hidden; }
+  .sub-group-box[data-visible="true"] { @apply !block; }
+
+  .work-card h4 {
+    @apply mt-0 text-[#2c3e50] border-b border-[#eee] pb-[10px] mb-[15px];
+  }
+
+  .remove-work-btn {
+    @apply absolute top-[20px] right-[20px] bg-ubu-danger text-white border-none p-[5px_10px] rounded cursor-pointer;
+  }
+
+  .sub-section {
+    @apply bg-[#f8f9fa] p-[15px] rounded-md mt-[10px];
+  }
+
+  .checkbox-group {
+    @apply flex flex-col gap-2;
+  }
+
+  /* Tooltip Styles */
+  .info-icon {
+    @apply inline-flex items-center justify-center w-[16px] h-[16px] bg-[#3498db] text-white rounded-full text-[11px] italic cursor-help ml-[5px] relative align-middle font-serif;
+  }
+
+  .info-icon:hover::after {
+    content: attr(data-tooltip);
+    @apply absolute bottom-[125%] left-1/2 -translate-x-1/2 bg-[#2c3e50] text-white py-2 px-3 rounded-md text-[13px] not-italic w-[280px] z-[1001] whitespace-normal shadow-md leading-snug font-sans;
+  }
+
+  .info-icon:hover::before {
+    content: "";
+    @apply absolute bottom-[110%] left-1/2 -translate-x-1/2 border-[8px] border-transparent border-t-[#2c3e50] z-[1001];
+  }
+}
+

@@ -18,28 +18,20 @@
     {% block extra_head %}{% endblock %}
   </head>
 
-  <body>
-    <div class="dashboard-wrapper">
+  <body class="bg-ubu-bg text-ubu-primary font-sans leading-relaxed">
+    <div class="flex min-h-screen">
       {% include 'sidebar.html' %}
-
-      <main class="main-content">
-        <header
-          class="top-bar"
-          style="
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 0 40px;
-          "
-        >
-          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
+      
+      <main class="flex-1 ml-[260px] flex flex-col min-w-0">
+        <header class="bg-white h-[70px] flex items-center justify-end px-[40px] shadow-sm z-10 transition-all duration-300">
+          <div class="text-[1.1rem] text-[#64748b] font-medium flex items-center gap-2.5">
             {% block top_bar_content %}
             <i class="fas fa-home"></i> หน้าหลัก
             {% endblock %}
           </div>
         </header>
 
-        <section class="content-area">
+        <section class="flex-1 p-[30px_40px] bg-[#e0e0e0] min-h-[calc(100vh-70px)]">
           {% block content %}{% endblock %}
         </section>
       </main>
