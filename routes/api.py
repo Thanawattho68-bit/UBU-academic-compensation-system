@@ -3,7 +3,7 @@ routes/api.py
 จัดการ API routes และการให้บริการไฟล์ที่อัปโหลด
 ผู้รับผิดชอบ:
   - นายกฤษดา ตะเคียนเกลี้ยง 68114540065 (ตรวจสอบความซ้ำซ้อน)
-  - นายธนวรรธ ทองตื้อ 68114540258 (เพิ่ม/ลบประเภทผลงาน, อัปโหลดไฟล์)
+  - นายธนวรรธ ทองตื้อ 68114540258 (อัปโหลดไฟล์)
 """
 
 import os
@@ -85,48 +85,6 @@ def api_check_work_duplicate():
         "checked_date": checked_date
     })
 
-
-@api_bp.route('/api/add_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (เพิ่มประเภทผลงาน)
-def api_add_work_type():
-    if 'username' not in session:
-        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
-    
-    data = request.get_json()
-    label = data.get('label', '').strip()
-    if not label:
-        return jsonify({"success": False, "message": "กรุณาระบุชื่อประเภทผลงาน"})
-    
-    # Check for duplicate label in DB
-    existing = query_db('SELECT * FROM WorkType WHERE label = ?', (label,), one=True)
-    if existing:
-        return jsonify({"success": False, "message": "ประเภทผลงานนี้มีอยู่แล้วในระบบ"})
-    
-    # Generate unique ID
-    new_id = f"custom_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-    execute_db('INSERT INTO WorkType (id, label, is_custom) VALUES (?, ?, ?)', (new_id, label, 1))
-    
-    return jsonify({"success": True, "type": {"id": new_id, "label": label, "is_custom": True}})
-
-
-@api_bp.route('/api/delete_work_type', methods=['POST']) # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (ลบประเภทผลงาน)
-def api_delete_work_type():
-    if 'username' not in session:
-        return jsonify({"success": False, "message": "กรุณาเข้าสู่ระบบ"}), 401
-    
-    data = request.get_json()
-    type_id = data.get('id', '')
-    
-    target = query_db('SELECT * FROM WorkType WHERE id = ?', (type_id,), one=True)
-    
-    if not target:
-        return jsonify({"success": False, "message": "ไม่พบประเภทผลงานที่ต้องการลบ"})
-    
-    if not target['is_custom']:
-        return jsonify({"success": False, "message": "ไม่สามารถลบประเภทผลงานหลักของระบบได้"})
-    
-    execute_db('DELETE FROM WorkType WHERE id = ?', (type_id,))
-    
-    return jsonify({"success": True})
 
 
 @api_bp.route('/uploads/<req_id>/<work_id>/<filename>') # ผู้รับผิดชอบ: นายธนวรรธ ทองตื้อ 68114540258 (อัปโหลดไฟล์)

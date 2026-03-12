@@ -905,3 +905,106 @@ select[disabled] {
 .filtered-hidden {
   display: none !important;
 }
+
+/* ──────────────────── new_request.html Styles ──────────────────── */
+
+.work-card {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  background: #fff;
+  position: relative;
+}
+
+.status-comment-box[data-visible="false"] { display: none !important; }
+.status-comment-box[data-visible="true"] { display: block !important; }
+.sub-group-box[data-visible="false"] { display: none !important; }
+.sub-group-box[data-visible="true"] { display: block !important; }
+
+.work-card h4 {
+  margin-top: 0;
+  color: #2c3e50;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 15px;
+}
+
+.remove-work-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.hidden {
+  display: none;
+}
+
+.sub-section {
+  background: #f8f9fa;
+  padding: 15px;
+  border-radius: 6px;
+  margin-top: 10px;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Tooltip Styles */
+.info-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  background: #3498db;
+  color: white;
+  border-radius: 50%;
+  font-size: 11px;
+  font-style: italic;
+  cursor: help;
+  margin-left: 5px;
+  position: relative;
+  vertical-align: middle;
+  font-family: serif;
+}
+
+.info-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2c3e50;
+  color: white;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-style: normal;
+  width: 280px;
+  z-index: 1001;
+  white-space: normal;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  line-height: 1.4;
+  font-family: "Sarabun", sans-serif;
+}
+
+.info-icon:hover::before {
+  content: "";
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 8px solid transparent;
+  border-top-color: #2c3e50;
+  z-index: 1001;
+}
