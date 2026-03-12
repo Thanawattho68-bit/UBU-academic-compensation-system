@@ -39,7 +39,6 @@ from routes import auth_bp, main_bp, requests_bp, admin_bp, api_bp
 app.register_blueprint(auth_bp)
 app.register_blueprint(main_bp)
 app.register_blueprint(requests_bp)
-# app.register_blueprint(rounds_bp) # Remove Batching
 app.register_blueprint(admin_bp)
 app.register_blueprint(api_bp)
 
