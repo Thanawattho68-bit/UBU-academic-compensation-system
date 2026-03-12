@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}ระบบค่าตอบแทน - {{ name }}{% endblock %}
 {% block content %}
-          {# Removed Committee Batch Section #} {% if role == 'admin' %}
+          {% if role == 'admin' %}
           <div class="table-container">
             <h2 style="margin-bottom: 20px">
               <i class="fas fa-users-cog"></i> รายชื่อผู้ใช้ทั้งหมดในระบบ
@@ -10,26 +10,14 @@
               <button
                 onclick="toggleAllGroups(true)"
                 class="btn-secondary"
-                style="
-                  padding: 5px 12px;
-                  font-size: 0.85rem;
-                  background: #fff;
-                  border: 1px solid #cbd5e1;
-                  color: #64748b;
-                "
+                style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"
               >
                 <i class="fas fa-expand-alt"></i> เปิดทั้งหมด
               </button>
               <button
                 onclick="toggleAllGroups(false)"
                 class="btn-secondary"
-                style="
-                  padding: 5px 12px;
-                  font-size: 0.85rem;
-                  background: #fff;
-                  border: 1px solid #cbd5e1;
-                  color: #64748b;
-                "
+                style="padding: 5px 12px; font-size: 0.85rem; background: #fff; border: 1px solid #cbd5e1; color: #64748b;"
               >
                 <i class="fas fa-compress-alt"></i> ปิดทั้งหมด
               </button>
@@ -46,74 +34,44 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {% set groups = users | groupby('role') %} {# Define order for
-                  roles #} {% set role_order = ['admin', 'administration',
-                  'research', 'committee', 'applicant'] %} {% for role_key in
-                  role_order %} {% set role_users = [] %} {% for user in users
-                  if user.role == role_key %} {% if role_users.append(user) %}{%
-                  endif %} {% endfor %} {% if role_users %}
+                  {% set groups = users | groupby('role') %} 
+                  {% set role_order = ['admin', 'administration', 'research', 'committee', 'applicant'] %} 
+                  {% for role_key in role_order %} 
+                  {% set role_users = [] %} 
+                  {% for user in users if user.role == role_key %} 
+                  {% if role_users.append(user) %}{% endif %} 
+                  {% endfor %} 
+                  {% if role_users %}
                   <tr
                     onclick="toggleUserGroup('group-{{ role_key }}')"
-                    style="
-                      background: #f1f5f9;
-                      cursor: pointer;
-                      user-select: none;
-                    "
+                    style="background: #f1f5f9; cursor: pointer; user-select: none;"
                     title="คลิกเพื่อ ย่อ/ขยาย"
                   >
-                    <td
-                      colspan="5"
-                      style="
-                        padding: 12px 15px;
-                        font-weight: bold;
-                        color: #475569;
-                      "
-                    >
-                      <i
-                        id="icon-group-{{ role_key }}"
-                        class="fas fa-chevron-down"
-                        style="
-                          margin-right: 10px;
-                          transition: transform 0.2s;
-                          transform: rotate(-90deg);
-                        "
-                      ></i>
-                      สิทธิ์การใช้งาน: {{ role_key | upper }} ({{
-                      role_users|length }} รายชื่อ)
+                    <td colspan="5" style="padding: 12px 15px; font-weight: bold; color: #475569;">
+                      <i id="icon-group-{{ role_key }}" class="fas fa-chevron-down" style="margin-right: 10px; transition: transform 0.2s; transform: rotate(-90deg);"></i>
+                      สิทธิ์การใช้งาน: {{ role_key | upper }} ({{ role_users|length }} รายชื่อ)
                     </td>
                   </tr>
                   {% for user in role_users %}
                   <tr class="group-{{ role_key }}" style="display: none">
-                    <td>
-                      <strong>{{ user.title_name }}{{ user.name }}</strong>
-                    </td>
+                    <td><strong>{{ user.title_name }}{{ user.name }}</strong></td>
                     <td>{{ user.username }}</td>
                     <td>
-                      {{ user.academic_position | join(' / ') if
-                      user.academic_position is iterable and
-                      user.academic_position is not string else
-                      (user.academic_position or '-') }}
+                      {{ user.academic_position | join(' / ') if user.academic_position is iterable and user.academic_position is not string else (user.academic_position or '-') }}
                     </td>
                     <td>{{ user.faculty or '-' }}</td>
                     <td style="text-align: center">
-                      <span
-                        class="status-tag"
-                        style="
-                          background: var(--bg-color);
-                          color: var(--secondary-color);
-                          border: 1px solid var(--neutral-color);
-                        "
-                      >
+                      <span class="status-tag" style="background: var(--bg-color); color: var(--secondary-color); border: 1px solid var(--neutral-color);">
                         {{ user.role }}
                       </span>
                     </td>
                   </tr>
-                  {% endfor %} {% endif %} {% endfor %} {% if not users %}
+                  {% endfor %} 
+                  {% endif %} 
+                  {% endfor %} 
+                  {% if not users %}
                   <tr>
-                    <td
-                      colspan="5"
-                      style="text-align: center; padding: 30px; color: #999"
-                    >
+                    <td colspan="5" style="text-align: center; padding: 30px; color: #999">
                       ไม่พบข้อมูลผู้ใช้
                     </td>
                   </tr>
@@ -122,7 +80,9 @@
               </table>
             </div>
           </div>
-          {% endif %} {% if role != 'admin' %}
+          {% endif %}
+          
+          {% if role != 'admin' %}
           <div class="table-container">
             <h2 style="margin-bottom: 20px">
               <i class="fas fa-file-alt"></i> คำขอ

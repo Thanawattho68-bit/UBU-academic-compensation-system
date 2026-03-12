@@ -62,7 +62,6 @@ def dashboard():
                            role=role, 
                            position=session.get('position',''), 
                            requests=display_reqs, 
-                           batches=[], # Remove batches
                            pending_reqs=pending_reqs, 
                            users=all_users)
 
