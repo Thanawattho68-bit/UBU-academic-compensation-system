@@ -9,15 +9,16 @@ routes/requests.py
 
 import json
 import os
+import shutil
 from datetime import datetime
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, current_app
 from werkzeug.utils import secure_filename
 from database import query_db, execute_db
 from utils import (
-    load_data, load_config, save_data,
     to_thai_year, format_thai_date,
     is_within_timeline, get_remaining_days, get_current_fiscal_year,
     allowed_file, create_notification, calculate_compensation,
+    deserialize_request, parse_academic_position,
 )
 
 requests_bp = Blueprint('requests', __name__)
@@ -49,12 +50,7 @@ def view_work(req_id, work_index):
     row = query_db('SELECT * FROM RequestRecord WHERE id = ?', (req_id,), one=True)
     if not row:
         return "Request not found", 404
-    req = dict(row)
-    req['works'] = json.loads(req['works_json']) if req.get('works_json') else []
-    req['applicant_info'] = json.loads(req['applicant_info_json']) if req.get('applicant_info_json') else {}
-    req['applicant'] = req['applicant_username'] # Compatibility
-    req['date'] = req['date_submitted']
-    req['score'] = req['total_score']
+    req = deserialize_request(row)
     
     if request.method == 'POST':
         if session['role'] != 'administration':
@@ -119,14 +115,8 @@ def new_request():
         criteria_list.append(d)
         
     user_profile = dict(query_db('SELECT * FROM Account WHERE username = ?', (session['username'],), one=True) or {})
-    if user_profile and user_profile.get('academic_position'):
-        try:
-            user_profile['academic_position'] = json.loads(user_profile['academic_position'])
-            if not isinstance(user_profile['academic_position'], list):
-                user_profile['academic_position'] = [user_profile['academic_position']]
-        except (json.JSONDecodeError, TypeError):
-            # If not a JSON list, handle as single string
-            pass
+    if user_profile:
+        user_profile['academic_position'] = parse_academic_position(user_profile.get('academic_position'))
 
     work_types = [dict(wt) for wt in query_db('SELECT * FROM WorkType')]
 
@@ -136,10 +126,7 @@ def new_request():
     if edit_id:
         row = query_db('SELECT * FROM RequestRecord WHERE id = ? AND applicant_username = ?', (edit_id, session['username']), one=True)
         if row:
-            edit_req = dict(row)
-            edit_req['applicant'] = edit_req['applicant_username'] # Compatibility
-            edit_req['works'] = json.loads(edit_req['works_json']) if edit_req['works_json'] else []
-            edit_req['applicant_info'] = json.loads(edit_req['applicant_info_json']) if edit_req['applicant_info_json'] else {}
+            edit_req = deserialize_request(row)
     else:
         # Enforce one submission per year rule
         existing_req = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ? AND fiscal_year = ?', (session['username'], str(fiscal_year)), one=True)
@@ -240,7 +227,7 @@ def view_request(req_id):
     req_data['date'] = req_data['date_submitted']
     
     # Recalculate score and amount for the current state (especially for draft mode)
-    from utils import calculate_compensation
+    # calculate_compensation already imported at top of file
     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
     req_data['score'] = s
     req_data['total_score'] = s
@@ -427,15 +414,13 @@ def view_request(req_id):
                     # Store decision comment
                     decision_comment = request.form.get(f'appeal_decision_comment_{idx}', '').strip()
                     if is_approve:
-                        # Clear comments/appeals if approved
-                        req_data['works'][idx]['comment'] = ""
                         req_data['works'][idx]['appeal_decision_comment'] = ""
                     else:
                         # Store as dedicated appeal decision comment
                         if decision_comment:
                             req_data['works'][idx]['appeal_decision_comment'] = decision_comment
                         else:
-                            req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                            req_data['works'][idx]['appeal_decision_comment'] = "" # Removed default value
                     
                     s, c = calculate_compensation(req_data['works'], req_data['applicant_info'].get('academic_position', ''), req_data.get('fiscal_year'))
                     execute_db('UPDATE RequestRecord SET works_draft_json = ?, draft_owner = ? WHERE id = ?', (json.dumps(req_data['works'], ensure_ascii=False), session['username'], req_id))
@@ -465,10 +450,9 @@ def view_request(req_id):
                                 if appeal_decision:
                                     req_data['works'][idx]['appeal_decision_comment'] = appeal_decision
                                 elif not req_data['works'][idx].get('appeal_decision_comment'):
-                                    req_data['works'][idx]['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                                    req_data['works'][idx]['appeal_decision_comment'] = "" # Changed from "ไม่รับอุทธรณ์"
                         else:
-                            # Clear comments if approved
-                            req_data['works'][idx]['comment'] = ""
+                            # Clear only appeal decision comment if approved
                             req_data['works'][idx]['appeal_decision_comment'] = ""
                 
                 # Just save the works state and stay (DRAFT only, owned by current user)
@@ -491,7 +475,7 @@ def view_request(req_id):
                 for idx, w in enumerate(req_data['works']):
                     if w.get('status') == 'อนุมัติ':
                         any_approved = True
-                        w['comment'] = "" # Ensure approved items have no rejection comments
+                        w['appeal_decision_comment'] = "" # Clear appeal decision if approved
                     elif w.get('status') == 'ไม่อนุมัติ':
                         # Try to get per-item comment
                         per_item_comment = request.form.get(f'work_comment_{idx}', '').strip()
@@ -503,7 +487,7 @@ def view_request(req_id):
                             if appeal_decision:
                                 w['appeal_decision_comment'] = appeal_decision
                             elif not w.get('appeal_decision_comment'):
-                                w['appeal_decision_comment'] = "ไม่รับอุทธรณ์"
+                                w['appeal_decision_comment'] = ""
 
                 # Overall request status
                 non_duplicate_works = [w for w in req_data['works'] if w.get('status') != 'ผลงานซ้ำซ้อน']

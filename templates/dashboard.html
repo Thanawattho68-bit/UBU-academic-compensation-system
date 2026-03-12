@@ -1,42 +1,6 @@
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <title>ระบบค่าตอบแทน - {{ name }}</title>
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
-    />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-
-  <body>
-    <div class="dashboard-wrapper">
-      {% include 'sidebar.html' %}
-
-      <main class="main-content">
-        <header
-          class="top-bar"
-          style="
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            padding: 0 40px;
-          "
-        >
-          <div style="font-size: 1.1rem; color: #64748b; font-weight: 500">
-            <i class="fas fa-home"></i> หน้าหลัก
-          </div>
-        </header>
-
-        <section class="content-area">
+{% extends 'base.html' %}
+{% block title %}ระบบค่าตอบแทน - {{ name }}{% endblock %}
+{% block content %}
           {# Removed Committee Batch Section #} {% if role == 'admin' %}
           <div class="table-container">
             <h2 style="margin-bottom: 20px">
@@ -551,6 +515,14 @@
           </div>
           {% endif %}
 
+          <style>
+            .filtered-hidden {
+              display: none !important;
+            }
+          </style>
+{% endblock %}
+
+{% block extra_scripts %}
           <script>
             function toggleUserGroup(groupClass) {
               const rows = document.querySelectorAll("." + groupClass);
@@ -594,7 +566,6 @@
               rows.forEach((row) => {
                 var showRow = true;
 
-                // 1. Fiscal Year Filter
                 if (fiscalFilter) {
                   var rowFy = row.getAttribute("data-fy");
                   if (rowFy.indexOf(fiscalFilter) === -1) {
@@ -607,7 +578,6 @@
                   if (rowStatus !== statusFilter) showRow = false;
                 }
 
-                // 2. Type Filter (Check data-types)
                 if (showRow && typeFilter) {
                   var rowTypes = row.getAttribute("data-types");
                   if (!rowTypes || !rowTypes.includes(typeFilter)) {
@@ -615,7 +585,6 @@
                   }
                 }
 
-                // 3. Search Text (Sender, Faculty ...)
                 if (showRow && searchInput) {
                   var rowText = row.innerText.toLowerCase();
                   if (rowText.indexOf(searchInput) === -1) {
@@ -639,7 +608,6 @@
               const tbody = table.querySelector("tbody");
               const rows = Array.from(tbody.querySelectorAll(".item-row"));
 
-              // Toggle sort order
               currentSortOrder = currentSortOrder === "asc" ? "desc" : "asc";
 
               rows.sort((a, b) => {
@@ -650,14 +618,12 @@
                   return currentSortOrder === "asc" ? fyA - fyB : fyB - fyA;
                 }
 
-                // If years are same, sort by date: "DD/MM/YYYY HH:MM"
                 const dateA = a.getAttribute("data-date") || "";
                 const dateB = b.getAttribute("data-date") || "";
 
                 const toTimestamp = (s) => {
-                  const parts = s.split(/[\/\s:]/); // [DD, MM, YYYY, HH, MM]
+                  const parts = s.split(/[\/\s:]/);
                   if (parts.length < 5) return s;
-                  // Return YYYYMMDDHHMM for string comparison
                   return parts[2] + parts[1] + parts[0] + parts[3] + parts[4];
                 };
 
@@ -668,21 +634,17 @@
                 else return valB.localeCompare(valA);
               });
 
-              // Append in new order
               rows.forEach((row) => tbody.appendChild(row));
 
-              // Also reset pagination to page 1 just in case
               currentPage = 1;
               applyPagination();
             }
 
             function applyPagination() {
-              // Ensure rowsPerPage element exists, if not default to 20 or remove reference
               const rppEl = document.getElementById("rowsPerPage");
               const rowsPerPage = rppEl ? parseInt(rppEl.value) : 1000;
 
               const allRows = document.querySelectorAll(".item-row");
-              // Only consider rows that are NOT filtered hidden
               const visibleRows = Array.from(allRows).filter(
                 (r) => !r.classList.contains("filtered-hidden"),
               );
@@ -693,7 +655,6 @@
               if (rowsPerPage >= 1000) {
                 visibleRows.forEach((r) => (r.style.display = ""));
                 if (paginationControls) paginationControls.innerHTML = "";
-                // Hide hidden rows
                 allRows.forEach((r) => {
                   if (r.classList.contains("filtered-hidden"))
                     r.style.display = "none";
@@ -708,15 +669,12 @@
               const start = (currentPage - 1) * rowsPerPage;
               const end = start + rowsPerPage;
 
-              // First hide all item rows
               allRows.forEach((r) => (r.style.display = "none"));
 
-              // Show visible slice
               visibleRows
                 .slice(start, end)
                 .forEach((r) => (r.style.display = ""));
 
-              // Show "No Data" if 0 visible
               const noDataRow = document.getElementById("noDataRow");
               if (visibleRows.length === 0) {
                 if (noDataRow) noDataRow.style.display = "";
@@ -724,7 +682,6 @@
                 if (noDataRow) noDataRow.style.display = "none";
               }
 
-              // Update Controls
               if (paginationControls) {
                 let controlsHtml = "";
                 if (totalPages > 1) {
@@ -741,21 +698,8 @@
               applyPagination();
             }
 
-            // Init
             window.onload = function () {
-              // Trigger sort initial
               sortTableByFiscal();
-              // applyBatchPagination(); (Removed undefined call)
             };
           </script>
-          <style>
-            .filtered-hidden {
-              display: none !important;
-            }
-          </style>
-        </section>
-      </main>
-    </div>
-    <script src="{{ url_for('static', filename='notifications.js') }}"></script>
-  </body>
-</html>
+{% endblock %}

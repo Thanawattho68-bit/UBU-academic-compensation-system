@@ -89,8 +89,6 @@ python app.py
 ### 2. นายธนวรรธ ทองตื้อ 68114540258 (Blueprint: `requests`, `api`)
 
 - `@requests_bp.route('/new_request')` - ระบบยื่นคำขอใหม่ (Smart Form Implementation)
-- `@api_bp.route('/api/add_work_type')` - ระบบ API เพิ่มประเภทผลงานทางวิชาการแบบกำหนดเอง
-- `@api_bp.route('/api/delete_work_type')` - ระบบ API ลบประเภทผลงาน (เฉพาะรายการที่สร้างใหม่)
 - `@api_bp.route('/uploads/...')` - ระบบให้บริการไฟล์เอกสารหลักฐาน (Secure File Hosting)
 
 ### 3. นายศุกลวัฒณ์ ไกรษี 68114540629 (Blueprint: `requests`)
