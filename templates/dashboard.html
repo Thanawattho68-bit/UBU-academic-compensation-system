@@ -184,12 +184,20 @@
                   <option value="ผลงานซ้ำซ้อน">ผลงานเคยถูกใช้แล้ว</option>
                   <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
 
-                  {% elif role == 'research' %}
-                  <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ</option>
-                  <option value="ผลงานผ่าน">ไม่เคยใช้</option>
-                  <option value="ผลงานซ้ำซ้อน">เคยใช้แล้ว</option>
-                  <option value="ซ้ำซ้อนบางส่วน">ซ้ำซ้อนบางส่วน</option>
+                   {% elif role == 'research' %}
+                  <option value="รอตรวจประวัติการยื่นขอ">รอตรวจสอบ (งานปัจจุบัน)</option>
+                  <option value="ผลงานผ่าน">ตรวจสอบแล้ว: ไม่เคยใช้</option>
+                  <option value="ผลงานซ้ำซ้อน">ตรวจสอบแล้ว: เคยใช้แล้ว</option>
+                  <option value="ซ้ำซ้อนบางส่วน">ตรวจสอบแล้ว: ซ้ำซ้อนบางส่วน</option>
+                  <option value="อนุมัติ">พิจารณาแล้ว: อนุมัติ</option>
+                  <option value="ไม่อนุมัติ">พิจารณาแล้ว: ไม่อนุมัติ</option>
 
+                  {% elif role == 'committee' %}
+                  <option value="รอการพิจารณา">รอการพิจารณา</option>
+                  <option value="รอการอุทธรณ์">รอการอุทธรณ์</option>
+                  <option value="อนุมัติ">อนุมัติ</option>
+                  <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                  <option value="อนุมัติบางส่วน">อนุมัติบางส่วน</option>
                   {% else %}
                   <option value="ส่งแล้ว">ส่งแล้ว</option>
                   <option value="รอตรวจประวัติการยื่นขอ">
