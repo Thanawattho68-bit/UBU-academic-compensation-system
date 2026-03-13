@@ -401,6 +401,50 @@
             if (work) {
                 work.data[key] = value;
                 calculateEstimates();
+                
+                // Trigger duplicate check when title changes
+                if (key === 'title') {
+                    checkDuplicateWork(id, work.data.title);
+                }
+            }
+        }
+
+        async function checkDuplicateWork(id, title) {
+            if (!title) return;
+            
+            const work = works.find(w => String(w.id) === String(id));
+            const datePublish = work && work.data ? work.data.date_publish : '';
+            const reqIdInput = document.querySelector('input[name="req_id"]');
+            const reqId = reqIdInput ? reqIdInput.value : '';
+
+            try {
+                const response = await fetch('/api/check_work_duplicate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ title, date_publish: datePublish, req_id: reqId })
+                });
+                const result = await response.json();
+                
+                const warningEl = document.getElementById(`duplicate-warning-${id}`);
+                if (result.success && (result.is_duplicate || result.shared_details.length > 0)) {
+                    let msg = 'ตรวจพบผลงานที่อาจซ้ำซ้อน: ';
+                    let details = [];
+                    if (result.is_duplicate) {
+                        details.push('ท่านเคยยื่นผลงานที่มีชื่อเดียวกันนี้ในรอบปี ' + (result.self_duplicate_details[0].fiscal_year || '-'));
+                    }
+                    if (result.shared_details.length > 0) {
+                        details.push('พบผลงานชื่อเดียวกันยื่นโดยผู้อื่น (' + result.shared_details.length + ' รายการ)');
+                    }
+                    
+                    if (warningEl) {
+                        warningEl.innerHTML = `<strong>${msg}</strong><ul style="margin: 5px 0 0 15px; padding: 0;">${details.map(d => `<li>${d}</li>`).join('')}</ul>`;
+                        warningEl.style.display = 'block';
+                    }
+                } else {
+                    if (warningEl) warningEl.style.display = 'none';
+                }
+            } catch (e) {
+                console.error("Error checking duplicate", e);
             }
         }
 
@@ -636,6 +680,8 @@
                                 status: w.status,
                                 comment: w.comment
                             });
+                            // Trigger duplicate check for existing works
+                            checkDuplicateWork(w.details.id, w.details.title);
                         });
                     }
                 } catch (e) {
