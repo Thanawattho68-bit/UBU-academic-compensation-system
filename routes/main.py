@@ -35,8 +35,8 @@ def dashboard():
     # ดึงข้อมูลคำขอจาก database โดยกรองตามสิทธิ์การใช้งาน
     if role == 'applicant':
         rows = query_db('SELECT * FROM RequestRecord WHERE applicant_username = ?', (username,))
-    elif role == 'administration':
-        # สำหรับเจ้าหน้าที่ ให้เห็นคำขอทั้งหมดที่ไม่ใช่แบบร่าง
+    elif role == 'administration' or role == 'admin':
+        # สำหรับเจ้าหน้าที่และผู้ดูแลระบบ ให้เห็นคำขอทั้งหมดที่ไม่ใช่แบบร่าง
         rows = query_db('SELECT * FROM RequestRecord WHERE status != ?', ('แบบร่าง',))
     elif role == 'research':
         # สำหรับงานวิจัย ให้เห็นงานที่รอตรวจ และงานที่เคยตรวจแล้วเพื่อใช้ดูเป็นประวัติ
