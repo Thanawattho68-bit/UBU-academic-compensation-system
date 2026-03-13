@@ -197,7 +197,13 @@ def new_request():
         flash("บันทึกข้อมูลเรียบร้อยแล้ว")
         return redirect(url_for('main.dashboard'))
     
-    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria_list, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year, can_submit=can_submit, work_types=work_types)
+    # Get Timeline Start Date for age calculation
+    timeline_config = query_db('SELECT start_date FROM TimelineConfig WHERE fiscal_year = ?', (str(fiscal_year),), one=True)
+    if not timeline_config:
+        timeline_config = query_db('SELECT start_date FROM TimelineConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+    timeline_start = timeline_config['start_date'] if timeline_config else None
+
+    return render_template('new_request.html', name=session['name'], role=session['role'], position=session.get('position',''), criteria=criteria_list, user=user_profile, edit_req=edit_req, fiscal_year=fiscal_year, can_submit=can_submit, work_types=work_types, timeline_start=timeline_start)
 
 
 @requests_bp.route('/view_request/<req_id>', methods=['GET', 'POST']) # ผู้รับผิดชอบ: นายศุกลวัฒณ์ ไกรษี 68114540629 (ตรวจสอบคำขอ)

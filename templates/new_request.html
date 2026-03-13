@@ -347,16 +347,53 @@
             calculateEstimates();
         }
 
+        const TIMELINE_START = "{{ timeline_start or '' }}";
+
         function checkPublishDate(id, dateValue) {
             if (dateValue) {
-                const selected = new Date(dateValue);
-                const now = new Date();
-                const diffDays = Math.floor((now - selected) / (1000 * 60 * 60 * 24));
-                if (diffDays > 730) { // 730 days = 2 years
-                    alert('⚠️ ผลงานที่เผยแพร่เกิน 2 ปีแล้ว (ผลงานชิ้นนี้เผยแพร่มาแล้ว ' + diffDays + ' วัน) ไม่สามารถนำมาขอรับค่าตอบแทนได้');
+                const selected = parseThaiDate(dateValue);
+                if (!selected) return;
+
+                // ใช้วันที่เปิดโครงการเป็นเกณฑ์ ถ้าไม่มีให้ใช้วันปัจจุบัน
+                let refDate = new Date();
+                if (TIMELINE_START) {
+                    const parsedRef = parseThaiDate(TIMELINE_START);
+                    if (parsedRef) refDate = parsedRef;
+                }
+
+                // คำนวณอายุปี (ใช้ Logic เดียวกับ Backend)
+                let ageYears = refDate.getFullYear() - selected.getFullYear();
+                let isOld = false;
+
+                if (ageYears > 2) {
+                    isOld = true;
+                } else if (ageYears === 2) {
+                    if (refDate.getMonth() < selected.getMonth() || (refDate.getMonth() === selected.getMonth() && refDate.getDate() < selected.getDate())) {
+                        isOld = false;
+                    } else {
+                        isOld = true;
+                    }
+                }
+
+                if (isOld) {
+                    alert('⚠️ ผลงานนี้เผยแพร่เกิน 2 ปีแล้วตามเกณฑ์ปีงบประมาณ ' + REQ_FY + '\n(วันที่พิจารณาตามเกณฑ์: ' + (TIMELINE_START || 'วันนี้') + ')\n\nผลงานชิ้นนี้อาจไม่ผ่านการพิจารณา กรุณาตรวจสอบระเบียบอีกครั้ง');
                 }
             }
             updateWork(id, 'date_publish', dateValue);
+        }
+
+        function parseThaiDate(s) {
+            if (!s) return null;
+            // Handle YYYY-MM-DD
+            if (s.includes('-')) return new Date(s);
+            // Handle DD/MM/YYYY
+            const parts = s.split('/');
+            if (parts.length === 3) {
+                let y = parseInt(parts[2]);
+                if (y > 2400) y -= 543;
+                return new Date(y, parseInt(parts[1]) - 1, parseInt(parts[0]));
+            }
+            return null;
         }
 
         function updateWork(id, key, value) {

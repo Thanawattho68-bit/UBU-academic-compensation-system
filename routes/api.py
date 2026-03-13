@@ -65,12 +65,22 @@ def api_check_work_duplicate():
         dt_pub = parse_thai_date(date_publish_str)
         if dt_pub:
             checked_date = True
-            now = datetime.now()
-            age_years = now.year - dt_pub.year
+            
+            # ใช้วันที่เปิดรับคำขอเป็นเกณฑ์ (ถ้ามี) ถ้าไม่มีให้ใช้วันที่ปัจจุบัน
+            ref_date = datetime.now()
+            if current_req and current_req.get('fiscal_year'):
+                timeline = query_db('SELECT start_date FROM TimelineConfig WHERE fiscal_year = ?', (str(current_req['fiscal_year']),), one=True)
+                if timeline and timeline['start_date']:
+                    dt_ref = parse_thai_date(timeline['start_date'])
+                    if dt_ref:
+                        ref_date = dt_ref
+
+            age_years = ref_date.year - dt_pub.year
             if age_years > 2:
                 is_old = True
             elif age_years == 2:
-                if now.month < dt_pub.month or (now.month == dt_pub.month and now.day < dt_pub.day):
+                # ถ้าห่างกัน 2 ปีพอดี ให้เช็คเดือนและวันที่ของเกณฑ์ตั้งต้น
+                if ref_date.month < dt_pub.month or (ref_date.month == dt_pub.month and ref_date.day < dt_pub.day):
                     pass
                 else:
                     is_old = True
