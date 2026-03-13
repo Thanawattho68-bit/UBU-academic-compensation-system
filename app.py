@@ -46,7 +46,7 @@ app.register_blueprint(api_bp)
 # Context Processor (ตัวแปรที่ใช้ร่วมกันทุก template)
 # ──────────────────────────────────────────────
 from datetime import datetime
-from utils import is_within_timeline, get_current_fiscal_year, parse_thai_date, format_thai_date
+from utils import is_within_timeline, get_current_fiscal_year, parse_thai_date, format_thai_date, parse_academic_position
 
 @app.context_processor
 def inject_timeline():
@@ -152,6 +152,12 @@ def translate_contribution(role):
         'co': 'ผู้ดำเนินการร่วม (Co-Author)'
     }
     return mapping.get(role, role)
+
+
+@app.template_filter('format_position')
+def format_position(pos_raw):
+    positions = parse_academic_position(pos_raw)
+    return "<br>".join(positions)
 
 # ──────────────────────────────────────────────
 # Error Handlers
