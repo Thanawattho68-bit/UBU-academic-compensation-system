@@ -298,7 +298,7 @@
                                             {{ req.status }}
                                         </span>
                                     </td>
-                                    <td style="text-align: center; font-weight: bold; color: var(--success-color);">
+                                    <td style="text-align: center; font-weight: bold; color: {{ 'var(--success-color)' if (req.approved_amount|float > 0) else 'var(--danger-color)' }};">
                                         {{ "{:,.2f}".format(req.approved_amount|float) if req.approved_amount else
                                         "0.00" }} ฿
                                     </td>
