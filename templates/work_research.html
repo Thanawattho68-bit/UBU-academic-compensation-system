@@ -31,8 +31,8 @@
             <div class="form-group"><label>พ.ศ.</label><input type="text" class="form-control" onchange="updateWork('{{ work.id }}', 'year_pub', this.value)" value="{{ work.year_pub|default('') }}"></div>
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-            <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="date" class="form-control" onchange="updateWork('{{ work.id }}', 'date_accept', this.value)" value="{{ work.date_accept|default('') }}"></div>
-            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}"></div>
+            <div class="form-group"><label>วันที่ตอบรับ (Accepted)</label><input type="text" class="form-control thai-datepicker" placeholder="เลือกวันที่" onchange="updateWork('{{ work.id }}', 'date_accept', this.value)" value="{{ work.date_accept|default('') }}"></div>
+            <div class="form-group"><label>วันที่เผยแพร่ (Published)</label><input type="text" class="form-control thai-datepicker" placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}"></div>
         </div>
 
         <div class="form-group" style="margin-top:15px;">

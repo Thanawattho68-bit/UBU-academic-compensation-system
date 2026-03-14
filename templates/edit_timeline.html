@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 </head>
 
 <body>
@@ -35,8 +38,28 @@
                     <form action="{{ url_for('admin.edit_timeline', year=year) }}" method="POST">
                         <div class="form-group">
                             <label>ปีงบประมาณ</label>
-                            <input type="text" name="fiscal_year" value="{{ timeline.fiscal_year if timeline else '' }}"
-                                placeholder="เช่น 2569" required {% if year !='new' %}readonly{% endif %}>
+                            {% if year != 'new' %}
+                            <input type="text" name="fiscal_year" value="{{ timeline.fiscal_year }}" readonly class="form-control" style="background-color: #e9ecef; cursor: not-allowed; width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;">
+                            {% else %}
+                            <select name="fiscal_year" id="fiscal_year_select" required style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: white; font-family: 'Sarabun', sans-serif;">
+                                <option value="">-- เลือกปีงบประมาณ --</option>
+                            </select>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const select = document.getElementById('fiscal_year_select');
+                                    if(select) {
+                                        const currentYearBE = new Date().getFullYear() + 543;
+                                        for (let i = 2560; i <= currentYearBE + 5; i++) {
+                                            const option = document.createElement('option');
+                                            option.value = i;
+                                            option.text = i;
+                                            if (i === currentYearBE + 1) option.selected = true; // Default to next FY
+                                            select.appendChild(option);
+                                        }
+                                    }
+                                });
+                            </script>
+                            {% endif %}
                             <small style="color: #666;">* ระบุปีงบประมาณที่ต้องการกำหนดช่วงเวลา</small>
                         </div>
 
@@ -53,18 +76,12 @@
                             </h4>
                             <div style="margin-top: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                                 <div>
-                                    <label><i class="fas fa-play" style="color: var(--success-color);"></i> วันเริ่มต้น
-                                        (วว/ดด/ปป)</label>
-                                    <input type="text" name="start_date" id="main_start"
-                                        value="{{ timeline.start_date if timeline else '1/10' }}"
-                                        placeholder="เช่น 01/10/2569" required>
+                                    <label><i class="fas fa-play" style="color: var(--success-color);"></i> วันเริ่มต้น</label>
+                                    <input type="text" class="thai-datepicker" name="start_date" id="main_start" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required value="{{ timeline.start_date if timeline else '01/10/' ~ (timeline.fiscal_year|default(2569)) }}">
                                 </div>
                                 <div>
-                                    <label><i class="fas fa-stop" style="color: var(--danger-color);"></i> วันสิ้นสุด
-                                        (วว/ดด/ปป)</label>
-                                    <input type="text" name="end_date" id="main_end"
-                                        value="{{ timeline.end_date if timeline else '30/9' }}"
-                                        placeholder="เช่น 30/09/2570" required>
+                                    <label><i class="fas fa-stop" style="color: var(--danger-color);"></i> วันสิ้นสุด</label>
+                                    <input type="text" class="thai-datepicker" name="end_date" id="main_end" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" required value="{{ timeline.end_date if timeline else '30/09/' ~ (timeline.fiscal_year|default(2569)) }}">
                                 </div>
                             </div>
                         </div>
@@ -80,8 +97,8 @@
                                         <tr>
                                             <th style="text-align: left;">ชื่อรอบ</th>
                                             <th style="text-align: left;">ประเภท</th>
-                                            <th style="text-align: left;">เริ่มต้น (วว/ดด/ปป)</th>
-                                            <th style="text-align: left;">สิ้นสุด (วว/ดด/ปป)</th>
+                                            <th style="text-align: left;">วันเริ่มต้น</th>
+                                            <th style="text-align: left;">วันสิ้นสุด</th>
                                             <th style="width: 50px;"></th>
                                         </tr>
                                     </thead>
@@ -102,9 +119,62 @@
 
                             // Remove auto-migration legacy logic, since we have separate fields now.
 
+                            // Date helper functions for Flatpickr Thai B.E.
+                            function initThaiPickers() {
+                                flatpickr(".thai-datepicker", {
+                                    locale: "th",
+                                    dateFormat: "d/m/Y",
+                                    formatDate: function(date, format, locale) {
+                                        let d = ("0" + date.getDate()).slice(-2);
+                                        let m = ("0" + (date.getMonth() + 1)).slice(-2);
+                                        let y = date.getFullYear() + 543;
+                                        return `${d}/${m}/${y}`;
+                                    },
+                                    parseDate: function(dateStr, format) {
+                                        let parts = dateStr.split('/');
+                                        if (parts.length === 3) {
+                                            return new Date(parts[2] - 543, parts[1] - 1, parts[0]);
+                                        }
+                                        if (parts.length === 2) {
+                                            return new Date(new Date().getFullYear(), parts[1] - 1, parts[0]);
+                                        }
+                                        return new Date();
+                                    },
+                                    onReady: function(selectedDates, dateStr, instance) {
+                                        if(instance.currentYearElement) {
+                                            instance.currentYearElement.value = instance.currentYear + 543;
+                                            
+                                            // Handle manual year typing
+                                            instance.currentYearElement.addEventListener('change', function(e) {
+                                                let newYear = parseInt(e.target.value);
+                                                if (newYear > 2400) {
+                                                    instance.changeYear(newYear - 543);
+                                                }
+                                            });
+                                        }
+                                    },
+                                    onYearChange: function(selectedDates, dateStr, instance) {
+                                        if(instance.currentYearElement) {
+                                            instance.currentYearElement.value = instance.currentYear + 543;
+                                        }
+                                    },
+                                    onMonthChange: function(selectedDates, dateStr, instance) {
+                                        if(instance.currentYearElement) {
+                                            instance.currentYearElement.value = instance.currentYear + 543;
+                                        }
+                                    }
+                                });
+                            }
+
                             function setDefaultMainRound() {
-                                document.getElementById('main_start').value = '1/10';
-                                document.getElementById('main_end').value = '30/9';
+                                let fy_input = document.getElementsByName('fiscal_year')[0];
+                                let fy_val = fy_input ? parseInt(fy_input.value) : 0;
+                                let fy = fy_val || (new Date().getFullYear() + 543);
+                                document.getElementById('main_start').value = `01/10/${fy-1}`;
+                                document.getElementById('main_end').value = `30/09/${fy}`;
+                                
+                                // re-init flatpickr to refresh values
+                                initThaiPickers();
                             }
 
                             function renderRounds() {
@@ -121,8 +191,8 @@
                                                 <option value="consideration" ${r.type === 'consideration' ? 'selected' : ''}>พิจารณา/ปิดรับ (Consideration)</option>
                                             </select>
                                         </td>
-                                        <td><input type="text" class="form-control" value="${r.start_date || ''}" placeholder="01/10/2569" onchange="updateRound(${index}, 'start_date', this.value)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></td>
-                                        <td><input type="text" class="form-control" value="${r.end_date || ''}" placeholder="31/10/2569" onchange="updateRound(${index}, 'end_date', this.value)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;"></td>
+                                        <td><input type="text" class="form-control thai-datepicker" value="${r.start_date || ''}" onchange="updateRoundDate(${index}, 'start_date', this.value)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="เลือกวันที่"></td>
+                                        <td><input type="text" class="form-control thai-datepicker" value="${r.end_date || ''}" onchange="updateRoundDate(${index}, 'end_date', this.value)" style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" placeholder="เลือกวันที่"></td>
                                         <td style="text-align: center;">
                                             <button type="button" onclick="removeRound(${index})" style="background: none; border: none; color: #dc3545; cursor: pointer;">
                                                 <i class="fas fa-trash"></i>
@@ -131,6 +201,15 @@
                                     `;
                                     tbody.appendChild(row);
                                 });
+                                
+                                // Initialize Flatpickr for dynamically added inputs
+                                setTimeout(() => {
+                                    initThaiPickers();
+                                }, 50);
+                            }
+
+                            function updateRoundDate(index, field, value) {
+                                rounds[index][field] = value;
                             }
 
                             function addRound() {
@@ -154,6 +233,7 @@
 
                             // Init
                             renderRounds();
+                            initThaiPickers();
                         </script>
 
                         <div

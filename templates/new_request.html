@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap" rel="stylesheet">
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/th.js"></script>
 </head>
 
 <body>
@@ -307,11 +309,56 @@
             {% endfor %}
         };
 
+        function initThaiPickers() {
+            flatpickr(".thai-datepicker", {
+                locale: "th",
+                dateFormat: "d/m/Y",
+                formatDate: function(date, format, locale) {
+                    let d = ("0" + date.getDate()).slice(-2);
+                    let m = ("0" + (date.getMonth() + 1)).slice(-2);
+                    let y = date.getFullYear() + 543;
+                    return `${d}/${m}/${y}`;
+                },
+                parseDate: function(dateStr, format) {
+                    let parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        return new Date(parts[2] - 543, parts[1] - 1, parts[0]);
+                    }
+                    if (parts.length === 2) {
+                        return new Date(new Date().getFullYear(), parts[1] - 1, parts[0]);
+                    }
+                    if (dateStr.includes('-')) {
+                        return new Date(dateStr);
+                    }
+                    return new Date();
+                },
+                onReady: function(selectedDates, dateStr, instance) {
+                    if(instance.currentYearElement) {
+                        instance.currentYearElement.value = instance.currentYear + 543;
+                        instance.currentYearElement.addEventListener('change', function(e) {
+                            let newYear = parseInt(e.target.value);
+                            if (newYear > 2400) {
+                                instance.changeYear(newYear - 543);
+                            }
+                        });
+                    }
+                },
+                onYearChange: function(selectedDates, dateStr, instance) {
+                    if(instance.currentYearElement) {
+                        instance.currentYearElement.value = instance.currentYear + 543;
+                    }
+                },
+                onMonthChange: function(selectedDates, dateStr, instance) {
+                    if(instance.currentYearElement) {
+                        instance.currentYearElement.value = instance.currentYear + 543;
+                    }
+                }
+            });
+        }
+
         function addWorkModal() {
             document.getElementById('workTypeModal').style.display = 'block';
         }
-
-
 
         function addWork(type, label = '') {
             const id = Date.now();
@@ -332,6 +379,9 @@
 
             document.getElementById('workTypeModal').style.display = 'none';
             updateWorkCount();
+            
+            // Give the DOM a tiny moment to render the new HTML before binding flatpickr
+            setTimeout(initThaiPickers, 50);
         }
 
         function removeWork(btn, id) {
@@ -692,6 +742,9 @@
             }
             // Trigger initial calculation
             calculateEstimates();
+            
+            // Init flatpickrs for dates on page load
+            setTimeout(initThaiPickers, 100);
         };
     </script>
     <script src="{{ url_for('static', filename='notifications.js') }}"></script>
