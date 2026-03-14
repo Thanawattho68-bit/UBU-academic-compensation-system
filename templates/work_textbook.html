@@ -39,7 +39,7 @@
                 <strong>สำนักพิมพ์ในประเทศและต่างประเทศ</strong>
             </div>
             <div id="sub-lvl-inter-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'inter' or work.lvl == 'inter' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
-                วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
+                วันที่เผยแพร่ : <input type="text" class="form-control thai-datepicker" placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
             </div>
 
             <div>
@@ -47,7 +47,7 @@
                 <strong>โรงพิมพ์ทั่วไปในประเทศ</strong>
             </div>
             <div id="sub-lvl-local-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.publish_type == 'local' or work.lvl == 'local' else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
-                วันที่เผยแพร่ : <input type="date" class="form-control" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
+                วันที่เผยแพร่ : <input type="text" class="form-control thai-datepicker" placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
             </div>
         </div>
     </div>
