@@ -117,7 +117,7 @@ def uploaded_file(req_id, work_id, filename):
     return send_from_directory(os.path.join(current_app.config['UPLOAD_FOLDER'], req_id, work_id), filename)
 
 
-@api_bp.route('/api/estimate_compensation', methods=['POST'])
+@api_bp.route('/api/estimate_compensation', methods=['POST']) #ผู้รับผิดชอบ: นายภัทรพงษ์ จรรยากรณ์ 68114540419 (คำนวณคะแนน)
 def api_estimate_compensation():
     """API endpoint สำหรับคำนวณคะแนนและค่าตอบแทน ใช้ logic เดียวกับ Backend"""
     if 'username' not in session:

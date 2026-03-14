@@ -116,6 +116,7 @@ python app.py
 
 - `@admin_bp.route('/manage_criteria')` - ระบบบริหารจัดการเกณฑ์คะแนน (CRUD)
 - `@admin_bp.route('/edit_criteria')` - แบบฟอร์มแก้ไขเกณฑ์คะแนนและอัตราค่าตอบแทนรายปีงบประมาณ
+- `@api_bp.route('/api/estimate_compensation')` - ระบบ API คำนวณคะแนนและค่าตอบแทน
 
 ### 8. นายฐิติวัฒน์ ลุณบุตร 68114540814 (Blueprint: `admin`)
 
