@@ -1,6 +1,11 @@
 import json
 import os
+import sys
 from database import init_db, execute_db, DATABASE_PATH
+
+# แก้ไขปัญหา UnicodeEncodeError (แสดง Emoji ไม่ได้บน Windows Terminal)
+if hasattr(sys.stdout, 'reconfigure'):
+    sys.stdout.reconfigure(encoding='utf-8')
 
 def migrate():
     print("🚀 Starting Data Migration (JSON -> SQLite)...")

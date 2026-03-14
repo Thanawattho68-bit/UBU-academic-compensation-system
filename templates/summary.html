@@ -153,6 +153,7 @@
 
                 <!-- Section 2: Academic Statistics & Chart -->
                 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+                <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
                 <div class="academic-report-row"
                     style="display: flex; flex-wrap: wrap; gap: 25px; margin-bottom: 30px; margin-top: 10px;">
                     <div class="table-container" style="flex: 1; min-width: 350px; margin: 0;">
@@ -182,10 +183,16 @@
                             </table>
                         </div>
                     </div>
-                    <div class="table-container" style="flex: 1.5; min-width: 450px; margin: 0;">
+                    <div class="table-container" style="flex: 1; min-width: 350px; margin: 0;">
                         <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-bar"></i> กราฟสรุปผลตามตำแหน่ง (%)</h3>
                         <div style="height: 300px; position: relative;">
                             <canvas id="academicChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="table-container" style="flex: 1; min-width: 300px; margin: 0;">
+                        <h3 style="margin-bottom: 20px;"><i class="fas fa-chart-pie"></i> สัดส่วนสถานะคำขอ</h3>
+                        <div style="height: 300px; position: relative;">
+                            <canvas id="statusPieChart"></canvas>
                         </div>
                     </div>
                 </div>
@@ -238,6 +245,68 @@
                             }
                         }
                     });
+
+                    const pieCtx = document.getElementById('statusPieChart').getContext('2d');
+                    const totalReqs = {{ total_requests | default(0) }};
+                    const approvedReqs = {{ approved_requests | default(0) }};
+                    const pendingReqs = {{ pending_requests | default(0) }};
+                    const otherReqs = Math.max(0, totalReqs - approvedReqs - pendingReqs);
+                    // ไม่ส่งคำขอ - ปัจจุบันแสดงค่าเป็น 0 ไปก่อน เนื่องจากไม่มีการส่งยอดรวม user ทั้งระบบจาก Backend มาให้
+                    const notSubmittedReqs = 0; 
+
+                    new Chart(pieCtx, {
+                        type: 'pie',
+                        plugins: [ChartDataLabels],
+                        data: {
+                            labels: ['อนุมัติแล้ว', 'รอการพิจารณา', 'อื่นๆ (ไม่อนุมัติ/ส่งคืน)', 'ไม่ส่งคำขอ'],
+                            datasets: [{
+                                data: [approvedReqs, pendingReqs, otherReqs, notSubmittedReqs],
+                                backgroundColor: [
+                                    'rgba(46, 204, 113, 0.8)', 
+                                    'rgba(243, 156, 18, 0.8)', 
+                                    'rgba(231, 76, 60, 0.8)',
+                                    '#7f8c8d'
+                                ],
+                                borderColor: [
+                                    '#27ae60',
+                                    '#f39c12',
+                                    '#e74c3c',
+                                    '#7f8c8d'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: { position: 'bottom' },
+                                datalabels: {
+                                    color: '#fff',
+                                    font: { weight: 'bold', size: 14, family: 'Sarabun' },
+                                    formatter: (value, context) => {
+                                        // ไม่โชว์ % ในส่วนที่เป็นค่า 0
+                                        if (value === 0) return '';
+                                        const dataset = context.chart.data.datasets[0];
+                                        const total = dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                        return total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '';
+                                    }
+                                },
+                                tooltip: {
+                                    callbacks: {
+                                        label: function(context) {
+                                            const label = context.label || '';
+                                            const value = context.parsed;
+                                            const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
+                                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                                            return `${label}: ${value} รายการ (${percentage})`;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    });
+
                     });
                 </script>
 
