@@ -1781,5 +1781,23 @@
             }
         ],
         "history_json": "[{\"timestamp\": \"11 ม.ค. 2567 00:00:00\", \"user\": \"user04\", \"name\": \"ผศ_2\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2567\"}]"
+    },
+    {
+        "id": "REQ-2568000001",
+        "applicant": "user01",
+        "applicant_name": "ผศ_1",
+        "fiscal_year": "2568",
+        "status": "อนุมัติ",
+        "date": "14 มี.ค. 2568 00:00:00",
+        "score": 10.0,
+        "approved_amount": 10000.0,
+        "applicant_info": {
+            "title_name": "นาย",
+            "academic_position": "ผู้ช่วยศาสตราจารย์",
+            "department": "วิทยาการคอมพิวเตอร์",
+            "faculty": "วิทยาศาสตร์"
+        },
+        "works": [],
+        "history_json": "[{\"timestamp\": \"14 มี.ค. 2568 00:00:00\", \"user\": \"user01\", \"name\": \"ผศ_1\", \"role\": \"applicant\", \"action\": \"สร้างคำขอใหม่ (ส่ง)\", \"comment\": \"ยื่นคำขอสำหรับปีงบประมาณ 2568\"}]"
     }
 ]
