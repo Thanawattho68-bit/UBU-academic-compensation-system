@@ -1,4 +1,11 @@
-Flask
-python-docx
-openpyxl
-matplotlib
+blinker==1.9.0
+click==8.3.1
+colorama==0.4.6
+Flask==3.1.2
+itsdangerous==2.2.0
+Jinja2==3.1.6
+MarkupSafe==3.0.3
+Werkzeug==3.1.5
+python-docx==1.1.0
+openpyxl==3.1.2
+matplotlib==3.8.0
