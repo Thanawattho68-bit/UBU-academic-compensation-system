@@ -255,7 +255,16 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
     positions = parse_academic_position(position_str)
     pos = " ".join(positions)
 
-    pos_key = 'asst_prof' if 'ผู้ช่วยศาสตราจารย์' in pos else ('assoc_prof' if 'รองศาสตราจารย์' in pos else ('prof' if 'ศาสตราจารย์' in pos else ''))
+    # Improved position key detection with abbreviations
+    pos_lower = pos.lower()
+    if any(k in pos_lower for k in ['ผู้ช่วยศาสตราจารย์', 'ผศ.', 'ผศ']):
+        pos_key = 'asst_prof'
+    elif any(k in pos_lower for k in ['รองศาสตราจารย์', 'รศ.', 'รศ']):
+        pos_key = 'assoc_prof'
+    elif any(k in pos_lower for k in ['ศาสตราจารย์', 'ศ.', 'ศ']):
+        pos_key = 'prof'
+    else:
+        pos_key = ''
     
     for w in works_list:
         w_type, details = w.get('type'), w.get('details', {})
@@ -287,8 +296,13 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         if w.get('status') in ['ไม่อนุมัติ', 'ผลงานซ้ำซ้อน']:
             w.update({'score_calc': 0, 'payment_calc': 0})
         else:
-            w.update({'score_calc': net, 'payment_calc': 0})
-            score_sum += net
+            # Only use calculated score if no manual score (score_calc) exists 
+            # or if score_calc is 0 (except for rejected items)
+            existing_score = w.get('score_calc')
+            final_score = float(existing_score) if existing_score is not None and existing_score != 0 else net
+            
+            w.update({'score_calc': final_score, 'payment_calc': 0})
+            score_sum += final_score
 
     # 3. Calculate compensation based on Tiers
     comp = 0

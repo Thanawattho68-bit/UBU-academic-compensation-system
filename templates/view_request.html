@@ -1179,10 +1179,10 @@
             : posData || "";
 
           let posKey = "";
-          if (applicantPos.includes("ผู้ช่วยศาสตราจารย์")) posKey = "asst_prof";
-          else if (applicantPos.includes("รองศาสตราจารย์"))
-            posKey = "assoc_prof";
-          else if (applicantPos.includes("ศาสตราจารย์")) posKey = "prof";
+          const posLower = applicantPos.toLowerCase();
+          if (posLower.includes("ผู้ช่วยศาสตราจารย์") || posLower.includes("ผศ")) posKey = "asst_prof";
+          else if (posLower.includes("รองศาสตราจารย์") || posLower.includes("รศ")) posKey = "assoc_prof";
+          else if (posLower.includes("ศาสตราจารย์") || posLower.includes("ศ.")) posKey = "prof";
 
           if (document.getElementById("total_amount_display")) {
             const scoreInputs = document.querySelectorAll(".work-score-input");
