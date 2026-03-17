@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Form Container Removed -->
-                <form method="POST" id="mainForm" onsubmit="prepareData()" enctype="multipart/form-data">
+                <form method="POST" id="mainForm" onsubmit="return prepareData()" enctype="multipart/form-data">
                     <!-- Header / Applicant Info -->
                     <!-- Part 1: Applicant Info -->
                     <div
@@ -294,7 +294,6 @@
         <template id="template-innovation">
             {% set work = placeholder_work %}
             {% include 'work_innovation.html' %}
-        </template>
         </template>
     </div>
 
@@ -611,8 +610,11 @@
             subGroups.forEach(el => {
                 el.setAttribute('data-visible', 'false');
                 
-                // Clear radio selections inside hidden groups
-                el.querySelectorAll('input[type="radio"]').forEach(r => r.checked = false);
+                // Clear and disable required for elements inside hidden groups
+                el.querySelectorAll('input, select, textarea').forEach(input => {
+                    if (input.type === 'radio') input.checked = false;
+                    input.required = false;
+                });
             });
 
             // Update underlying data when switching groups
@@ -630,7 +632,13 @@
 
             // Show the selected one
             const target = document.getElementById(`sub-${groupName}-${selectedValue}-${id}`);
-            if (target) target.setAttribute('data-visible', 'true');
+            if (target) {
+                target.setAttribute('data-visible', 'true');
+                // Re-enable required for marked fields in the shown group
+                target.querySelectorAll('.req-on-show').forEach(input => {
+                    input.required = true;
+                });
+            }
         }
 
         function toggleEvidenceSource(id, type) {
@@ -653,6 +661,11 @@
         }
 
         function prepareData() {
+            if (works.length === 0) {
+                alert("กรุณาเพิ่มผลงานอย่างน้อย 1 รายการก่อนส่งคำขอ");
+                return false;
+            }
+
             // Map simplified works array to full structure expected by backend
             const finalWorks = works.map(w => ({
                 type: w.type,
@@ -661,6 +674,7 @@
                 comment: w.comment
             }));
             document.getElementById('works_data').value = JSON.stringify(finalWorks);
+            return true;
         }
 
     </script>

@@ -31,7 +31,7 @@
             ] %}
             {% for type_val, label, tooltip in creative_types %}
             <div>
-                <input type="radio" name="cr_type_{{ work.id }}" value="{{ type_val }}" onchange="updateWork('{{ work.id }}', 'creative_type', this.value)" {% if work.creative_type == type_val %}checked{% endif %}> 
+                <input type="radio" name="cr_type_{{ work.id }}" value="{{ type_val }}" required onchange="updateWork('{{ work.id }}', 'creative_type', this.value)" {% if work.creative_type == type_val %}checked{% endif %}> 
                 {{ label }} <span class="info-icon" data-tooltip="{{ tooltip }}">i</span>
             </div>
             {% endfor %}
@@ -48,14 +48,14 @@
             ] %}
             {% for lvl_val, lvl_label, lvl_tooltip in levels %}
             <div>
-                <input type="radio" name="pub_sel_{{ work.id }}" value="{{ lvl_val }}" onchange="showSubGroup('{{ work.id }}', 'lvl', '{{ lvl_val }}'); updateWork('{{ work.id }}', 'lvl', '{{ lvl_val }}')" {% if work.lvl == lvl_val %}checked{% endif %}> 
+                <input type="radio" name="pub_sel_{{ work.id }}" value="{{ lvl_val }}" required onchange="showSubGroup('{{ work.id }}', 'lvl', '{{ lvl_val }}'); updateWork('{{ work.id }}', 'lvl', '{{ lvl_val }}')" {% if work.lvl == lvl_val %}checked{% endif %}> 
                 <strong>{{ lvl_label }}</strong> <span class="info-icon" data-tooltip="{{ lvl_tooltip }}">i</span>
             </div>
             <div id="sub-lvl-{{ lvl_val }}-{{ work.id }}" class="sub-lvl-{{ work.id }} sub-group-box" data-visible="{{ 'true' if work.lvl == lvl_val else 'false' }}" style="margin-left: 25px; padding: 10px; border-left: 2px solid #3498db; background: #f0f7ff; border-radius: 4px; margin-bottom: 10px;">
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_print" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_print' %}checked{% endif %}> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
-                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_exhibit" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_exhibit' %}checked{% endif %}> การจัดนิทรรศการ (exhibition)</div>
-                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_perf" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_perf' %}checked{% endif %}> การจัดประกวดและการจัดแสดง (performance)</div>
+                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_print" class="req-on-show" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_print' %}checked{% endif %} {% if work.lvl == lvl_val %}required{% endif %}> การเผยแพร่ในลักษณะสิ่งตีพิมพ์</div>
+                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_exhibit" class="req-on-show" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_exhibit' %}checked{% endif %} {% if work.lvl == lvl_val %}required{% endif %}> การจัดนิทรรศการ (exhibition)</div>
+                    <div><input type="radio" name="pub_{{ work.id }}" value="{{ lvl_val }}_perf" class="req-on-show" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == lvl_val ~ '_perf' %}checked{% endif %} {% if work.lvl == lvl_val %}required{% endif %}> การจัดประกวดและการจัดแสดง (performance)</div>
                 </div>
             </div>
             {% endfor %}
@@ -65,8 +65,8 @@
     <div class="sub-section">
         <h5>3. การมีส่วนร่วมในผลงานทางวิชาการ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
         <div class="checkbox-group">
-             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> เป็นผู้ประพันธ์อันดับแรก (first author)</div>
-             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> เป็นผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
         </div>
     </div>
 

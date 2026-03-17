@@ -19,7 +19,12 @@
     </div>
     <div class="form-group">
         <label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label>
-        <textarea onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+        <textarea required onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>วันที่เผยแพร่ (Published)</label>
+        <input type="text" class="form-control thai-datepicker" required placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
     </div>
 
     <div class="sub-section">
@@ -33,7 +38,7 @@
             ] %}
             {% for i_val, i_label in inn_types %}
             <div>
-                <input type="radio" name="inn_{{ work.id }}" value="{{ i_val }}" onchange="updateWork('{{ work.id }}', 'type_pub', this.value)" {% if work.type_pub == i_val %}checked{% endif %}> 
+                <input type="radio" name="inn_{{ work.id }}" value="{{ i_val }}" required onchange="updateWork('{{ work.id }}', 'type_pub', this.value)" {% if work.type_pub == i_val %}checked{% endif %}> 
                 {{ i_label }}
             </div>
             {% endfor %}
@@ -44,17 +49,17 @@
         <h5>2. ระดับผลงาน (Self-Assessment)</h5>
         <div class="checkbox-group">
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
                 <strong>ระดับ A+ (คะแนน 1.25)</strong>
                 <span class="info-icon" data-tooltip="เทคโนโลยีขั้นสูง/ใหม่ พร้อมใช้งานจริงในบ้านผลิต (TRL 8+) ยอมรับระดับชาติ/นานาชาติ ใช้เชิงพาณิชย์/ขยายผลธุรกิจ">i</span>
              </div>
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_a" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_a" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
                 <strong>ระดับ A (คะแนน 1.00)</strong>
                 <span class="info-icon" data-tooltip="ต้นแบบสมบูรณ์ทำงานในสภาพแวดล้อมจริง (TRL 5+) แตกต่างจากเดิม ใช้เชิงพาณิชย์หรือสาธารณะเห็นผลประจักษ์">i</span>
              </div>
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_b" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_b" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
                 <strong>ระดับ B (คะแนน 0.75)</strong>
                 <span class="info-icon" data-tooltip="ประยุกต์เทคโนโลยีเหมาะสม มีต้นแบบทดสอบสถานการณ์จริง (TRL 3+) พิสูจน์แนวคิดได้ สร้างมูลค่าเพิ่ม (EVA)">i</span>
              </div>
@@ -64,8 +69,8 @@
     <div class="sub-section">
         <h5>3. การมีส่วนร่วม</h5>
         <div class="checkbox-group">
-             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
-             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
         </div>
     </div>
 

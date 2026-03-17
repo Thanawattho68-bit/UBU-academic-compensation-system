@@ -19,14 +19,19 @@
     </div>
     <div class="form-group">
         <label>การเผยแพร่ (โปรดระบุการเผยแพร่โดยสังเขป)</label>
-        <textarea onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+        <textarea required onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
+    </div>
+
+    <div class="form-group">
+        <label>วันที่เผยแพร่ (Published)</label>
+        <input type="text" class="form-control thai-datepicker" required placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
     </div>
 
     <div class="sub-section">
         <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer) ดังนี้</h5>
         <div class="checkbox-group">
-            <div><input type="radio" name="pub_{{ work.id }}" value="presented" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == 'presented' %}checked{% endif %}> นำเสนอนโยบายต่อผู้มีส่วนได้เสีย</div>
-            <div><input type="radio" name="pub_{{ work.id }}" value="public" onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == 'public' %}checked{% endif %}> เผยแพร่นโยบายไปยังผู้เกี่ยวข้อง</div>
+            <div><input type="radio" name="pub_{{ work.id }}" value="presented" required onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == 'presented' %}checked{% endif %}> นำเสนอนโยบายต่อผู้มีส่วนได้เสีย</div>
+            <div><input type="radio" name="pub_{{ work.id }}" value="public" required onchange="updateWork('{{ work.id }}', 'publish_type', this.value)" {% if work.publish_type == 'public' %}checked{% endif %}> เผยแพร่นโยบายไปยังผู้เกี่ยวข้อง</div>
         </div>
     </div>
 
@@ -34,17 +39,17 @@
         <h5>2. ระดับผลงาน (Self-Assessment)</h5>
         <div class="checkbox-group">
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_a_plus" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a_plus' %}checked{% endif %}> 
                 <strong>ระดับ A+ (คะแนน 1.25)</strong>
                 <span class="info-icon" data-tooltip="ได้รับการอภิปรายกว้างขวาง หรือถูกนำไปใช้จริงโดยหน่วยงานรัฐและเกิดประโยชน์เชิงนโยบาย">i</span>
              </div>
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_a" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_a" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_a' %}checked{% endif %}> 
                 <strong>ระดับ A (คะแนน 1.00)</strong>
                 <span class="info-icon" data-tooltip="เป็นข้อเสนอใหม่ มีร่างกฎหมาย/นโยบาย/แผน ที่มีคุณภาพดีมาก และมีการอ้างอิงโดยผู้เกี่ยวข้อง">i</span>
              </div>
              <div>
-                <input type="radio" name="level_{{ work.id }}" value="level_b" onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
+                <input type="radio" name="level_{{ work.id }}" value="level_b" required onchange="updateWork('{{ work.id }}', 'level', this.value)" {% if work.level == 'level_b' %}checked{% endif %}> 
                 <strong>ระดับ B (คะแนน 0.75)</strong>
                 <span class="info-icon" data-tooltip="แสดงการวิเคราะห์สังเคราะห์ที่มีหลักฐานสนับสนุน และแสดงความก้าวหน้าทางวิชาการชัดเจน">i</span>
              </div>
@@ -54,8 +59,8 @@
     <div class="sub-section">
         <h5>3. การมีส่วนร่วม</h5>
         <div class="checkbox-group">
-             <div><input type="radio" name="contrib_{{ work.id }}" value="first" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
-             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="first" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'first' %}checked{% endif %}> ผู้ประพันธ์อันดับแรก (first author)</div>
+             <div><input type="radio" name="contrib_{{ work.id }}" value="intellectual" required onchange="updateWork('{{ work.id }}', 'contribution', this.value)" {% if work.contribution == 'intellectual' %}checked{% endif %}> ผู้มีส่วนสำคัญทางปัญญา (essentially intellectual contributor)</div>
         </div>
     </div>
 
