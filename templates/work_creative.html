@@ -17,11 +17,6 @@
         <textarea required onchange="updateWork('{{ work.id }}', 'title', this.value)" rows="2" style="width:100%; margin-bottom: 5px;" class="form-control">{{ work.title|default('') }}</textarea>
         <div id="duplicate-warning-{{ work.id }}" style="display:none; color: #d63031; font-size: 0.85rem; margin-top: 5px; padding: 8px; background: #fff5f5; border-left: 3px solid #ff7675; border-radius: 4px;"></div>
     </div>
-
-    <div class="form-group">
-        <label>วันที่เผยแพร่ (Published)</label>
-        <input type="text" class="form-control thai-datepicker" required placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
-    </div>
     
     <div class="sub-section">
         <h5>1. ประเภทของผลงานสร้างสรรค์ ระบุอย่างใดอย่างหนึ่ง ดังนี้</h5>
