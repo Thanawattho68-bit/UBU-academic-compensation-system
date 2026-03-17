@@ -22,7 +22,7 @@
         <h5>1. การเผยแพร่ บทความวิจัยได้รับการเผยแพร่ในวารสารทางวิชาการที่มีรายชื่ออยู่ในฐานข้อมูลที่เป็นที่ยอมรับในระดับชาติหรือระดับนานาชาติ ดังนี้</h5>
         <div class="form-group">
             <label>1.1 ชื่อวารสารทางวิชาการ :</label>
-            <input type="text" onchange="updateWork('{{ work.id }}', 'journal_name', this.value)" style="width:100%" class="form-control" value="{{ work.journal_name|default('') }}">
+            <input type="text" required onchange="updateWork('{{ work.id }}', 'journal_name', this.value)" style="width:100%" class="form-control" value="{{ work.journal_name|default('') }}">
         </div>
         <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 10px; margin-bottom: 15px;">
             <div class="form-group"><label>ปีที่ (Vol)</label><input type="text" class="form-control" required onchange="updateWork('{{ work.id }}', 'vol', this.value)" value="{{ work.vol|default('') }}"></div>

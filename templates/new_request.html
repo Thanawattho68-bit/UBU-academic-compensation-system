@@ -39,7 +39,7 @@
                 </div>
 
                 <!-- Form Container Removed -->
-                <form method="POST" id="mainForm" onsubmit="return prepareData()" enctype="multipart/form-data">
+                <form method="POST" id="mainForm" onsubmit="return prepareData(event)" enctype="multipart/form-data">
                     <!-- Header / Applicant Info -->
                     <!-- Part 1: Applicant Info -->
                     <div
@@ -218,6 +218,7 @@
 
                     <div class="form-actions" style="justify-content: center; gap: 20px; margin-top: 30px;">
                         <button type="submit" name="action" value="draft" class="btn-secondary"
+                            formnovalidate
                             style="min-width: 150px;">
                             <i class="fas fa-save"></i> บันทึกแบบร่าง
                         </button>
@@ -532,25 +533,26 @@
                     if (db === 'scopus_q1_q2') { s = rs.tier1 || 1.25; }
                     else if (db === 'scopus_other') { s = rs.non_q || 1.00; }
                     else if (db === 'national') { s = rs.national || 0.75; }
+                    else { s = 0; }
                 } else if (w.type === 'textbook') {
                     const ts = qs.textbook || { publisher: 1.25, general: 1.0 };
                     if (w.data.publish_type === 'inter') { s = ts.publisher || 1.25; }
                     else if (w.data.publish_type === 'local') { s = ts.general || 1.00; }
-                    else { s = ts.publisher || 1.25; }
+                    else { s = 0; }
                 } else if (w.type === 'creative') {
                     const cs = qs.creative || { international: 1.25, cooperation: 1.0, national: 0.75 };
                     const pt = w.data.publish_type || '';
                     if (pt.includes('inter')) { s = cs.international || 1.25; }
                     else if (pt.includes('coop')) { s = cs.cooperation || 1.00; }
                     else if (pt.includes('national')) { s = cs.national || 0.75; }
-                    else { s = cs.international || 1.25; }
-                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type) || w.data.level) {
+                    else { s = 0; }
+                } else if (['social', 'industry', 'teaching', 'policy', 'innovation'].includes(w.type)) {
                     const mScores = qs.merged_abc || { a_plus: 1.25, a: 1.0, b: 0.75 };
                     const lvl = w.data.level;
                     if (lvl === 'level_a_plus') { s = mScores.a_plus || 1.25; }
                     else if (lvl === 'level_a') { s = mScores.a || 1.00; }
                     else if (lvl === 'level_b') { s = mScores.b || 0.75; }
-                    else { s = mScores.a || 1.00; }
+                    else { s = 0; }
                 }
 
                 // 2. Weight (W)
@@ -660,8 +662,16 @@
             }
         }
 
-        function prepareData() {
-            if (works.length === 0) {
+        function prepareData(event) {
+            // Get the button that triggered the submit
+            let action = 'submit';
+            if (event && event.submitter) {
+                action = event.submitter.value;
+            } else if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
+                action = document.activeElement.value;
+            }
+
+            if (action === 'submit' && works.length === 0) {
                 alert("กรุณาเพิ่มผลงานอย่างน้อย 1 รายการก่อนส่งคำขอ");
                 return false;
             }

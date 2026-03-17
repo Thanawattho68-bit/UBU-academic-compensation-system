@@ -273,20 +273,44 @@ def calculate_compensation(works_list, position_str, fiscal_year_req):
         # 1. Base Score (S)
         if w_type == 'research':
             db_map = {'scopus_q1_q2': 'tier1', 'scopus_other': 'non_q', 'national': 'national'}
-            s = qs.get('research', {}).get(db_map.get(details.get('database'), 'national'), 0.75)
+            db_key = db_map.get(details.get('database'))
+            if db_key:
+                s = qs.get('research', {}).get(db_key, 0.0)
+            else:
+                s = 0.0
         elif w_type in ['social', 'industry', 'teaching', 'policy', 'innovation'] or w_type.startswith('custom_'):
             lvl_map = {'level_a_plus': 'a_plus', 'level_a': 'a', 'level_b': 'b'}
-            s = qs.get('merged_abc', {}).get(lvl_map.get(details.get('level'), 'a'), 1.0)
+            lvl_key = lvl_map.get(details.get('level'))
+            if lvl_key:
+                s = qs.get('merged_abc', {}).get(lvl_key, 0.0)
+            else:
+                s = 0.0
         elif w_type == 'textbook':
-            s = qs.get('textbook', {}).get('publisher' if details.get('publish_type') != 'local' else 'general', 1.25)
+            pt = details.get('publish_type')
+            if pt == 'inter':
+                s = qs.get('textbook', {}).get('publisher', 0.0)
+            elif pt == 'local':
+                s = qs.get('textbook', {}).get('general', 0.0)
+            else:
+                s = 0.0
         elif w_type == 'creative':
             cre_map = {'inter': 'international', 'coop': 'cooperation', 'national': 'national'}
             pt = details.get('publish_type', '')
-            found_key = next((k for k in cre_map if k in pt), 'inter')
-            s = qs.get('creative', {}).get(cre_map[found_key], 1.25)
+            found_key = next((k for k in cre_map if k in pt), None)
+            if found_key:
+                s = qs.get('creative', {}).get(cre_map[found_key], 0.0)
+            else:
+                s = 0.0
         
         # 2. Weight (W)
-        weight = rw.get('main' if details.get('contribution') in ['first', 'corresponding', 'main'] else 'co', 0.0)
+        contrib = details.get('contribution')
+        if contrib in ['first', 'corresponding', 'main']:
+            weight = rw.get('main', 0.0)
+        elif contrib in ['intellectual', 'co']:
+            weight = rw.get('co', 0.0)
+        else:
+            weight = 0.0
+            
         net = s * weight
         
         # Always update breakdown with the formula
