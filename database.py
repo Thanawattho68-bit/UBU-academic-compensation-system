@@ -6,6 +6,7 @@ DATABASE_PATH = os.path.join('instance', 'database.db')
 def get_db_connection():
     os.makedirs(os.path.dirname(DATABASE_PATH), exist_ok=True)
     conn = sqlite3.connect(DATABASE_PATH)
+    conn.execute('PRAGMA foreign_keys = ON;')  # Enable Foreign Key support
     conn.row_factory = sqlite3.Row
     return conn
 
@@ -19,12 +20,12 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
-            name TEXT,
-            role TEXT,
+            name TEXT NOT NULL,
+            role TEXT NOT NULL,
             title_name TEXT,
             academic_position TEXT,
-            department TEXT,
-            faculty TEXT,
+            department TEXT NOT NULL,
+            faculty TEXT NOT NULL,
             position_date TEXT,
             position_number TEXT
         )
@@ -35,10 +36,10 @@ def init_db():
         CREATE TABLE IF NOT EXISTS RequestRecord (
             id TEXT PRIMARY KEY,
             applicant_username TEXT NOT NULL,
-            applicant_name TEXT,
-            fiscal_year TEXT,
-            status TEXT,
-            date_submitted TEXT,
+            applicant_name TEXT NOT NULL,
+            fiscal_year TEXT NOT NULL,
+            status TEXT NOT NULL,
+            date_submitted TEXT NOT NULL,
             total_score REAL DEFAULT 0.0,
             approved_amount REAL DEFAULT 0.0,
             applicant_info_json TEXT,
@@ -49,7 +50,9 @@ def init_db():
             research_viewer TEXT,
             committee_approver TEXT,
             final_approver TEXT,
-            history_json TEXT
+            history_json TEXT,
+            FOREIGN KEY (applicant_username) REFERENCES Account (username),
+            FOREIGN KEY (fiscal_year) REFERENCES TimelineConfig (fiscal_year)
         )
     ''')
     
@@ -59,10 +62,12 @@ def init_db():
             id TEXT PRIMARY KEY,
             message TEXT NOT NULL,
             recipient_role TEXT,
-            recipient_username TEXT,
+            recipient_username TEXT NOT NULL,
             req_id TEXT,
             is_read INTEGER DEFAULT 0,
-            timestamp TEXT
+            timestamp TEXT NOT NULL,
+            FOREIGN KEY (recipient_username) REFERENCES Account (username),
+            FOREIGN KEY (req_id) REFERENCES RequestRecord (id) ON DELETE CASCADE
         )
     ''')
 
@@ -70,8 +75,8 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS TimelineConfig (
             fiscal_year TEXT PRIMARY KEY,
-            start_date TEXT,
-            end_date TEXT,
+            start_date TEXT NOT NULL,
+            end_date TEXT NOT NULL,
             rounds_json TEXT
         )
     ''')
@@ -82,7 +87,8 @@ def init_db():
             fiscal_year TEXT PRIMARY KEY,
             quality_scores TEXT,
             role_weights TEXT,
-            payment_rules TEXT
+            payment_rules TEXT,
+            FOREIGN KEY (fiscal_year) REFERENCES TimelineConfig (fiscal_year)
         )
     ''')
 
@@ -90,8 +96,7 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS WorkType (
             id TEXT PRIMARY KEY,
-            label TEXT NOT NULL,
-            is_custom INTEGER DEFAULT 0
+            label TEXT NOT NULL
         )
     ''')
     

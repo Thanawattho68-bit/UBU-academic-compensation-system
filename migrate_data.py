@@ -21,16 +21,21 @@ def migrate():
     init_db()
     print("✅ Database tables initialized.")
 
-    # Explicitly clear tables in case file removal failed
-    tables = ['Account', 'Notification', 'RequestRecord', 'TimelineConfig', 'Criteria', 'WorkType']
-    for table in tables:
-        try:
-            execute_db(f"DELETE FROM {table}")
-            print(f"🧹 Cleared existing data from {table}.")
-        except Exception as e:
-            print(f"⚠️ Failed to clear table {table}: {e}")
+    # Track fiscal years to ensure they exist in TimelineConfig for FK compliance
+    existing_fys = set()
 
-    # 1. Migrate Users to Account table
+    def ensure_fiscal_year(fy):
+        if not fy: return
+        fy_str = str(fy)
+        if fy_str not in existing_fys:
+            execute_db('''
+                INSERT OR IGNORE INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
+                VALUES (?, ?, ?, ?)
+            ''', (fy_str, "01/10", "30/09", "[]"))
+            existing_fys.add(fy_str)
+            print(f"🛠️ Created default TimelineConfig for fiscal year {fy_str}")
+
+    # 1. Migrate Users to Account table (Parent - No dependencies)
     if os.path.exists('backup/users.json'):
         with open('backup/users.json', 'r', encoding='utf-8') as f:
             users = json.load(f)
@@ -49,25 +54,52 @@ def migrate():
                 ))
         print(f"✅ Migrated {len(users)} users to Account table.")
 
-    # 2. Migrate Notifications
-    if os.path.exists('backup/notifications.json'):
-        with open('backup/notifications.json', 'r', encoding='utf-8') as f:
-            notifs = json.load(f)
-            for n in notifs:
+    # 2. Migrate Timeline (Parent - No dependencies)
+    if os.path.exists('backup/timeline.json'):
+        with open('backup/timeline.json', 'r', encoding='utf-8') as f:
+            timelines = json.load(f)
+            if not isinstance(timelines, list): timelines = [timelines]
+            
+            for t in timelines:
+                fy = str(t.get('fiscal_year', ''))
+                if not fy: continue
                 execute_db('''
-                    INSERT INTO Notification (id, message, recipient_role, recipient_username, req_id, is_read, timestamp)
-                    VALUES (?, ?, ?, ?, ?, ?, ?)
+                    INSERT INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
+                    VALUES (?, ?, ?, ?)
                 ''', (
-                    n['id'], n['message'], n.get('recipient_role'), n.get('recipient_username'),
-                    n.get('req_id'), 1 if n.get('is_read') else 0, n.get('timestamp')
+                    fy,
+                    t.get('start_date', '01/10'),
+                    t.get('end_date', '30/09'),
+                    json.dumps(t.get('rounds', []), ensure_ascii=False)
                 ))
-        print(f"✅ Migrated {len(notifs)} notifications.")
+                existing_fys.add(fy)
+        print(f"✅ Migrated {len(timelines)} timeline configs to TimelineConfig table.")
 
-    # 3. Migrate Requests
+    # 3. Migrate Criteria (Child of TimelineConfig)
+    if os.path.exists('backup/criteria.json'):
+        with open('backup/criteria.json', 'r', encoding='utf-8') as f:
+            criteria_list = json.load(f)
+            for c in criteria_list:
+                fy = str(c.get('fiscal_year', ''))
+                ensure_fiscal_year(fy) # Ensure parent exists
+                execute_db('''
+                    INSERT INTO Criteria (fiscal_year, quality_scores, role_weights, payment_rules)
+                    VALUES (?, ?, ?, ?)
+                ''', (
+                    fy,
+                    json.dumps(c.get('quality_scores', {}), ensure_ascii=False),
+                    json.dumps(c.get('role_weights', {}), ensure_ascii=False),
+                    json.dumps(c.get('payment_rules', {}), ensure_ascii=False)
+                ))
+        print(f"✅ Migrated {len(criteria_list)} criteria configs.")
+
+    # 4. Migrate Requests (Child of Account and TimelineConfig)
     if os.path.exists('backup/requests.json'):
         with open('backup/requests.json', 'r', encoding='utf-8') as f:
             reqs = json.load(f)
             for r in reqs:
+                fy = str(r.get('fiscal_year', ''))
+                ensure_fiscal_year(fy) # Ensure parent exists
                 execute_db('''
                     INSERT INTO RequestRecord (
                         id, applicant_username, applicant_name, fiscal_year, status, 
@@ -78,7 +110,7 @@ def migrate():
                     )
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    r['id'], r['applicant'], r['applicant_name'], r.get('fiscal_year'),
+                    r['id'], r['applicant'], r['applicant_name'], fy,
                     r.get('status'), r.get('date'), float(r.get('score', 0) or 0),
                     float(r.get('approved_amount', 0) or 0), 
                     json.dumps(r.get('applicant_info', {}), ensure_ascii=False),
@@ -88,53 +120,33 @@ def migrate():
                 ))
         print(f"✅ Migrated {len(reqs)} requests (including works and audit history).")
 
-    # 4. Migrate Criteria
-    if os.path.exists('backup/criteria.json'):
-        with open('backup/criteria.json', 'r', encoding='utf-8') as f:
-            criteria_list = json.load(f)
-            for c in criteria_list:
+    # 5. Migrate Notifications (Child of Account and RequestRecord)
+    if os.path.exists('backup/notifications.json'):
+        with open('backup/notifications.json', 'r', encoding='utf-8') as f:
+            notifs = json.load(f)
+            for n in notifs:
+                # Basic check to ensure referenced objects exist before inserting to avoid FK errors 
+                # (though in re-migration they should already be handled by the order above)
                 execute_db('''
-                    INSERT INTO Criteria (fiscal_year, quality_scores, role_weights, payment_rules)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO Notification (id, message, recipient_role, recipient_username, req_id, is_read, timestamp)
+                    VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
-                    c.get('fiscal_year'),
-                    json.dumps(c.get('quality_scores', {}), ensure_ascii=False),
-                    json.dumps(c.get('role_weights', {}), ensure_ascii=False),
-                    json.dumps(c.get('payment_rules', {}), ensure_ascii=False)
+                    n['id'], n['message'], n.get('recipient_role'), n.get('recipient_username'),
+                    n.get('req_id'), 1 if n.get('is_read') else 0, n.get('timestamp')
                 ))
-        print(f"✅ Migrated {len(criteria_list)} criteria configs.")
+        print(f"✅ Migrated {len(notifs)} notifications.")
 
-    # 5. Migrate Timeline (To new Merged Table)
-    if os.path.exists('backup/timeline.json'):
-        with open('backup/timeline.json', 'r', encoding='utf-8') as f:
-            timelines = json.load(f)
-            # Ensure timelines is a list
-            if not isinstance(timelines, list): timelines = [timelines]
-            
-            for t in timelines:
-                execute_db('''
-                    INSERT INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
-                    VALUES (?, ?, ?, ?)
-                ''', (
-                    str(t.get('fiscal_year', '')),
-                    t.get('start_date', '01/10'),
-                    t.get('end_date', '30/09'),
-                    json.dumps(t.get('rounds', []), ensure_ascii=False)
-                ))
-        print(f"✅ Migrated {len(timelines)} timeline configs to TimelineConfig table.")
-
-    # 6. Migrate Work Types
+    # 6. Migrate Work Types (Independent)
     if os.path.exists('backup/work_types.json'):
         with open('backup/work_types.json', 'r', encoding='utf-8') as f:
             work_types = json.load(f)
             for wt in work_types:
                 execute_db('''
-                    INSERT INTO WorkType (id, label, is_custom)
-                    VALUES (?, ?, ?)
+                    INSERT INTO WorkType (id, label)
+                    VALUES (?, ?)
                 ''', (
                     wt.get('id'),
-                    wt.get('label'),
-                    1 if wt.get('is_custom') else 0
+                    wt.get('label')
                 ))
         print(f"✅ Migrated {len(work_types)} work types.")
 

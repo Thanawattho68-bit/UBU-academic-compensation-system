@@ -141,66 +141,47 @@ def get_current_fiscal_year():
 
 
 def is_within_timeline():
-    current_fy = get_current_fiscal_year()
-    config = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (str(current_fy),), one=True)
+    now, fy = datetime.now(), get_current_fiscal_year()
+    fy_str = str(fy)
+    
+    # 1. Get/Create Config
+    config = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (fy_str,), one=True)
     if not config:
-        config = query_db('SELECT * FROM TimelineConfig ORDER BY fiscal_year DESC LIMIT 1', one=True)
+        execute_db('INSERT OR IGNORE INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json) VALUES (?,?,?,?)', 
+                   (fy_str, "01/10", "30/09", "[]"))
+        config = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (fy_str,), one=True)
+    
+    # 2. Results Initialization (Default: Closed, waiting for start of current fiscal year)
+    is_open, reason, next_date = False, "ไม่อยู่ในช่วงเวลาการเปิดรับคำขอ", f"01/10/{fy}"
+    s_main, e_main = parse_thai_date(config['start_date']), parse_thai_date(config['end_date'])
+
+    # 3. Check Specific Rounds (High Priority)
+    rounds = json.loads(config['rounds_json'] or '[]')
+    for r in sorted(rounds, key=lambda x: parse_thai_date(x.get('start_date')) or datetime.max):
+        s_dt = (parse_thai_date(r.get('start_date')) or now).replace(hour=0, minute=0)
+        e_dt = (parse_thai_date(r.get('end_date')) or now).replace(hour=23, minute=59)
         
-    if not config:
-        return True, "", None # Default open
+        if s_dt <= now <= e_dt:
+            if r.get('type') == 'submission': return True, r.get('name', 'เปิดรับคำขอ'), None
+            if r.get('type') == 'consideration': is_open, reason = False, r.get('name', 'ช่วงพิจารณา')
+        elif s_dt > now and r.get('type') == 'submission' and not is_open:
+            next_date = r['start_date']; break
 
-    now = datetime.now()
-    rounds = json.loads(config['rounds_json']) if config['rounds_json'] else []
-    
-    active_submission_round = None
-    active_consideration_round = None
-    next_submission_round = None
-    
-    # Sort rounds by start date to find the next opening easily
-    sorted_rounds = sorted(rounds, key=lambda x: parse_thai_date(x.get('start_date')) or datetime.max)
-    
-    for r in sorted_rounds:
-        s_dt = parse_thai_date(r.get('start_date'))
-        e_dt = parse_thai_date(r.get('end_date'))
-        if s_dt and e_dt:
-            s_dt = s_dt.replace(hour=0, minute=0, second=0)
-            e_dt = e_dt.replace(hour=23, minute=59, second=59)
-            
-            if s_dt <= now <= e_dt:
-                if r.get('type') == 'submission':
-                    active_submission_round = r
-                elif r.get('type') == 'consideration':
-                    active_consideration_round = r
-            elif s_dt > now and r.get('type') == 'submission':
-                if not next_submission_round:
-                    next_submission_round = r
-
-    # Priority 1: Submission round is active
-    if active_submission_round:
-        return True, active_submission_round.get('name', 'ช่วงเปิดรับคำขอ'), None
-    
-    # Priority 2: Consideration round is active
-    if active_consideration_round:
-        # Use next defined submission round OR fallback to start of next fiscal year
-        next_date = next_submission_round.get('start_date') if next_submission_round else f"01/10/{current_fy}"
-        return False, active_consideration_round.get('name', 'ช่วงปิดรับคำขอ'), next_date
-
-    # Priority 3: Fallback to global range
-    dt_main_start = parse_thai_date(config['start_date'])
-    dt_main_end = parse_thai_date(config['end_date'])
-    
-    if dt_main_start and dt_main_end:
-        dt_main_start = dt_main_start.replace(hour=0, minute=0, second=0)
-        dt_main_end = dt_main_end.replace(hour=23, minute=59, second=59)
-        if dt_main_start <= now <= dt_main_end:
+    # 4. Global Range Check (Low Priority - only if no specific round applies)
+    if is_open or reason == "ไม่อยู่ในช่วงเวลาการเปิดรับคำขอ":
+        if s_main and e_main and s_main.replace(hour=0, minute=0) <= now <= e_main.replace(hour=23, minute=59):
             return True, "รอบการเปิดรับปกติ", None
-        elif now < dt_main_start:
-            return False, "ยังไม่เปิดรับคำขอใหม่", config['start_date']
-        else:
-            # Already passed main end date, next opening is next FY
-            return False, "ไม่อยู่ในช่วงเวลาการเปิดรับคำขอ", f"01/10/{current_fy}"
+        elif s_main and now < s_main:
+            is_open, reason, next_date = False, "ยังไม่เปิดรับคำขอใหม่", config['start_date']
 
-    return True, "", None
+    # 5. Peek Logic for next year config if currently closed
+    if not is_open:
+        nxt = query_db('SELECT * FROM TimelineConfig WHERE fiscal_year = ?', (str(fy + 1),), one=True)
+        if nxt:
+            sub = [r for r in json.loads(nxt['rounds_json'] or '[]') if r.get('type') == 'submission']
+            next_date = sub[0]['start_date'] if sub else nxt['start_date']
+
+    return is_open, reason, next_date
 
 
 def get_remaining_days(start_date_str, limit_days=7):
