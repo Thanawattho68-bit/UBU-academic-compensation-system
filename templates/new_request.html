@@ -662,7 +662,40 @@
             }
         }
 
+        function checkFileSize(input) {
+            const MAX_SIZE = 64 * 1024 * 1024; // 64MB
+            if (input.files && input.files[0]) {
+                const file = input.files[0];
+                if (file.size > MAX_SIZE) {
+                    const fileSizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                    alert(`⚠️ ไฟล์นี้มีขนาดใหญ่เกินไป (${fileSizeMB} MB)\n\nขนาดสูงสุดที่อนุญาตคือ 64 MB ต่อไฟล์\nกรุณาลดขนาดไฟล์ หรือใช้การ "แนบลิงก์หลักฐาน (Link)" จาก Google Drive (ตั้งค่าให้ทุกคนที่มีลิงก์สามารถดูได้) แทนการอัปโหลดไฟล์จำนวนมากเพื่อป้องกันข้อมูลสูญหาย`);
+                    input.value = ""; // Clear the selection
+                    return false;
+                }
+            }
+            return true;
+        }
+
         function prepareData(event) {
+            // --- เพิ่มการตรวจสอบขนาดไฟล์รวมก่อนส่ง (Client-side validation) ---
+            const MAX_TOTAL_SIZE = 1024 * 1024 * 1024; // 1GB (1024MB)
+            let totalSize = 0;
+            const fileInputs = document.querySelectorAll('input[type="file"]');
+            
+            fileInputs.forEach(input => {
+                if (input.files && input.files[0]) {
+                    totalSize += input.files[0].size;
+                }
+            });
+
+            if (totalSize > MAX_TOTAL_SIZE) {
+                const totalMB = (totalSize / (1024 * 1024)).toFixed(2);
+                alert(`⚠️ ไม่สามารถส่งข้อมูลได้: ขนาดไฟล์รวมทั้งหมด (${totalMB} MB) เกินกว่าที่ระบบกำหนด (สูงสุด 1,024 MB หรือ 1 GB ต่อหนึ่งคำขอ)\n\nกรุณาลดจำนวนไฟล์ หรือใช้การ "แนบลิงก์หลักฐาน (Link)" จาก Google Drive (ตั้งค่าให้ทุกคนที่มีลิงก์สามารถดูได้) แทนครับ`);
+                if (event) event.preventDefault();
+                return false;
+            }
+            // ---------------------------------------------------------
+
             // Get the button that triggered the submit
             let action = 'submit';
             if (event && event.submitter) {

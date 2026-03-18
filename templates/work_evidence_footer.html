@@ -19,8 +19,8 @@
     </div>
 
     <div id="evidence_file_container_{{ work.id }}" style="display:{% if work.evidence_type == 'file' %}block{% else %}none{% endif %};">
-        <div style="font-size: 0.8em; color: #666;">อัปโหลดไฟล์หลักฐาน (จำกัดเฉพาะ pdf, doc, docx, zip, rar)</div>
-        <input type="file" name="evidence_file_{{ work.id }}" accept=".pdf,.doc,.docx,.zip,.rar" style="width:100%; padding: 5px;" class="form-control" {% if work.evidence_type == 'file' and not work.evidence_file %}required{% endif %}>
+        <div style="font-size: 0.8em; color: #666;">อัปโหลดไฟล์หลักฐาน (จำกัด pdf, doc, docx, zip, rar ไม่เกิน 64MB ต่อไฟล์ และรวมทุกไฟล์ไม่เกิน 1GB)</div>
+        <input type="file" name="evidence_file_{{ work.id }}" accept=".pdf,.doc,.docx,.zip,.rar" style="width:100%; padding: 5px;" class="form-control" {% if work.evidence_type == 'file' and not work.evidence_file %}required{% endif %} onchange="checkFileSize(this)">
         {% if work.evidence_file %}
         <div class="existing-file-info" style="margin-top: 5px; font-size: 0.9em; color: #27ae60;">
             <i class="fas fa-check-circle"></i> ไฟล์ปัจจุบัน: {{ work.evidence_file }}
