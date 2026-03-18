@@ -22,11 +22,6 @@
         <textarea required onchange="updateWork('{{ work.id }}', 'dissemination_summary', this.value)" rows="2" style="width:100%" class="form-control">{{ work.dissemination_summary|default('') }}</textarea>
     </div>
 
-    <div class="form-group">
-        <label>วันที่เผยแพร่ (Published)</label>
-        <input type="text" class="form-control thai-datepicker" required placeholder="เลือกวันที่" onchange="checkPublishDate('{{ work.id }}', this.value)" value="{{ work.date_publish|default('') }}">
-    </div>
-
     <div class="sub-section">
         <h5>1. การเผยแพร่ (ผ่าน Peer Reviewer) ดังนี้</h5>
         <div class="checkbox-group">
