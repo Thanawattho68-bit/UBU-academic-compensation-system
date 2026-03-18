@@ -62,7 +62,7 @@ def init_db():
             id TEXT PRIMARY KEY,
             message TEXT NOT NULL,
             recipient_role TEXT,
-            recipient_username TEXT NOT NULL,
+            recipient_username TEXT,
             req_id TEXT,
             is_read INTEGER DEFAULT 0,
             timestamp TEXT NOT NULL,
