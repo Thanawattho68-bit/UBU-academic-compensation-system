@@ -9,7 +9,7 @@ routes/admin.py
 import json
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from database import query_db, execute_db
-from utils import load_config
+from utils import load_config, format_iso_date
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -174,7 +174,7 @@ def edit_timeline():
         execute_db('''
             INSERT OR REPLACE INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
             VALUES (?, ?, ?, ?)
-        ''', (fiscal_year, start_date, end_date, rounds_json))
+        ''', (fiscal_year, format_iso_date(start_date, False), format_iso_date(end_date, False), rounds_json))
         
         flash("บันทึกข้อมูลเรียบร้อยแล้ว")
         return redirect(url_for('admin.manage_timeline'))

@@ -361,7 +361,7 @@
                                 <tr class="item-row" data-status="{{ req.status }}">
                                     <td><strong>{{ req.id }}</strong></td>
                                     <td>{{ req.applicant_name }}</td>
-                                    <td>{{ req.date_submitted }}</td>
+                                    <td>{{ req.date_submitted | format_thai_date(True) }}</td>
                                     <td>
                                         <span class="status-tag status-{{ req.status }}">
                                             {{ req.status }}

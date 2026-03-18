@@ -2,6 +2,7 @@ import json
 import os
 import sys
 from database import init_db, execute_db, DATABASE_PATH
+from utils.helpers import parse_thai_date, get_current_fiscal_year
 
 # แก้ไขปัญหา UnicodeEncodeError (แสดง Emoji ไม่ได้บน Windows Terminal)
 if hasattr(sys.stdout, 'reconfigure'):
@@ -24,14 +25,23 @@ def migrate():
     # Track fiscal years to ensure they exist in TimelineConfig for FK compliance
     existing_fys = set()
 
+    def to_iso(date_str, include_time=False):
+        if not date_str: return None
+        dt = parse_thai_date(date_str)
+        if not dt: return date_str
+        fmt = "%Y-%m-%d %H:%M:%S" if include_time else "%Y-%m-%d"
+        return dt.strftime(fmt)
+
     def ensure_fiscal_year(fy):
         if not fy: return
         fy_str = str(fy)
         if fy_str not in existing_fys:
+            # For defaults, we still use DD/MM but parse_thai_date will handle them 
+            # or we can store them as ISO if we calculate the year
             execute_db('''
                 INSERT OR IGNORE INTO TimelineConfig (fiscal_year, start_date, end_date, rounds_json)
                 VALUES (?, ?, ?, ?)
-            ''', (fy_str, "01/10", "30/09", "[]"))
+            ''', (fy_str, to_iso("01/10"), to_iso("30/09"), "[]"))
             existing_fys.add(fy_str)
             print(f"🛠️ Created default TimelineConfig for fiscal year {fy_str}")
 
@@ -50,7 +60,7 @@ def migrate():
                 ''', (
                     u['username'], u['password'], u['role'], u.get('name'),
                     u.get('title_name'), pos, u.get('department'),
-                    u.get('faculty'), u.get('position_date'), u.get('position_number')
+                    u.get('faculty'), to_iso(u.get('position_date')), u.get('position_number')
                 ))
         print(f"✅ Migrated {len(users)} users to Account table.")
 
@@ -68,8 +78,8 @@ def migrate():
                     VALUES (?, ?, ?, ?)
                 ''', (
                     fy,
-                    t.get('start_date', '01/10'),
-                    t.get('end_date', '30/09'),
+                    to_iso(t.get('start_date', '01/10')),
+                    to_iso(t.get('end_date', '30/09')),
                     json.dumps(t.get('rounds', []), ensure_ascii=False)
                 ))
                 existing_fys.add(fy)
@@ -111,7 +121,7 @@ def migrate():
                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     r['id'], r['applicant'], r['applicant_name'], fy,
-                    r.get('status'), r.get('date'), float(r.get('score', 0) or 0),
+                    r.get('status'), to_iso(r.get('date'), True), float(r.get('score', 0) or 0),
                     float(r.get('approved_amount', 0) or 0), 
                     json.dumps(r.get('applicant_info', {}), ensure_ascii=False),
                     json.dumps(r.get('works', []), ensure_ascii=False),
@@ -132,7 +142,7 @@ def migrate():
                     VALUES (?, ?, ?, ?, ?, ?, ?)
                 ''', (
                     n['id'], n['message'], n.get('recipient_role'), n.get('recipient_username'),
-                    n.get('req_id'), 1 if n.get('is_read') else 0, n.get('timestamp')
+                    n.get('req_id'), 1 if n.get('is_read') else 0, to_iso(n.get('timestamp'), True)
                 ))
         print(f"✅ Migrated {len(notifs)} notifications.")
 

@@ -15,7 +15,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, sessio
 from werkzeug.utils import secure_filename
 from database import query_db, execute_db
 from utils import (
-    to_thai_year, format_thai_date,
+    to_thai_year, format_thai_date, format_iso_date,
     is_within_timeline, get_remaining_days, get_current_fiscal_year,
     allowed_file, create_notification, calculate_compensation,
     deserialize_request, parse_academic_position,
@@ -30,7 +30,7 @@ def log_history(req_id, action, comment=""):
     history = json.loads(row['history_json']) if row and row['history_json'] else []
     
     history.append({
-        "timestamp": format_thai_date(datetime.now(), True),
+        "timestamp": format_iso_date(datetime.now(), True),
         "user": session.get('username'),
         "name": session.get('name'),
         "role": session.get('role'),
@@ -183,13 +183,13 @@ def new_request():
                 UPDATE RequestRecord SET 
                     status = ?, total_score = ?, approved_amount = ?, applicant_info_json = ?, works_json = ?, date_submitted = ?
                 WHERE id = ?
-            ''', ("ส่งแล้ว" if action == "submit" else "แบบร่าง", score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), format_thai_date(now_dt, True), req_id))
+            ''', ("ส่งแล้ว" if action == "submit" else "แบบร่าง", score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), format_iso_date(now_dt, True), req_id))
             log_history(req_id, "ส่งคำขอ" if action == "submit" else "บันทึกแบบร่าง")
         else:
             execute_db('''
                 INSERT INTO RequestRecord (id, applicant_username, applicant_name, fiscal_year, status, date_submitted, total_score, approved_amount, applicant_info_json, works_json, works_draft_json)
                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_thai_date(now_dt, True), score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
+            ''', (req_id, session['username'], session['name'], fy_req, "ส่งแล้ว" if action == "submit" else "แบบร่าง", format_iso_date(now_dt, True), score, comp, json.dumps(info, ensure_ascii=False), json.dumps(works, ensure_ascii=False), json.dumps(works, ensure_ascii=False)))
             log_history(req_id, "สร้างคำขอใหม่" + (" (ส่ง)" if action == "submit" else " (แบบร่าง)"))
 
         if action == "submit": create_notification(f"มีคำขอใหม่ {req_id} จาก {session['name']}", recipient_role='administration', req_id=req_id)
@@ -300,7 +300,7 @@ def view_request(req_id):
                 else: flash("ไม่สามารถยื่นอุทธรณ์ได้สำหรับรายการที่เลือก")
             
             elif action == 'submit' and req_data.get('status') in ['แบบร่าง', 'แก้ไข']:
-                 execute_db('UPDATE RequestRecord SET status = ?, date_submitted = ? WHERE id = ?', ('ส่งแล้ว', format_thai_date(datetime.now(), True), req_id))
+                 execute_db('UPDATE RequestRecord SET status = ?, date_submitted = ? WHERE id = ?', ('ส่งแล้ว', format_iso_date(datetime.now(), True), req_id))
                  log_history(req_id, "ส่งคำขอ (Resubmit)")
                  create_notification(f"คำขอ {req_id} ถูกส่งกลับมาเพื่อพิจารณาอีกครั้ง", recipient_role='administration', req_id=req_id)
                  flash("ส่งคำขอเรียบร้อยแล้ว")

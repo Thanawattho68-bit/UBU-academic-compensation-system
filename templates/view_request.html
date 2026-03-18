@@ -291,7 +291,7 @@
                     <strong>ปีงบประมาณ:</strong> {{ req.fiscal_year }}
                   </p>
                   <p style="margin-bottom: 10px">
-                    <strong>วันที่ยื่น:</strong> {{ req.date }}
+                    <strong>วันที่ยื่น:</strong> {{ req.date | format_thai_date(True) }}
                   </p>
                 </div>
               </div>

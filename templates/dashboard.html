@@ -312,7 +312,7 @@
         </td>
         {% endif %}
         <td>{{ req.fiscal_year }}</td>
-        <td>{{ req.date }}</td>
+        <td>{{ req.date | format_thai_date(True) }}</td>
         <td>
           <span class="status-tag status-{{ req.status }}">
             {{ req | rich_status_label(role) }}
@@ -581,9 +581,9 @@
       const dateB = b.getAttribute("data-date") || "";
 
       const toTimestamp = (s) => {
-        const parts = s.split(/[\/\s:]/);
-        if (parts.length < 5) return s;
-        return parts[2] + parts[1] + parts[0] + parts[3] + parts[4];
+        // Since we now store in ISO format: YYYY-MM-DD HH:MM:SS
+        // it's already sortable! No complex parsing needed.
+        return s || "";
       };
 
       const valA = toTimestamp(dateA);

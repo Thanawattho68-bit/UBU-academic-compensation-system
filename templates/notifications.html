@@ -87,7 +87,7 @@
                             <div style="font-weight: 500; color: #333; margin-bottom: 4px; padding-right: 20px;">{{
                                 n.message }}
                             </div>
-                            <div class="notif-time"><i class="far fa-clock"></i> {{ n.timestamp }}</div>
+                            <div class="notif-time"><i class="far fa-clock"></i> {{ n.timestamp | format_thai_date(True) }}</div>
                         </div>
                         {% if not n.is_read %}
                         <div

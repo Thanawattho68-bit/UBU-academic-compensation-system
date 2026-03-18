@@ -159,6 +159,11 @@ def format_position(pos_raw):
     positions = parse_academic_position(pos_raw)
     return "<br>".join(positions)
 
+
+@app.template_filter('format_thai_date')
+def format_thai_date_filter(date_obj, include_time=False):
+    return format_thai_date(date_obj, include_time)
+
 # ──────────────────────────────────────────────
 # Error Handlers
 # ──────────────────────────────────────────────

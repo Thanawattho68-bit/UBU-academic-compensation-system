@@ -87,44 +87,97 @@ def to_thai_year(date_obj):
 
 
 def format_thai_date(date_obj, include_time=False):
+    """
+    จัดรูปแบบวันที่/เวลา เป็นภาษาไทย (ปี พ.ศ.)
+    รองรับทั้ง datetime object หรือ string (ISO format หรือ Thai format)
+    """
     if not date_obj: return ""
+    
+    # ถ้าเป็น string ให้ลองแปลงเป็น datetime ก่อน
+    if isinstance(date_obj, str):
+        parsed = parse_thai_date(date_obj)
+        if not parsed: return date_obj # คืนค่าเดิมถ้าแปลงไม่ได้
+        date_obj = parsed
+
     y = date_obj.year + 543
     if include_time:
         return date_obj.strftime(f"%d/%m/{y} %H:%M")
     return date_obj.strftime(f"%d/%m/{y}")
 
 
+def format_iso_date(date_obj, include_time=True):
+    """
+    จัดรูปแบบวันที่/เวลา เป็นมาตรฐาน ISO 8601 (สำหรับคลังฐานข้อมูล)
+    """
+    if not date_obj: return None
+    if isinstance(date_obj, str):
+        parsed = parse_thai_date(date_obj)
+        if not parsed: return date_obj
+        date_obj = parsed
+    
+    fmt = "%Y-%m-%d %H:%M:%S" if include_time else "%Y-%m-%d"
+    return date_obj.strftime(fmt)
+
+
 def parse_thai_date(date_str):
     if not date_str: return None
     date_str = date_str.strip()
-    # Handle YYYY-MM-DD (standard HTML5 date input)
+    
+    # Mapping for Thai months
+    thai_months = {
+        'ม.ค.': 1, 'ก.พ.': 2, 'มี.ค.': 3, 'เม.ย.': 4, 'พ.ค.': 5, 'มิ.ย.': 6,
+        'ก.ค.': 7, 'ส.ค.': 8, 'ก.ย.': 9, 'ต.ค.': 10, 'พ.ย.': 11, 'ธ.ค.': 12,
+        'มกราคม': 1, 'กุมภาพันธ์': 2, 'มีนาคม': 3, 'เมษายน': 4, 'พฤษภาคม': 5, 'มิถุนายน': 6,
+        'กรกฎาคม': 7, 'สิงหาคม': 8, 'กันยายน': 9, 'ตุลาคม': 10, 'พฤศจิกายน': 11, 'ธันวาคม': 12
+    }
+
+    # 1. Handle YYYY-MM-DD or YYYY-MM-DD HH:MM:SS (standard ISO)
     try:
-        if '-' in date_str:
+        if '-' in date_str and date_str.count('-') == 2:
+            if ' ' in date_str or 'T' in date_str:
+                iso_str = date_str.replace('T', ' ')
+                return datetime.fromisoformat(iso_str)
             return datetime.strptime(date_str, "%Y-%m-%d")
     except: pass
     
-    # Handle DD/MM/YYYY or D/M/Y (Thai BE)
+    # 2. Handle Thai format with month names (e.g., "23 มิ.ย. 2558")
+    import re
+    # Match: Day Month Year [Time]
+    # Use \S+ for month to capture Thai characters properly
+    match = re.match(r'^(\d+)\s+(\S+)\s+(\d+)(?:\s+([\d:]+))?$', date_str)
+    if match:
+        day, month_name, year, time_part = match.groups()
+        month = thai_months.get(month_name)
+        if month:
+            y = int(year)
+            if y > 2400: y -= 543
+            
+            if time_part:
+                # Handle HH:MM or HH:MM:SS
+                t_parts = time_part.split(':')
+                hour = int(t_parts[0])
+                minute = int(t_parts[1]) if len(t_parts) > 1 else 0
+                second = int(t_parts[2]) if len(t_parts) > 2 else 0
+                return datetime(y, month, int(day), hour, minute, second)
+            return datetime(y, month, int(day))
+
+    # 3. Handle DD/MM/YYYY or D/M/Y (Thai BE)
     for fmt in ["%d/%m/%Y", "%d/%m/%y", "%d/%m"]:
         try:
             dt = datetime.strptime(date_str, fmt)
-            
-            # If it's just d/m, assume current year
             if fmt == "%d/%m":
                 dt = dt.replace(year=datetime.now().year)
             
             if dt.year > 2400:
                 dt = dt.replace(year=dt.year - 543)
             elif fmt == "%d/%m/%y":
-                # Always treat 2-digit year as BE (25xx)
-                # AD = (2500 + y) - 543 = 1957 + y
-                # Since strptime %y gives 2000 + y or 1900 + y:
                 if dt.year >= 2000:
-                    dt = dt.replace(year=dt.year - 43) # (2000+y) - 43 = 1957+y
+                    dt = dt.replace(year=dt.year - 43)
                 else: 
-                    dt = dt.replace(year=dt.year + 57) # (1900+y) + 57 = 1957+y
-            
+                    dt = dt.replace(year=dt.year + 57)
             return dt
         except: continue
+        
     return None
 
 
@@ -210,7 +263,7 @@ def allowed_file(filename):
 
 def create_notification(message, recipient_role=None, recipient_username=None, req_id=None):
     notif_id = f"NOTIF-{datetime.now().strftime('%Y%m%d%H%M%S')}-{os.urandom(4).hex()}"
-    timestamp = format_thai_date(datetime.now(), True)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     execute_db('''
         INSERT INTO Notification (id, message, recipient_role, recipient_username, req_id, is_read, timestamp)
         VALUES (?, ?, ?, ?, ?, 0, ?)

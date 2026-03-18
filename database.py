@@ -26,7 +26,7 @@ def init_db():
             academic_position TEXT,
             department TEXT NOT NULL,
             faculty TEXT NOT NULL,
-            position_date TEXT,
+            position_date DATETIME,
             position_number TEXT
         )
     ''')
@@ -39,7 +39,7 @@ def init_db():
             applicant_name TEXT NOT NULL,
             fiscal_year TEXT NOT NULL,
             status TEXT NOT NULL,
-            date_submitted TEXT NOT NULL,
+            date_submitted DATETIME NOT NULL,
             total_score REAL DEFAULT 0.0,
             approved_amount REAL DEFAULT 0.0,
             applicant_info_json TEXT,
@@ -65,7 +65,7 @@ def init_db():
             recipient_username TEXT,
             req_id TEXT,
             is_read INTEGER DEFAULT 0,
-            timestamp TEXT NOT NULL,
+            timestamp DATETIME NOT NULL,
             FOREIGN KEY (recipient_username) REFERENCES Account (username),
             FOREIGN KEY (req_id) REFERENCES RequestRecord (id) ON DELETE CASCADE
         )
@@ -75,8 +75,8 @@ def init_db():
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS TimelineConfig (
             fiscal_year TEXT PRIMARY KEY,
-            start_date TEXT NOT NULL,
-            end_date TEXT NOT NULL,
+            start_date DATETIME NOT NULL,
+            end_date DATETIME NOT NULL,
             rounds_json TEXT
         )
     ''')
