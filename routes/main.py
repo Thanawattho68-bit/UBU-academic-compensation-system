@@ -183,45 +183,77 @@ def summary_page():
     requests_rows = query_db(query, (selected_year, 'แบบร่าง'))
     requests = [dict(r) for r in requests_rows]
     
-    # ──────────────────────────────────────────────
-    # สถิติตามตำแหน่งวิชาการ (ผศ./รศ./ศ.)
-    # ──────────────────────────────────────────────
-    academic_query = '''
-        SELECT rr.status, a.academic_position
-        FROM RequestRecord rr
-        JOIN Account a ON rr.applicant_username = a.username
-        WHERE rr.fiscal_year = ? AND rr.status != ?
-    '''
-    academic_rows = query_db(academic_query, (selected_year, 'แบบร่าง'))
+    # 1. นับจำนวนคนทั้งหมดในแต่ละตำแหน่ง (เฉพาะสิทธิ์ applicant)
+    all_accounts = query_db("SELECT academic_position FROM Account WHERE role = 'applicant'")
     
     academic_stats = {
-        'ผศ.': {'total': 0, 'approved': 0, 'rejected': 0},
-        'รศ.': {'total': 0, 'approved': 0, 'rejected': 0},
-        'ศ.': {'total': 0, 'approved': 0, 'rejected': 0}
+        'ผศ.': {'total_people': 0, 'approved': 0, 'rejected': 0, 'pending': 0, 'not_submitted': 0},
+        'รศ.': {'total_people': 0, 'approved': 0, 'rejected': 0, 'pending': 0, 'not_submitted': 0},
+        'ศ.': {'total_people': 0, 'approved': 0, 'rejected': 0, 'pending': 0, 'not_submitted': 0}
     }
     
-    for row in academic_rows:
-        status = row['status']
-        pos_raw = row['academic_position']
-        
-        # Parse positions list
-        positions = parse_academic_position(pos_raw)
-        
-        # Categorize
+    # นับจำนวนคนแยกตามตำแหน่ง
+    for acc in all_accounts:
+        positions = parse_academic_position(acc['academic_position'])
         category = None
         for p in positions:
             if p == 'ศาสตราจารย์': category = 'ศ.'
             elif p == 'รองศาสตราจารย์': category = 'รศ.'
             elif p == 'ผู้ช่วยศาสตราจารย์': category = 'ผศ.'
             if category: break
-            
         if category:
-            academic_stats[category]['total'] += 1
-            if status == 'อนุมัติ':
-                academic_stats[category]['approved'] += 1
-            elif status == 'ไม่อนุมัติ':
-                academic_stats[category]['rejected'] += 1
-                
+            academic_stats[category]['total_people'] += 1
+
+    # 2. นับผลการยื่นคำขอรายคน (นับคน ไม่ได้นับใบ)
+    request_summary_query = '''
+        SELECT a.username, a.academic_position, rr.status
+        FROM Account a
+        LEFT JOIN RequestRecord rr ON a.username = rr.applicant_username AND rr.fiscal_year = ? AND rr.status != 'แบบร่าง'
+        WHERE a.role = 'applicant'
+    '''
+    rows = query_db(request_summary_query, (selected_year,))
+    
+    # ติดตามสถานะรายคน
+    user_status = {} # username -> status
+    for row in rows:
+        uname = row['username']
+        status = row['status']
+        pos_raw = row['academic_position']
+        
+        if uname not in user_status:
+            user_status[uname] = {'category': None, 'status': []}
+            positions = parse_academic_position(pos_raw)
+            for p in positions:
+                if p == 'ศาสตราจารย์': user_status[uname]['category'] = 'ศ.'
+                elif p == 'รองศาสตราจารย์': user_status[uname]['category'] = 'รศ.'
+                elif p == 'ผู้ช่วยศาสตราจารย์': user_status[uname]['category'] = 'ผศ.'
+                if user_status[uname]['category']: break
+        
+        if status:
+            user_status[uname]['status'].append(status)
+
+    # สรุปผลรายคนลงใน academic_stats และนับภาพรวมสำหรับ Pie Chart
+    total_people_not_submitted = 0
+    for uname, info in user_status.items():
+        cat = info['category']
+        statuses = info['status']
+        
+        is_submitted = len(statuses) > 0
+        
+        if not is_submitted:
+            total_people_not_submitted += 1
+            if cat: academic_stats[cat]['not_submitted'] += 1
+        else:
+            if cat:
+                if 'อนุมัติ' in statuses:
+                    academic_stats[cat]['approved'] += 1
+                elif 'ไม่อนุมัติ' in statuses:
+                    academic_stats[cat]['rejected'] += 1
+                elif any(s not in ['แบบร่าง', 'ยกเลิก'] for s in statuses):
+                    academic_stats[cat]['pending'] += 1
+                else:
+                    academic_stats[cat]['not_submitted'] += 1
+
     return render_template('summary.html', 
                            name=session['name'], 
                            role=session['role'], 
@@ -233,7 +265,10 @@ def summary_page():
                            requests=requests,
                            available_years=available_years,
                            selected_year=selected_year,
-                           academic_stats=academic_stats)
+                           academic_stats=academic_stats,
+                           total_not_submitted=total_people_not_submitted)
+
+
 
 
 
