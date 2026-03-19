@@ -163,20 +163,26 @@
                                 <thead>
                                     <tr>
                                         <th>ตำแหน่ง</th>
-                                        <th style="text-align: center;">ยื่น (รวม)</th>
+                                        <th style="text-align: center;">บุคลากร (คน)</th>
                                         <th style="text-align: center; color: var(--success-color);">อนุมัติ</th>
                                         <th style="text-align: center; color: var(--danger-color);">ไม่อนุมัติ</th>
+                                        <th style="text-align: center; color: var(--warning-color);">รอพิจารณา</th>
+                                        <th style="text-align: center; color: #7f8c8d;">ไม่ประสงค์ยื่น</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for pos, data in academic_stats.items() %}
                                     <tr>
                                         <td><strong>{{ pos }}</strong></td>
-                                        <td style="text-align: center;">{{ data.total }}</td>
+                                        <td style="text-align: center;">{{ data.total_people }}</td>
                                         <td style="text-align: center; color: var(--success-color); font-weight: bold;">
                                             {{ data.approved }}</td>
                                         <td style="text-align: center; color: var(--danger-color); font-weight: bold;">
                                             {{ data.rejected }}</td>
+                                        <td style="text-align: center; color: var(--warning-color); font-weight: bold;">
+                                            {{ data.pending }}</td>
+                                        <td style="text-align: center; color: #7f8c8d; font-weight: bold;">
+                                            {{ data.not_submitted }}</td>
                                     </tr>
                                     {% endfor %}
                                 </tbody>
@@ -205,27 +211,67 @@
                     const labels = Object.keys(stats);
 
                     const approvedPercent = labels.map(l => {
-                        if (stats[l].total === 0) return 0;
-                        return ((stats[l].approved / stats[l].total) * 100).toFixed(1);
+                        if (stats[l].total_people === 0) return 0;
+                        return ((stats[l].approved / stats[l].total_people) * 100).toFixed(1);
+                    });
+
+                    const rejectedPercent = labels.map(l => {
+                        if (stats[l].total_people === 0) return 0;
+                        return ((stats[l].rejected / stats[l].total_people) * 100).toFixed(1);
+                    });
+
+                    const pendingPercent = labels.map(l => {
+                        if (stats[l].total_people === 0) return 0;
+                        return ((stats[l].pending / stats[l].total_people) * 100).toFixed(1);
+                    });
+
+                    const notSubmittedPercent = labels.map(l => {
+                        if (stats[l].total_people === 0) return 0;
+                        return ((stats[l].not_submitted / stats[l].total_people) * 100).toFixed(1);
                     });
 
                     new Chart(ctx, {
                         type: 'bar',
                         data: {
                             labels: labels,
-                            datasets: [{
-                                label: 'ร้อยละการอนุมัติ (%)',
-                                data: approvedPercent,
-                                backgroundColor: 'rgba(46, 204, 113, 0.7)',
-                                borderColor: '#2ecc71',
-                                borderWidth: 1
-                            }]
+                            datasets: [
+                                {
+                                    label: 'อนุมัติ (%)',
+                                    data: approvedPercent,
+                                    backgroundColor: 'rgba(46, 204, 113, 0.8)',
+                                    borderColor: '#2ecc71',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ไม่อนุมัติ (%)',
+                                    data: rejectedPercent,
+                                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                                    borderColor: '#e74c3c',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'รอพิจารณา (%)',
+                                    data: pendingPercent,
+                                    backgroundColor: 'rgba(243, 156, 18, 0.8)',
+                                    borderColor: '#f39c12',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'ไม่ประสงค์ยื่น (%)',
+                                    data: notSubmittedPercent,
+                                    backgroundColor: 'rgba(149, 165, 166, 0.8)',
+                                    borderColor: '#95a5a6',
+                                    borderWidth: 1
+                                }
+                            ]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
                             scales: {
+                                x: { stacked: true },
                                 y: {
+                                    stacked: true,
                                     beginAtZero: true,
                                     max: 100,
                                     title: { display: true, text: 'Percentage (%)' }
@@ -238,7 +284,7 @@
                                         footer: (items) => {
                                             const label = items[0].label;
                                             const d = stats[label];
-                                            return `จำนวนที่ยื่น: ${d.total}\nอนุมัติ: ${d.approved}\nไม่อนุมัติ: ${d.rejected}`;
+                                            return `จำนวนบุคลากร: ${d.total_people} ท่าน\nอนุมัติ: ${d.approved}\nไม่อนุมัติ: ${d.rejected}\nรอพิจารณา: ${d.pending}\nไม่ประสงค์ยื่น: ${d.not_submitted}`;
                                         }
                                     }
                                 }
@@ -247,12 +293,12 @@
                     });
 
                     const pieCtx = document.getElementById('statusPieChart').getContext('2d');
-                    const totalReqs = {{ total_requests | default(0) }};
-                    const approvedReqs = {{ approved_requests | default(0) }};
-                    const pendingReqs = {{ pending_requests | default(0) }};
+                    const totalReqs = {{ total_requests | default (0) }};
+                    const approvedReqs = {{ approved_requests | default (0) }};
+                    const pendingReqs = {{ pending_requests | default (0) }};
                     const otherReqs = Math.max(0, totalReqs - approvedReqs - pendingReqs);
                     // ไม่ส่งคำขอ - ปัจจุบันแสดงค่าเป็น 0 ไปก่อน เนื่องจากไม่มีการส่งยอดรวม user ทั้งระบบจาก Backend มาให้
-                    const notSubmittedReqs = 0; 
+                    const notSubmittedReqs = {{ total_not_submitted | default (0) }};
 
                     new Chart(pieCtx, {
                         type: 'pie',
@@ -262,8 +308,8 @@
                             datasets: [{
                                 data: [approvedReqs, pendingReqs, otherReqs, notSubmittedReqs],
                                 backgroundColor: [
-                                    'rgba(46, 204, 113, 0.8)', 
-                                    'rgba(243, 156, 18, 0.8)', 
+                                    'rgba(46, 204, 113, 0.8)',
+                                    'rgba(243, 156, 18, 0.8)',
                                     'rgba(231, 76, 60, 0.8)',
                                     '#7f8c8d'
                                 ],
@@ -294,7 +340,7 @@
                                 },
                                 tooltip: {
                                     callbacks: {
-                                        label: function(context) {
+                                        label: function (context) {
                                             const label = context.label || '';
                                             const value = context.parsed;
                                             const total = context.dataset.data.reduce((acc, curr) => acc + curr, 0);
@@ -320,17 +366,20 @@
                     <div class="filter-bar-container"
                         style="margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: flex-end;">
                         <div class="filter-group">
-                            <label style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ค้นหา</label>
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">ค้นหา</label>
                             <div class="input-with-icon" style="position: relative;">
                                 <i class="fas fa-search"
                                     style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
-                                <input type="text" id="searchInput" onkeyup="filterTable()" placeholder="รหัสคำขอ, ชื่อผู้ยื่น..."
+                                <input type="text" id="searchInput" onkeyup="filterTable()"
+                                    placeholder="รหัสคำขอ, ชื่อผู้ยื่น..."
                                     style="padding: 8px 10px 8px 35px; border: 1px solid #e2e8f0; border-radius: 6px; width: 250px; font-size: 0.9rem;">
                             </div>
                         </div>
 
                         <div class="filter-group">
-                            <label style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">สถานะ</label>
+                            <label
+                                style="display: block; font-size: 0.85rem; color: #64748b; margin-bottom: 5px;">สถานะ</label>
                             <select id="statusFilter" onchange="filterTable()"
                                 style="padding: 8px; border: 1px solid #e2e8f0; border-radius: 6px; min-width: 150px; font-size: 0.9rem;">
                                 <option value="">ทั้งหมด</option>
@@ -367,7 +416,8 @@
                                             {{ req.status }}
                                         </span>
                                     </td>
-                                    <td style="text-align: center; font-weight: bold; color: {{ 'var(--success-color)' if (req.approved_amount|float > 0) else 'var(--danger-color)' }};">
+                                    <td
+                                        style="text-align: center; font-weight: bold; color: {{ 'var(--success-color)' if (req.approved_amount|float > 0) else 'var(--danger-color)' }};">
                                         {{ "{:,.2f}".format(req.approved_amount|float) if req.approved_amount else
                                         "0.00" }} ฿
                                     </td>
